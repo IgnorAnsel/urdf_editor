@@ -4,22 +4,27 @@
 #include <QWidget>
 #include "param_struct.h"
 namespace Ui {
-class property;
+class Property;
 }
 
-class property : public QWidget
+class Property : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit property(QWidget *parent = nullptr);
-    ~property();
+    explicit Property(QWidget *parent = nullptr);
+    ~Property();
+
+private slots:
+    void on_collision_geometry_type_currentTextChanged(const QString &arg1);
+
+    void on_visual_geometry_type_currentTextChanged(const QString &arg1);
 
 private:
     URDFLink link;
     URDFJoint joint_property;
     int type; // 0为link，1为joint
-    Ui::property *ui;
+    Ui::Property *ui;
 };
 
 #endif // PROPERTY_H

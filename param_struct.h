@@ -48,6 +48,7 @@ struct Inertial {
 struct Visual {
     Pose origin;           // 可视化属性相对于link的原点
     Geometry geometry;     // 几何形状
+    QColor color;          // 颜色信息
     std::string material;  // 材料
 };
 

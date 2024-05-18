@@ -59,6 +59,17 @@
          <height>100</height>
         </size>
        </property>
+       <layout class="QVBoxLayout" name="verticalLayout">
+        <item>
+         <widget class="QSplitter" name="splitter_2">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <widget class="QWidget" name="widget_param" native="true"/>
+          <widget class="QWidget" name="widget_geometry" native="true"/>
+         </widget>
+        </item>
+       </layout>
       </widget>
      </widget>
     </item>

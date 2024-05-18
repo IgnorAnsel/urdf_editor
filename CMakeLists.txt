@@ -22,6 +22,7 @@ set(PROJECT_SOURCES
         property.h property.cpp property.ui
         param_struct.h
         collapsiblewidget.h collapsiblewidget.cpp collapsiblewidget.ui
+        geometry_choose.h geometry_choose.cpp geometry_choose.ui
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)
