@@ -25,14 +25,14 @@ MainWindow::MainWindow(QWidget *parent)
     geometry = new geometry_choose;
     pro2 = new property2();
 
-    //Layout->addWidget(pro);
-    //ui->widget_param->setLayout(Layout);
+    Layout->addWidget(pro);
+    ui->widget_param->setLayout(Layout);
 
     Layout_choose->addWidget(geometry);
     ui->widget_geometry->setLayout(Layout_choose);
 
-    Layout2->addWidget(pro2);
-    ui->widget_param->setLayout(Layout2);
+//    Layout2->addWidget(pro2);
+//    ui->widget_param->setLayout(Layout2);
 
     urdf_editor = new Urdf_editor(ui->widget);
     ui->widget->setLayout(verticalLayout);
@@ -40,6 +40,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     // 最后，设置 ui->widget 的布局
     ui->widget->setLayout(verticalLayout);
+    connect(geometry, &geometry_choose::shapeCreated, pro, &Property::updateShapeProperties);
 
 }
 

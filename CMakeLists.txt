@@ -53,6 +53,7 @@ endif()
 
 target_link_libraries(urdf_editor PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::3DCore
     Qt${QT_VERSION_MAJOR}::3DExtras Qt${QT_VERSION_MAJOR}::3DRender  Qt${QT_VERSION_MAJOR}::OpenGLWidgets Qt${QT_VERSION_MAJOR}::OpenGL
+    GLU
 )
 
 set_target_properties(urdf_editor PROPERTIES

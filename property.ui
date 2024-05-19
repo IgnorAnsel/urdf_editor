@@ -36,6 +36,13 @@
         <widget class="QWidget" name="widget" native="true">
          <layout class="QVBoxLayout" name="verticalLayout_12">
           <item>
+           <widget class="QPushButton" name="pushButton">
+            <property name="text">
+             <string>Create</string>
+            </property>
+           </widget>
+          </item>
+          <item>
            <widget class="QWidget" name="widget_2" native="true">
             <layout class="QVBoxLayout" name="verticalLayout_3">
              <item>
@@ -63,7 +70,7 @@
                  </widget>
                 </item>
                 <item row="0" column="1">
-                 <widget class="QLineEdit" name="lineEdit"/>
+                 <widget class="QLineEdit" name="link_name"/>
                 </item>
                </layout>
               </widget>
@@ -94,7 +101,7 @@
                        </widget>
                       </item>
                       <item>
-                       <widget class="QLineEdit" name="lineEdit_2"/>
+                       <widget class="QLineEdit" name="visual_origin_x"/>
                       </item>
                       <item>
                        <widget class="QLabel" name="label_5">
@@ -104,7 +111,7 @@
                        </widget>
                       </item>
                       <item>
-                       <widget class="QLineEdit" name="lineEdit_3"/>
+                       <widget class="QLineEdit" name="visual_origin_y"/>
                       </item>
                       <item>
                        <widget class="QLabel" name="label_6">
@@ -114,7 +121,7 @@
                        </widget>
                       </item>
                       <item>
-                       <widget class="QLineEdit" name="lineEdit_4"/>
+                       <widget class="QLineEdit" name="visual_origin_z"/>
                       </item>
                      </layout>
                     </widget>
@@ -130,7 +137,7 @@
                        </widget>
                       </item>
                       <item>
-                       <widget class="QLineEdit" name="lineEdit_5"/>
+                       <widget class="QLineEdit" name="visual_origin_r"/>
                       </item>
                       <item>
                        <widget class="QLabel" name="label_8">
@@ -140,7 +147,7 @@
                        </widget>
                       </item>
                       <item>
-                       <widget class="QLineEdit" name="lineEdit_6"/>
+                       <widget class="QLineEdit" name="visual_origin_p"/>
                       </item>
                       <item>
                        <widget class="QLabel" name="label_9">
@@ -150,7 +157,7 @@
                        </widget>
                       </item>
                       <item>
-                       <widget class="QLineEdit" name="lineEdit_7"/>
+                       <widget class="QLineEdit" name="visual_origin_y_2"/>
                       </item>
                      </layout>
                     </widget>
@@ -208,27 +215,27 @@
                          <item>
                           <widget class="QLabel" name="label_39">
                            <property name="text">
-                            <string>r:</string>
+                            <string>l:</string>
                            </property>
                           </widget>
                          </item>
                          <item>
-                          <widget class="QLineEdit" name="lineEdit_36"/>
+                          <widget class="QLineEdit" name="visual_box_l"/>
                          </item>
                          <item>
                           <widget class="QLabel" name="label_40">
                            <property name="text">
-                            <string>p:</string>
+                            <string>w:</string>
                            </property>
                           </widget>
                          </item>
                          <item>
-                          <widget class="QLineEdit" name="lineEdit_39"/>
+                          <widget class="QLineEdit" name="visual_box_w"/>
                          </item>
                          <item>
-                          <widget class="QLabel" name="label_44">
+                          <widget class="QLabel" name="visual_box_h">
                            <property name="text">
-                            <string>y:</string>
+                            <string>h:</string>
                            </property>
                           </widget>
                          </item>
@@ -276,22 +283,22 @@
                       <item>
                        <widget class="QLabel" name="label_10">
                         <property name="text">
-                         <string>r:</string>
+                         <string>radius:</string>
                         </property>
                        </widget>
                       </item>
                       <item>
-                       <widget class="QLineEdit" name="lineEdit_9"/>
+                       <widget class="QLineEdit" name="visual_cylinder_radius"/>
                       </item>
                       <item>
-                       <widget class="QLabel" name="label_11">
+                       <widget class="QLabel" name="visual_cylinder_lenth">
                         <property name="text">
-                         <string>p:</string>
+                         <string>length</string>
                         </property>
                        </widget>
                       </item>
                       <item>
-                       <widget class="QLineEdit" name="lineEdit_8"/>
+                       <widget class="QLineEdit" name="visual_cylinder_length"/>
                       </item>
                      </layout>
                     </widget>
@@ -305,12 +312,12 @@
                       <item>
                        <widget class="QLabel" name="label_12">
                         <property name="text">
-                         <string>r:</string>
+                         <string>radius:</string>
                         </property>
                        </widget>
                       </item>
                       <item>
-                       <widget class="QLineEdit" name="lineEdit_35"/>
+                       <widget class="QLineEdit" name="visual_sphere_radius"/>
                       </item>
                      </layout>
                     </widget>
@@ -351,7 +358,7 @@
                     </widget>
                    </item>
                    <item>
-                    <widget class="QLineEdit" name="lineEdit_21"/>
+                    <widget class="QLineEdit" name="visual_color_r"/>
                    </item>
                    <item>
                     <widget class="QLabel" name="label_23">
@@ -361,7 +368,7 @@
                     </widget>
                    </item>
                    <item>
-                    <widget class="QLineEdit" name="lineEdit_20"/>
+                    <widget class="QLineEdit" name="visual_color_g"/>
                    </item>
                    <item>
                     <widget class="QLabel" name="label_24">
@@ -371,7 +378,7 @@
                     </widget>
                    </item>
                    <item>
-                    <widget class="QLineEdit" name="lineEdit_19"/>
+                    <widget class="QLineEdit" name="visual_color_b"/>
                    </item>
                   </layout>
                  </widget>

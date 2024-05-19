@@ -2,7 +2,11 @@
 #include "ui_urdf_editor.h"
 #include <iostream>
 #include <qdebug.h>
-Urdf_editor::Urdf_editor(QWidget *parent) : QOpenGLWidget(parent), cube(Shape::Cube) {
+#include <cmath>
+#include <GL/glu.h>
+std::vector<Shape> shapes;
+
+Urdf_editor::Urdf_editor(QWidget *parent) : QOpenGLWidget(parent), cube(Shape::Cube), sphere(Shape::Sphere),cylinder(Shape::Cylinder) {
     setMinimumSize(640, 480);
     zoomFactor = 1.0f;
     rotationAngleX = 0.0f;
@@ -17,8 +21,18 @@ Urdf_editor::Urdf_editor(QWidget *parent) : QOpenGLWidget(parent), cube(Shape::C
 
     sphere.link.visuals.origin.xyz = QVector3D(1.0f,0.0f,0.0f);
     sphere.link.visuals.origin.rpy = QVector3D(0.0f, 0.0f, 0.0f);
-    sphere.link.visuals.geometry.sphere.radius = 5;
+    sphere.link.visuals.geometry.sphere.radius = 1;
+    sphere.link.visuals.color = QColor(Qt::blue);
 
+    cylinder.link.visuals.origin.xyz = QVector3D(1.0f,0.0f,0.0f);
+    cylinder.link.visuals.origin.rpy = QVector3D(0.0f, 0.0f, 0.0f);
+    cylinder.link.visuals.geometry.cylinder.radius = 1;
+    cylinder.link.visuals.geometry.cylinder.length = 2;
+    cylinder.link.visuals.color = QColor(Qt::green);
+
+    //shapes.push_back(cube);
+    //shapes.push_back(sphere);
+    //shapes.push_back(cylinder);
 }
 
 void Urdf_editor::initializeGL() {
@@ -73,9 +87,25 @@ void Urdf_editor::paintGL() {
     glColor3f(0.0, 0.0, 1.0); glVertex3f(0.0, 0.0, 0.0); glVertex3f(0.0, 0.0, 100.0); // Z 轴
     glEnd();
 
-    // 根据形状对象的类型来绘制
-    renderShape(cube);
+    // 渲染列表中的所有形状对象
+    for (size_t i = 0; i < shapes.size(); ++i) {
+        if (i == selectedShapeIndex) {
+            // 高亮显示选中的形状
+            glColor3f(1.0, 1.0, 0.0); // 使用黄色显示选中的形状
+        }
+        renderShape(shapes[i]);
+        if (i == selectedShapeIndex) {
+            // 恢复正常颜色
+            glColor3f(1.0, 1.0, 1.0); // 恢复为白色
+        }
+    }
+
+    // 获取投影矩阵、模型视图矩阵和视口
+    glGetDoublev(GL_PROJECTION_MATRIX, projectionMatrix);
+    glGetDoublev(GL_MODELVIEW_MATRIX, modelviewMatrix);
+    glGetIntegerv(GL_VIEWPORT, viewport);
 }
+
 
 void Urdf_editor::drawCube(const Shape &shape) {
     // 设置颜色
@@ -123,42 +153,83 @@ void Urdf_editor::drawCube(const Shape &shape) {
 
     glEnd();
 }
+
 void Urdf_editor::drawSphere(const Shape &shape) {
     // 设置颜色
     glColor3f(shape.link.visuals.color.redF(), shape.link.visuals.color.greenF(), shape.link.visuals.color.blueF());
 
     double radius = shape.link.visuals.geometry.sphere.radius;
-
     const int slices = 30;
     const int stacks = 30;
 
-    GLUquadric* quadric = gluNewQuadric();
-    gluQuadricNormals(quadric, GLU_SMOOTH);
-    gluQuadricTexture(quadric, GL_TRUE);
+    for (int i = 0; i <= stacks; ++i) {
+        double lat0 = M_PI * (-0.5 + (double)(i - 1) / stacks);
+        double z0 = sin(lat0);
+        double zr0 = cos(lat0);
 
-    gluSphere(quadric, radius, slices, stacks);
+        double lat1 = M_PI * (-0.5 + (double)i / stacks);
+        double z1 = sin(lat1);
+        double zr1 = cos(lat1);
 
-    gluDeleteQuadric(quadric);
+        glBegin(GL_QUAD_STRIP);
+        for (int j = 0; j <= slices; ++j) {
+            double lng = 2 * M_PI * (double)(j - 1) / slices;
+            double x = cos(lng);
+            double y = sin(lng);
+
+            glNormal3d(x * zr0, y * zr0, z0);
+            glVertex3d(x * zr0 * radius, y * zr0 * radius, z0 * radius);
+
+            glNormal3d(x * zr1, y * zr1, z1);
+            glVertex3d(x * zr1 * radius, y * zr1 * radius, z1 * radius);
+        }
+        glEnd();
+    }
 }
+
 
 void Urdf_editor::drawCylinder(const Shape &shape) {
     // 设置颜色
     glColor3f(shape.link.visuals.color.redF(), shape.link.visuals.color.greenF(), shape.link.visuals.color.blueF());
 
     double radius = shape.link.visuals.geometry.cylinder.radius;
-    double length = shape.link.visuals.geometry.cylinder.length;
-
+    double height = shape.link.visuals.geometry.cylinder.length;
     const int slices = 30;
-    const int stacks = 1;
 
-    GLUquadric* quadric = gluNewQuadric();
-    gluQuadricNormals(quadric, GLU_SMOOTH);
-    gluQuadricTexture(quadric, GL_TRUE);
+    // 绘制圆柱体的圆面
+    glBegin(GL_TRIANGLE_FAN);
+    glVertex3f(0.0f, 0.0f, 0.0f);
+    for (int i = 0; i <= slices; ++i) {
+        double angle = 2.0 * M_PI * i / slices;
+        double x = radius * cos(angle);
+        double y = radius * sin(angle);
+        glVertex3f(x, y, 0.0f);
+    }
+    glEnd();
 
-    gluCylinder(quadric, radius, radius, length, slices, stacks);
+    glBegin(GL_TRIANGLE_FAN);
+    glVertex3f(0.0f, 0.0f, height);
+    for (int i = 0; i <= slices; ++i) {
+        double angle = 2.0 * M_PI * i / slices;
+        double x = radius * cos(angle);
+        double y = radius * sin(angle);
+        glVertex3f(x, y, height);
+    }
+    glEnd();
 
-    gluDeleteQuadric(quadric);
+    // 绘制圆柱体的侧面
+    glBegin(GL_QUAD_STRIP);
+    for (int i = 0; i <= slices; ++i) {
+        double angle = 2.0 * M_PI * i / slices;
+        double x = radius * cos(angle);
+        double y = radius * sin(angle);
+        glNormal3f(x, y, 0.0f);
+        glVertex3f(x, y, 0.0f);
+        glVertex3f(x, y, height);
+    }
+    glEnd();
 }
+
 
 
 void Urdf_editor::renderShape(const Shape &shape) {
@@ -177,14 +248,55 @@ void Urdf_editor::renderShape(const Shape &shape) {
     // 绘制形状
     if (shape.type == Shape::Cube) {
         drawCube(shape);
+    } else if (shape.type == Shape::Sphere) {
+        drawSphere(shape);
+    } else if (shape.type == Shape::Cylinder) {
+        drawCylinder(shape);
     }
 
     glPopMatrix();
 }
 
+// 在鼠标点击事件中检测是否点击了某个形状
 void Urdf_editor::mousePressEvent(QMouseEvent *event) {
+    qDebug() << "Mouse pressed at" << event->pos();
     lastMousePos = event->pos();
+    float minDistance = 1000.0f;
+    int closestShapeIndex = -1;
+
+    // 获取鼠标点击位置
+    GLint winX = event->pos().x();
+    GLint winY = viewport[3] - event->pos().y(); // 注意 Y 轴的方向
+    GLfloat winZ;
+    glReadPixels(winX, winY, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &winZ);
+
+    // 将窗口坐标转换为世界坐标
+    GLdouble worldX, worldY, worldZ;
+    gluUnProject(winX, winY, winZ, modelviewMatrix, projectionMatrix, viewport, &worldX, &worldY, &worldZ);
+    QVector3D clickPos(worldX, worldY, worldZ);
+
+    for (size_t i = 0; i < shapes.size(); ++i) {
+        QVector3D shapePos = shapes[i].link.visuals.origin.xyz;
+        qDebug() << "Checking shape at" << shapePos << "with index" << i;
+        float distance = (shapePos - clickPos).length();
+        qDebug() << "Distance to shape" << distance;
+        if (distance < minDistance) {
+            minDistance = distance;
+            closestShapeIndex = i;
+        }
+    }
+
+    if (minDistance < 50.0f) { // 如果距离小于一定阈值，认为点击到了形状
+        selectedShapeIndex = closestShapeIndex;
+        qDebug() << "Shape selected:" << selectedShapeIndex;
+    } else {
+        selectedShapeIndex = -1;
+        qDebug() << "No shape selected";
+    }
+    update();
 }
+
+
 
 void Urdf_editor::mouseMoveEvent(QMouseEvent *event) {
     float dx = float(event->x() - lastMousePos.x()) / width();
