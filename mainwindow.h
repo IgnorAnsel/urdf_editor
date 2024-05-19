@@ -5,6 +5,7 @@
 #include "actionhandler.h"
 #include "urdf_editor.h"
 #include "property.h"
+#include "property2.h"
 #include "geometry_choose.h"
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -23,6 +24,7 @@ private:
     ActionHandler *actionHandler = new ActionHandler(this);
     Urdf_editor *urdf_editor;
     Property *pro;
+    property2 *pro2;
     geometry_choose *geometry;
 
 };
