@@ -1,14 +1,16 @@
 #ifndef PARAM_STRUCT_H
 #define PARAM_STRUCT_H
 #include <QString>
+#include <QColor>
+#include <QVector3D>
 // 定义URDF文件中常用的数据结构
 
 struct Pose {
-    double xyz[3];         // x, y, z 坐标
-    double rpy[3];         // roll, pitch, yaw 角度
+    QVector3D xyz;         // x, y, z 坐标
+    QVector3D rpy;         // roll, pitch, yaw 角度
 };
 struct Box {
-    double size[3]; // 长、宽、高
+    QVector3D size; // 长、宽、高
 };
 struct Cylinder {
     double radius; // 半径
@@ -19,7 +21,7 @@ struct Sphere {
 };
 struct Mesh {
     std::string filename; // 网格文件路径
-    double scale[3];      // 缩放因子
+    QVector3D scale;      // 缩放因子
 };
 struct Geometry {
     // 下面这些是具体的几何形状
@@ -58,13 +60,13 @@ struct Visual {
 struct URDFLink {
     std::string name;                  // link的名称
     Inertial inertial;                 // link的惯性属性
-    std::vector<Visual> visuals;       // link的可视化属性，可以有多个
-    std::vector<Collision> collisions; // link的碰撞属性，可以有多个
+    Visual visuals;       // link的可视化属性
+    Collision collisions; // link的碰撞属性
 };
 
 //
 struct Axis {
-    double xyz[3];                    // 轴的方向
+    QVector3D xyz;                    // 轴的方向
 };
 
 struct Limits {

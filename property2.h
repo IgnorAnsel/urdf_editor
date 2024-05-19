@@ -2,7 +2,7 @@
 #define PROPERTY2_H
 
 #include <QWidget>
-
+#include "param_struct.h"
 namespace Ui {
 class property2;
 }
@@ -17,6 +17,8 @@ public:
 
 private:
     Ui::property2 *ui;
+    URDFJoint joint_property;
+
 };
 
 #endif // PROPERTY2_H

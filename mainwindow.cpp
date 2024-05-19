@@ -16,7 +16,6 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->actionSave, &QAction::triggered, actionHandler, &ActionHandler::saveFile);
     connect(ui->actionSave_As, &QAction::triggered, actionHandler, &ActionHandler::saveasFile);
     connect(ui->actionExit, &QAction::triggered, actionHandler, &ActionHandler::Exit);
-
     //创建垂直布局
     QVBoxLayout *verticalLayout = new QVBoxLayout();
     QVBoxLayout *Layout = new QVBoxLayout();

@@ -13,11 +13,7 @@
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout_2">
-   <item>
-    <widget class="QOpenGLWidget" name="openGLWidget"/>
-   </item>
-  </layout>
+  <layout class="QVBoxLayout" name="verticalLayout_2"/>
  </widget>
  <resources/>
  <connections/>

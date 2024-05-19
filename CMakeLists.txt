@@ -24,6 +24,7 @@ set(PROJECT_SOURCES
         collapsiblewidget.h collapsiblewidget.cpp collapsiblewidget.ui
         geometry_choose.h geometry_choose.cpp geometry_choose.ui
         property2.h property2.cpp property2.ui
+        shape.h shape.cpp
 
 )
 

@@ -1,23 +1,17 @@
 #ifndef URDF_EDITOR_H
 #define URDF_EDITOR_H
 
-#include <QWidget>
-#include <QtOpenGLWidgets/QOpenGLWidget>
-#include <QOpenGLExtraFunctions>
-#include <QtOpenGL/QOpenGLShaderProgram>
-#include <QOpenGLBuffer>
-#include <QOpenGLVertexArrayObject>
+#include <QOpenGLWidget>
+#include <QOpenGLFunctions>
 #include <QMatrix4x4>
 #include <QMouseEvent>
-#include <QOpenGLFunctions_3_3_Core>
-namespace Ui {
-class Urdf_editor;
-}
-
-class Urdf_editor : public QOpenGLWidget , protected QOpenGLFunctions
-{
+#include <QWheelEvent>
+#include "shape.h"
+#include "param_struct.h"
+class Urdf_editor : public QOpenGLWidget, protected QOpenGLFunctions {
+    Q_OBJECT
 public:
-    Urdf_editor(QWidget *parent = nullptr);
+    explicit Urdf_editor(QWidget *parent = nullptr);
 
 protected:
     void initializeGL() override;
@@ -27,13 +21,19 @@ protected:
     void mouseMoveEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
     void wheelEvent(QWheelEvent *event) override;
-
+    void drawCube(const Shape &shape);
+    void drawSphere(const Shape &shape);
+    void drawCylinder(const Shape &shape);
 private:
-    QPoint lastMousePos;
+    void renderShape(const Shape &shape);
     QMatrix4x4 viewMatrix;
-    float zoomFactor = 1.0f;
-    float rotationAngleX = 0.0f;
-    float rotationAngleY = 0.0f;
+    QPoint lastMousePos;
+    float zoomFactor;
+    float rotationAngleX;
+    float rotationAngleY;
+    Shape cube; // 将cube定义为类的成员变量
+    Shape sphere;
+    Shape cylinder;
 };
 
 #endif // URDF_EDITOR_H

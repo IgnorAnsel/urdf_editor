@@ -17,13 +17,10 @@ public:
 
 private slots:
     void on_collision_geometry_type_currentTextChanged(const QString &arg1);
-
     void on_visual_geometry_type_currentTextChanged(const QString &arg1);
 
 private:
     URDFLink link;
-    URDFJoint joint_property;
-    int type; // 0为link，1为joint
     Ui::Property *ui;
 };
 
