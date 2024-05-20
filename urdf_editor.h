@@ -13,7 +13,8 @@ class Urdf_editor : public QOpenGLWidget, protected QOpenGLFunctions {
     Q_OBJECT
 public:
     explicit Urdf_editor(QWidget *parent = nullptr);
-
+public slots:
+    void updateShape(); // 定义槽
 protected:
     void initializeGL() override;
     void resizeGL(int w, int h) override;

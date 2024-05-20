@@ -12,27 +12,32 @@ Urdf_editor::Urdf_editor(QWidget *parent) : QOpenGLWidget(parent), cube(Shape::C
     rotationAngleX = 0.0f;
     rotationAngleY = 0.0f;
 
-    // 初始化立方体对象并设置属性
-    cube.link.visuals.origin.xyz = QVector3D(0.0f, 0.0f, 0.0f);
-    //cube.scale = QVector3D(1.0f, 1.0f, 1.0f);
-    cube.link.visuals.origin.rpy = QVector3D(0.0f, 0.0f, 0.0f);
-    cube.link.visuals.color = QColor(Qt::red);
-    cube.link.visuals.geometry.box.size = QVector3D(10.0f,1.0f,1.0f);
+//    // 初始化立方体对象并设置属性
+//    cube.link.visuals.origin.xyz = QVector3D(0.0f, 0.0f, 0.0f);
+//    //cube.scale = QVector3D(1.0f, 1.0f, 1.0f);
+//    cube.link.visuals.origin.rpy = QVector3D(0.0f, 0.0f, 0.0f);
+//    cube.link.visuals.color = QColor(Qt::red);
+//    cube.link.visuals.geometry.box.size = QVector3D(10.0f,1.0f,1.0f);
 
-    sphere.link.visuals.origin.xyz = QVector3D(1.0f,0.0f,0.0f);
-    sphere.link.visuals.origin.rpy = QVector3D(0.0f, 0.0f, 0.0f);
-    sphere.link.visuals.geometry.sphere.radius = 1;
-    sphere.link.visuals.color = QColor(Qt::blue);
+//    sphere.link.visuals.origin.xyz = QVector3D(1.0f,0.0f,0.0f);
+//    sphere.link.visuals.origin.rpy = QVector3D(0.0f, 0.0f, 0.0f);
+//    sphere.link.visuals.geometry.sphere.radius = 1;
+//    sphere.link.visuals.color = QColor(Qt::blue);
 
-    cylinder.link.visuals.origin.xyz = QVector3D(1.0f,0.0f,0.0f);
-    cylinder.link.visuals.origin.rpy = QVector3D(0.0f, 0.0f, 0.0f);
-    cylinder.link.visuals.geometry.cylinder.radius = 1;
-    cylinder.link.visuals.geometry.cylinder.length = 2;
-    cylinder.link.visuals.color = QColor(Qt::green);
+//    cylinder.link.visuals.origin.xyz = QVector3D(1.0f,0.0f,0.0f);
+//    cylinder.link.visuals.origin.rpy = QVector3D(0.0f, 0.0f, 0.0f);
+//    cylinder.link.visuals.geometry.cylinder.radius = 1;
+//    cylinder.link.visuals.geometry.cylinder.length = 2;
+//    cylinder.link.visuals.color = QColor(Qt::green);
 
-    //shapes.push_back(cube);
-    //shapes.push_back(sphere);
-    //shapes.push_back(cylinder);
+//    //shapes.push_back(cube);
+//    //shapes.push_back(sphere);
+//    //shapes.push_back(cylinder);
+}
+
+void Urdf_editor::updateShape()
+{
+    update();  // 请求重新绘制窗口
 }
 
 void Urdf_editor::initializeGL() {
@@ -63,12 +68,10 @@ void Urdf_editor::paintGL() {
     transform.rotate(rotationAngleX, 1.0f, 0.0f, 0.0f);
     transform.rotate(rotationAngleY, 0.0f, 1.0f, 0.0f);
 
-    viewMatrix = transform;
-
     // 设置相机位置和目标点
-    QVector3D eye(3.0f, 4.0f, 5.0f);
-    QVector3D center(0.0f, 0.0f, 0.0f);
-    QVector3D up(0.0f, 1.0f, 0.0f);
+    QVector3D eye(0.0f, 0.0f, zoomFactor * 10.0f); // 相机位置
+    QVector3D center(0.0f, 0.0f, 0.0f); // 看向的中心点
+    QVector3D up(0.0f, 1.0f, 0.0f); // 上方向
 
     // 创建相机变换矩阵
     QMatrix4x4 viewMatrix;

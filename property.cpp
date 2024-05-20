@@ -44,6 +44,23 @@ void Property::updateShapeProperties(const Shape &shape)
 
     ui->visual_cylinder_radius->setText(QString::number(shape.link.visuals.geometry.cylinder.radius));
     ui->visual_cylinder_length->setText(QString::number(shape.link.visuals.geometry.cylinder.length));
+    if (shape.type == Shape::Cube)
+    {
+        ui->visual_geometry_type->setCurrentText("Box");
+        ui->collision_geometry_type->setCurrentText("Box");
+    }
+    else if (shape.type == Shape::Sphere)
+    {
+        ui->visual_geometry_type->setCurrentText("Sphere");
+        ui->collision_geometry_type->setCurrentText("Sphere");
+
+    }
+    else if (shape.type == Shape::Cylinder)
+    {
+        ui->visual_geometry_type->setCurrentText("Cylinder");
+        ui->collision_geometry_type->setCurrentText("Cylinder");
+
+    }
 
 
 
@@ -135,6 +152,6 @@ void Property::on_pushButton_clicked()
 
     // 添加到形状列表
     shapes.push_back(currentShape);
-
+    emit createshape();
 }
 

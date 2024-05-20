@@ -10,6 +10,7 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     setGeometry(300,300,1600,1000);
     ui->widget_2->resize(QSize(440,1000));
+
     // 绑定动作
     connect(ui->actionNew, &QAction::triggered, actionHandler, &ActionHandler::newFile);
     connect(ui->actionOpen, &QAction::triggered, actionHandler, &ActionHandler::openFile);
@@ -41,6 +42,7 @@ MainWindow::MainWindow(QWidget *parent)
     // 最后，设置 ui->widget 的布局
     ui->widget->setLayout(verticalLayout);
     connect(geometry, &geometry_choose::shapeCreated, pro, &Property::updateShapeProperties);
+    connect(pro,&Property::createshape,urdf_editor,&Urdf_editor::updateShape);
 
 }
 
