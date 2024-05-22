@@ -22,6 +22,7 @@ private slots:
 
 private:
     Ui::geometry_choose *ui;
+    int num = 0;
 };
 
 #endif // GEOMETRY_CHOOSE_H

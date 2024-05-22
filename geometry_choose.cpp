@@ -42,8 +42,9 @@ void geometry_choose::createShape(const QString &shapeType)
     newShape.link.visuals.origin.rpy = QVector3D(0.0f, 0.0f, 0.0f);
     newShape.link.visuals.color = QColor(Qt::white);
 
-
-
+    QString link_name = QString("base_").append(QString::number(num));
+    newShape.link.name = link_name.toStdString();
+    num++;
     // 发射信号，传递新创建的形状
     emit shapeCreated(newShape);
 }
