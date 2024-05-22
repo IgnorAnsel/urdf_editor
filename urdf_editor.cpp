@@ -289,7 +289,7 @@ void Urdf_editor::mousePressEvent(QMouseEvent *event) {
         }
     }
 
-    if (minDistance < 50.0f) { // 如果距离小于一定阈值，认为点击到了形状
+    if (minDistance < 100.0f) { // 如果距离小于一定阈值，认为点击到了形状
         selectedShapeIndex = closestShapeIndex;
         qDebug() << "Shape selected:" << selectedShapeIndex;
     } else {
