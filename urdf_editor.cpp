@@ -262,7 +262,7 @@ void Urdf_editor::renderShape(const Shape &shape) {
 
 // 在鼠标点击事件中检测是否点击了某个形状
 void Urdf_editor::mousePressEvent(QMouseEvent *event) {
-    qDebug() << "Mouse pressed at" << event->pos();
+    //qDebug() << "Mouse pressed at" << event->pos();
     lastMousePos = event->pos();
     float minDistance = 1000.0f;
     int closestShapeIndex = -1;
@@ -280,9 +280,9 @@ void Urdf_editor::mousePressEvent(QMouseEvent *event) {
 
     for (size_t i = 0; i < shapes.size(); ++i) {
         QVector3D shapePos = shapes[i].link.visuals.origin.xyz;
-        qDebug() << "Checking shape at" << shapePos << "with index" << i;
+        //qDebug() << "Checking shape at" << shapePos << "with index" << i;
         float distance = (shapePos - clickPos).length();
-        qDebug() << "Distance to shape" << distance;
+        //qDebug() << "Distance to shape" << distance;
         if (distance < minDistance) {
             minDistance = distance;
             closestShapeIndex = i;
@@ -291,10 +291,10 @@ void Urdf_editor::mousePressEvent(QMouseEvent *event) {
 
     if (minDistance < 100.0f) { // 如果距离小于一定阈值，认为点击到了形状
         selectedShapeIndex = closestShapeIndex;
-        qDebug() << "Shape selected:" << selectedShapeIndex;
+        //qDebug() << "Shape selected:" << selectedShapeIndex;
     } else {
         selectedShapeIndex = -1;
-        qDebug() << "No shape selected";
+        //qDebug() << "No shape selected";
     }
     update();
 }

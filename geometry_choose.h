@@ -19,7 +19,9 @@ signals:
     void shapeCreated(const Shape &newShape); // 定义信号
 private slots:
     void on_listWidget_currentTextChanged(const QString &currentText);
-
+public slots:
+    void numadd();
+    void shape_Created(const Shape &newShape); // 定义cao
 private:
     Ui::geometry_choose *ui;
     int num = 0;

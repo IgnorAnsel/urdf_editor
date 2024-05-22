@@ -25,7 +25,7 @@ MainWindow::MainWindow(QWidget *parent)
     pro = new Property();
     geometry = new geometry_choose;
     pro2 = new property2();
-
+    tree = new shape_relation(ui->widget_3);
     Layout->addWidget(pro);
     ui->widget_param->setLayout(Layout);
 
@@ -43,7 +43,9 @@ MainWindow::MainWindow(QWidget *parent)
     ui->widget->setLayout(verticalLayout);
     connect(geometry, &geometry_choose::shapeCreated, pro, &Property::updateShapeProperties);
     connect(pro,&Property::createshape,urdf_editor,&Urdf_editor::updateShape);
-
+    connect(pro,&Property::createshape,tree,&shape_relation::update_shape);
+    connect(pro,&Property::createshape,geometry, &geometry_choose::numadd);
+    connect(pro,&Property::updateshape,geometry,&geometry_choose::shape_Created);
 }
 
 MainWindow::~MainWindow()

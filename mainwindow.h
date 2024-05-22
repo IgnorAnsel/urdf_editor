@@ -7,6 +7,7 @@
 #include "property.h"
 #include "property2.h"
 #include "geometry_choose.h"
+#include "shape_relation.h"
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
 QT_END_NAMESPACE
@@ -26,6 +27,7 @@ private:
     Property *pro;
     property2 *pro2;
     geometry_choose *geometry;
+    shape_relation *tree;
 
 };
 #endif // MAINWINDOW_H

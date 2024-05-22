@@ -19,6 +19,7 @@ public slots:
     void updateShapeProperties(const Shape &shape); // 定义槽
 signals:
     void createshape(); // 定义create信号
+    void updateshape(const Shape &shape); // 重复创建时更新name用信号
 private slots:
     void on_collision_geometry_type_currentTextChanged(const QString &arg1);
     void on_visual_geometry_type_currentTextChanged(const QString &arg1);
@@ -37,6 +38,7 @@ private:
     URDFLink link;
     Ui::Property *ui;
     Shape currentShape;
+    int num = 0;
 
 };
 

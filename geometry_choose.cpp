@@ -17,6 +17,16 @@ void geometry_choose::on_listWidget_currentTextChanged(const QString &currentTex
 {
     createShape(currentText);
 }
+
+void geometry_choose::numadd()
+{
+    num++;
+}
+
+void geometry_choose::shape_Created(const Shape &newShape)
+{
+    shapeCreated(newShape);
+}
 void geometry_choose::createShape(const QString &shapeType)
 {
     Shape newShape;
@@ -36,16 +46,12 @@ void geometry_choose::createShape(const QString &shapeType)
         newShape.link.visuals.geometry.cylinder.radius = 1.0f;
         newShape.link.visuals.geometry.cylinder.length = 2.0f;
     }
-
     // 设置默认属性
     newShape.link.visuals.origin.xyz = QVector3D(0.0f, 0.0f, 0.0f);
     newShape.link.visuals.origin.rpy = QVector3D(0.0f, 0.0f, 0.0f);
     newShape.link.visuals.color = QColor(Qt::white);
-
     QString link_name = QString("base_").append(QString::number(num));
     newShape.link.name = link_name.toStdString();
-    num++;
-    // 发射信号，传递新创建的形状
     emit shapeCreated(newShape);
 }
 

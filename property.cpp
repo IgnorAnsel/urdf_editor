@@ -20,7 +20,6 @@ void Property::updateShapeProperties(const Shape &shape)
     currentShape = shape;
     // 更新UI以显示形状的属性
     ui->link_name->setText(QString::fromStdString(shape.link.name));
-
     ui->visual_origin_x->setText(QString::number(shape.link.visuals.origin.xyz.x()));
     ui->visual_origin_y->setText(QString::number(shape.link.visuals.origin.xyz.y()));
     ui->visual_origin_z->setText(QString::number(shape.link.visuals.origin.xyz.z()));
@@ -149,9 +148,14 @@ void Property::on_pushButton_clicked()
 
     currentShape.link.visuals.geometry.cylinder.radius = ui->visual_cylinder_radius->text().toFloat();
     currentShape.link.visuals.geometry.cylinder.length = ui->visual_cylinder_length->text().toFloat();
-
+    currentShape.link.name = ui->link_name->text().toStdString();
     // 添加到形状列表
+    if(currentShape.link.name.empty())
+        return;
+    num++;
     shapes.push_back(currentShape);
     emit createshape();
+    emit updateshape(currentShape);
+//    emit changenum();
 }
 
