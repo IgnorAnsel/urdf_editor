@@ -23,14 +23,12 @@ MainWindow::MainWindow(QWidget *parent)
     QVBoxLayout *Layout_choose = new QVBoxLayout();
     QVBoxLayout *Layout2 = new QVBoxLayout();
     pro = new Property();
-    geometry = new geometry_choose;
     pro2 = new property2();
     tree = new shape_relation(ui->widget_3);
     Layout->addWidget(pro);
     ui->widget_param->setLayout(Layout);
 
-    Layout_choose->addWidget(geometry);
-    ui->widget_geometry->setLayout(Layout_choose);
+
 
 //    Layout2->addWidget(pro2);
 //    ui->widget_param->setLayout(Layout2);
@@ -41,11 +39,9 @@ MainWindow::MainWindow(QWidget *parent)
 
     // 最后，设置 ui->widget 的布局
     ui->widget->setLayout(verticalLayout);
-    connect(geometry, &geometry_choose::shapeCreated, pro, &Property::updateShapeProperties);
     connect(pro,&Property::createshape,urdf_editor,&Urdf_editor::updateShape);
     connect(pro,&Property::createshape,tree,&shape_relation::update_shape);
-    connect(pro,&Property::createshape,geometry, &geometry_choose::numadd);
-    connect(pro,&Property::updateshape,geometry,&geometry_choose::shape_Created);
+
 }
 
 MainWindow::~MainWindow()

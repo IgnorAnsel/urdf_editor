@@ -14,10 +14,12 @@ class Property : public QWidget
 
 public:
     explicit Property(QWidget *parent = nullptr);
+    void createShape(const QString &shapeType);
     ~Property();
 public slots:
     void updateShapeProperties(const Shape &shape); // 定义槽
 signals:
+    void shapeCreated(const Shape &newShape); // 定义信号
     void createshape(); // 定义create信号
     void updateshape(const Shape &shape); // 重复创建时更新name用信号
 private slots:
@@ -33,6 +35,8 @@ private slots:
     void on_visual_origin_z_editingFinished();
 
     void on_pushButton_clicked();
+
+    void on_listWidget_currentTextChanged(const QString &currentText);
 
 private:
     URDFLink link;

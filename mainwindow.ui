@@ -55,7 +55,6 @@
            <enum>Qt::Vertical</enum>
           </property>
           <widget class="QWidget" name="widget_param" native="true"/>
-          <widget class="QWidget" name="widget_geometry" native="true"/>
          </widget>
         </item>
        </layout>
