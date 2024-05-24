@@ -6,6 +6,7 @@
 #include <QMatrix4x4>
 #include <QMouseEvent>
 #include <QWheelEvent>
+#include <QMessageBox>
 #include "shape.h"
 #include "param_struct.h"
 extern std::vector<Shape> shapes;

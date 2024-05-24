@@ -168,6 +168,7 @@ void Property::on_pushButton_clicked()
     currentShape.link.visuals.geometry.cylinder.radius = ui->visual_cylinder_radius->text().toFloat();
     currentShape.link.visuals.geometry.cylinder.length = ui->visual_cylinder_length->text().toFloat();
     currentShape.link.name = ui->link_name->text().toStdString();
+    
     // 添加到形状列表
     if(currentShape.link.visuals.geometry.box.size==QVector3D(0.0f,0.0f,0.0f)&&currentShape.type==Shape::Cube)
         return;
@@ -175,6 +176,12 @@ void Property::on_pushButton_clicked()
     {
         currentShape.link.name = QString("base_").append(QString::number(num)).toStdString();
         num++;
+    }
+    for(const auto& shape : shapes) {
+        if(shape.link.name == currentShape.link.name) {
+            QMessageBox::information(NULL, "ERROR", "The name of the link is already used. Please choose a different name.", QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+            return;
+        }
     }
     updateShapeProperties(currentShape);
     shapes.push_back(currentShape);
