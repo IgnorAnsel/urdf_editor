@@ -241,14 +241,14 @@
                            <widget class="QLineEdit" name="visual_box_w"/>
                           </item>
                           <item>
-                           <widget class="QLabel" name="visual_box_h">
+                           <widget class="QLabel" name="visual_box_label">
                             <property name="text">
                              <string>h:</string>
                             </property>
                            </widget>
                           </item>
                           <item>
-                           <widget class="QLineEdit" name="lineEdit_40"/>
+                           <widget class="QLineEdit" name="visual_box_h"/>
                           </item>
                          </layout>
                         </widget>

@@ -39,33 +39,28 @@ void Property::createShape(const QString &shapeType)
     updateShapeProperties(newShape);
 }
 
-void Property::updateShape()
+void Property::updateShape(int index)
 {
-    currentShape.link.visuals.origin.xyz.setY(ui->visual_origin_y->text().toFloat());
-    currentShape.link.visuals.origin.xyz.setX(ui->visual_origin_x->text().toFloat());
-    currentShape.link.visuals.origin.xyz.setZ(ui->visual_origin_z->text().toFloat());
-    currentShape.link.visuals.origin.rpy.setX(ui->visual_origin_r->text().toFloat());
-    currentShape.link.visuals.origin.rpy.setY(ui->visual_origin_p->text().toFloat());
-    currentShape.link.visuals.origin.rpy.setZ(ui->visual_origin_y_2->text().toFloat());
-    currentShape.link.visuals.color.setRedF(ui->visual_color_r->text().toFloat());
-    currentShape.link.visuals.color.setGreenF(ui->visual_color_g->text().toFloat());
-    currentShape.link.visuals.color.setBlueF(ui->visual_color_b->text().toFloat());
+    shapes[index].link.visuals.origin.xyz.setY(ui->visual_origin_y->text().toFloat());
+    shapes[index].link.visuals.origin.xyz.setX(ui->visual_origin_x->text().toFloat());
+    shapes[index].link.visuals.origin.xyz.setZ(ui->visual_origin_z->text().toFloat());
+    shapes[index].link.visuals.origin.rpy.setX(ui->visual_origin_r->text().toFloat());
+    shapes[index].link.visuals.origin.rpy.setY(ui->visual_origin_p->text().toFloat());
+    shapes[index].link.visuals.origin.rpy.setZ(ui->visual_origin_y_2->text().toFloat());
+    shapes[index].link.visuals.color.setRedF(ui->visual_color_r->text().toFloat());
+    shapes[index].link.visuals.color.setGreenF(ui->visual_color_g->text().toFloat());
+    shapes[index].link.visuals.color.setBlueF(ui->visual_color_b->text().toFloat());
     //currentShape.link.visuals.color.setAlphaF(ui->visual_color_a->text().toFloat());
-    currentShape.link.visuals.geometry.box.size.setX(ui->visual_box_l->text().toFloat());
-    currentShape.link.visuals.geometry.box.size.setY(ui->visual_box_w->text().toFloat());
-    currentShape.link.visuals.geometry.box.size.setZ(ui->visual_box_h->text().toFloat());
-    currentShape.link.visuals.geometry.sphere.radius = ui->visual_sphere_radius->text().toFloat();
-    currentShape.link.visuals.geometry.cylinder.radius = ui->visual_cylinder_radius->text().toFloat();
-    currentShape.link.visuals.geometry.cylinder.length = ui->visual_cylinder_length->text().toFloat();
-    currentShape.link.name = ui->link_name->text().toStdString();
-    for(const auto& shape : shapes) {
-        if(shape.link.name == currentShape.link.name) {
-            QMessageBox::information(NULL, "ERROR", "The name of the link is already used. Please choose a different name.", QMessageBox::Ok);
-            return;
-        }
-    }
-    currentShape.link.iscreated = true;
-    updateShapeProperties(currentShape);
+    shapes[index].link.visuals.geometry.box.size.setX(ui->visual_box_l->text().toFloat());
+    shapes[index].link.visuals.geometry.box.size.setY(ui->visual_box_w->text().toFloat());
+    shapes[index].link.visuals.geometry.box.size.setZ(ui->visual_box_label->text().toFloat());
+    shapes[index].link.visuals.geometry.sphere.radius = ui->visual_sphere_radius->text().toFloat();
+    shapes[index].link.visuals.geometry.cylinder.radius = ui->visual_cylinder_radius->text().toFloat();
+    shapes[index].link.visuals.geometry.cylinder.length = ui->visual_cylinder_length->text().toFloat();
+    shapes[index].link.name = ui->link_name->text().toStdString();
+    shapes[index].link.iscreated = false;
+    updateShapeProperties(shapes[index]);
+    emit updateshapes();
     //emit createshape();
 }
 
@@ -78,7 +73,10 @@ void Property::updateShapeProperties(const Shape &shape)
 {
     currentShape = shape;
     // 更新UI以显示形状的属性
-    //ui->link_name->setText(QString::fromStdString(shape.link.name));
+    // if(shape.link.iscreated)
+    //     ui->link_name->setText(QString::fromStdString(shape.link.name));
+    // else
+    //     ui->link_name->setText("");
     ui->visual_origin_x->setText(QString::number(shape.link.visuals.origin.xyz.x()));
     ui->visual_origin_y->setText(QString::number(shape.link.visuals.origin.xyz.y()));
     ui->visual_origin_z->setText(QString::number(shape.link.visuals.origin.xyz.z()));
@@ -124,6 +122,7 @@ void Property::receiveindex(int index)
     {
         shapes[index].link.iscreated =true;
         currentSetlectShape = shapes[index];
+        currentIndex = index;
         updateShapeProperties(currentSetlectShape);
         ui->pushButton->hide();
     }
@@ -145,8 +144,6 @@ void Property::on_collision_geometry_type_currentTextChanged(const QString &arg1
         ui->collision_geometry_sphere->show();
     }
 }
-
-
 
 void Property::on_visual_geometry_type_currentTextChanged(const QString &arg1)
 {
@@ -176,13 +173,15 @@ void Property::on_link_name_textChanged(const QString &arg1)
 void Property::on_visual_origin_y_textChanged(const QString &arg1)
 {
     currentShape.link.visuals.origin.xyz.setY(ui->visual_origin_y->text().toFloat());
-    updateShape();
+    if(currentIndex>=0)
+    updateShape(currentIndex);
 }
 
 void Property::on_visual_origin_x_editingFinished()
 {
     currentShape.link.visuals.origin.xyz.setX(ui->visual_origin_x->text().toFloat());
-    updateShape();
+    if(currentIndex>=0)
+    updateShape(currentIndex);
 
 }
 
@@ -190,7 +189,8 @@ void Property::on_visual_origin_x_editingFinished()
 void Property::on_visual_origin_z_editingFinished()
 {
     currentShape.link.visuals.origin.xyz.setZ(ui->visual_origin_z->text().toFloat());
-    updateShape();
+    if(currentIndex>=0)
+    updateShape(currentIndex);
 }
 
 
@@ -208,7 +208,7 @@ void Property::on_pushButton_clicked()
     //currentShape.link.visuals.color.setAlphaF(ui->visual_color_a->text().toFloat());
     currentShape.link.visuals.geometry.box.size.setX(ui->visual_box_l->text().toFloat());
     currentShape.link.visuals.geometry.box.size.setY(ui->visual_box_w->text().toFloat());
-    currentShape.link.visuals.geometry.box.size.setZ(ui->visual_box_h->text().toFloat());
+    currentShape.link.visuals.geometry.box.size.setZ(ui->visual_box_label->text().toFloat());
     currentShape.link.visuals.geometry.sphere.radius = ui->visual_sphere_radius->text().toFloat();
     currentShape.link.visuals.geometry.cylinder.radius = ui->visual_cylinder_radius->text().toFloat();
     currentShape.link.visuals.geometry.cylinder.length = ui->visual_cylinder_length->text().toFloat();
@@ -227,7 +227,6 @@ void Property::on_pushButton_clicked()
             return;
         }
     }
-    currentShape.link.iscreated = true;
     updateShapeProperties(currentShape);
     shapes.push_back(currentShape);
     emit createshape();
@@ -239,6 +238,7 @@ void Property::on_pushButton_clicked()
 void Property::on_listWidget_currentTextChanged(const QString &currentText)
 {
     ui->pushButton->show();
+    currentIndex = -1;
     createShape(currentText);
 }
 

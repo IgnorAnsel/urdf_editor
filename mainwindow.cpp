@@ -36,9 +36,11 @@ MainWindow::MainWindow(QWidget *parent)
     verticalLayout->addWidget(urdf_editor);
     // 最后，设置 ui->widget 的布局
     ui->widget->setLayout(verticalLayout);
+    //
     connect(pro,&Property::createshape,urdf_editor,&Urdf_editor::updateShape);
     connect(pro,&Property::createshape,tree,&shape_relation::update_shape);
     connect(pro,&Property::updateshape,urdf_editor,&Urdf_editor::updateShape);
+    connect(pro,&Property::updateshapes,urdf_editor,&Urdf_editor::updateShape);
     connect(tree,&shape_relation::updateInde,urdf_editor,&Urdf_editor::receiveIndex);
     connect(tree,&shape_relation::updateInde,pro,&Property::receiveindex);
 }
