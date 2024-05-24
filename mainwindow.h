@@ -6,7 +6,6 @@
 #include "urdf_editor.h"
 #include "property.h"
 #include "property2.h"
-#include "geometry_choose.h"
 #include "shape_relation.h"
 QT_BEGIN_NAMESPACE
 namespace Ui { class MainWindow; }
@@ -26,7 +25,6 @@ private:
     Urdf_editor *urdf_editor;
     Property *pro;
     property2 *pro2;
-    geometry_choose *geometry;
     shape_relation *tree;
 
 };

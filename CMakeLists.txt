@@ -21,7 +21,7 @@ set(PROJECT_SOURCES
         urdf_editor.cpp urdf_editor.h urdf_editor.ui
         property.h property.cpp property.ui
         param_struct.h
-        collapsiblewidget.h collapsiblewidget.cpp collapsiblewidget.ui
+#        collapsiblewidget.h collapsiblewidget.cpp collapsiblewidget.ui
 #        geometry_choose.h geometry_choose.cpp geometry_choose.ui
         property2.h property2.cpp property2.ui
         shape.h shape.cpp

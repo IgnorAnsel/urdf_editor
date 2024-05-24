@@ -1,7 +1,7 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 #include <QVBoxLayout>
-#include "collapsiblewidget.h"
+//#include "collapsiblewidget.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -24,19 +24,16 @@ MainWindow::MainWindow(QWidget *parent)
     QVBoxLayout *Layout2 = new QVBoxLayout();
     pro = new Property();
     pro2 = new property2();
-    tree = new shape_relation(ui->widget_3);
+    tree = new shape_relation();
     Layout->addWidget(pro);
     ui->widget_param->setLayout(Layout);
-
-
-
+    Layout2->addWidget(tree);
+    ui->widget_3->setLayout(Layout2);
 //    Layout2->addWidget(pro2);
 //    ui->widget_param->setLayout(Layout2);
-
     urdf_editor = new Urdf_editor(ui->widget);
     ui->widget->setLayout(verticalLayout);
     verticalLayout->addWidget(urdf_editor);
-
     // 最后，设置 ui->widget 的布局
     ui->widget->setLayout(verticalLayout);
     connect(pro,&Property::createshape,urdf_editor,&Urdf_editor::updateShape);
