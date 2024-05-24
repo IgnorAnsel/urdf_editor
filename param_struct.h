@@ -54,14 +54,13 @@ struct Visual {
     std::string material;  // 材料
 };
 
-
-
 // 定义一个URDFLink结构体
 struct URDFLink {
     std::string name;                  // link的名称
     Inertial inertial;                 // link的惯性属性
     Visual visuals;       // link的可视化属性
     Collision collisions; // link的碰撞属性
+    bool iscreated;
 };
 
 //

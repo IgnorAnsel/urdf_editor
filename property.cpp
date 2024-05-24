@@ -13,6 +13,7 @@ Property::Property(QWidget *parent) :
 void Property::createShape(const QString &shapeType)
 {
     Shape newShape;
+    newShape.link.iscreated = false;
     if (shapeType == "Box")
     {
         newShape = Shape(Shape::Cube);
@@ -36,6 +37,36 @@ void Property::createShape(const QString &shapeType)
     QString link_name = QString("base_").append(QString::number(num));
     newShape.link.name = link_name.toStdString();
     updateShapeProperties(newShape);
+}
+
+void Property::updateShape()
+{
+    currentShape.link.visuals.origin.xyz.setY(ui->visual_origin_y->text().toFloat());
+    currentShape.link.visuals.origin.xyz.setX(ui->visual_origin_x->text().toFloat());
+    currentShape.link.visuals.origin.xyz.setZ(ui->visual_origin_z->text().toFloat());
+    currentShape.link.visuals.origin.rpy.setX(ui->visual_origin_r->text().toFloat());
+    currentShape.link.visuals.origin.rpy.setY(ui->visual_origin_p->text().toFloat());
+    currentShape.link.visuals.origin.rpy.setZ(ui->visual_origin_y_2->text().toFloat());
+    currentShape.link.visuals.color.setRedF(ui->visual_color_r->text().toFloat());
+    currentShape.link.visuals.color.setGreenF(ui->visual_color_g->text().toFloat());
+    currentShape.link.visuals.color.setBlueF(ui->visual_color_b->text().toFloat());
+    //currentShape.link.visuals.color.setAlphaF(ui->visual_color_a->text().toFloat());
+    currentShape.link.visuals.geometry.box.size.setX(ui->visual_box_l->text().toFloat());
+    currentShape.link.visuals.geometry.box.size.setY(ui->visual_box_w->text().toFloat());
+    currentShape.link.visuals.geometry.box.size.setZ(ui->visual_box_h->text().toFloat());
+    currentShape.link.visuals.geometry.sphere.radius = ui->visual_sphere_radius->text().toFloat();
+    currentShape.link.visuals.geometry.cylinder.radius = ui->visual_cylinder_radius->text().toFloat();
+    currentShape.link.visuals.geometry.cylinder.length = ui->visual_cylinder_length->text().toFloat();
+    currentShape.link.name = ui->link_name->text().toStdString();
+    for(const auto& shape : shapes) {
+        if(shape.link.name == currentShape.link.name) {
+            QMessageBox::information(NULL, "ERROR", "The name of the link is already used. Please choose a different name.", QMessageBox::Ok);
+            return;
+        }
+    }
+    currentShape.link.iscreated = true;
+    updateShapeProperties(currentShape);
+    //emit createshape();
 }
 
 Property::~Property()
@@ -87,6 +118,17 @@ void Property::updateShapeProperties(const Shape &shape)
     }
 }
 
+void Property::receiveindex(int index)
+{
+    if(index>=0)
+    {
+        shapes[index].link.iscreated =true;
+        currentSetlectShape = shapes[index];
+        updateShapeProperties(currentSetlectShape);
+        ui->pushButton->hide();
+    }
+}
+
 void Property::on_collision_geometry_type_currentTextChanged(const QString &arg1)
 {
     if (arg1 == "Box") {
@@ -134,18 +176,21 @@ void Property::on_link_name_textChanged(const QString &arg1)
 void Property::on_visual_origin_y_textChanged(const QString &arg1)
 {
     currentShape.link.visuals.origin.xyz.setY(ui->visual_origin_y->text().toFloat());
+    updateShape();
 }
-
 
 void Property::on_visual_origin_x_editingFinished()
 {
     currentShape.link.visuals.origin.xyz.setX(ui->visual_origin_x->text().toFloat());
+    updateShape();
+
 }
 
 
 void Property::on_visual_origin_z_editingFinished()
 {
     currentShape.link.visuals.origin.xyz.setZ(ui->visual_origin_z->text().toFloat());
+    updateShape();
 }
 
 
@@ -168,7 +213,6 @@ void Property::on_pushButton_clicked()
     currentShape.link.visuals.geometry.cylinder.radius = ui->visual_cylinder_radius->text().toFloat();
     currentShape.link.visuals.geometry.cylinder.length = ui->visual_cylinder_length->text().toFloat();
     currentShape.link.name = ui->link_name->text().toStdString();
-    
     // 添加到形状列表
     if(currentShape.link.visuals.geometry.box.size==QVector3D(0.0f,0.0f,0.0f)&&currentShape.type==Shape::Cube)
         return;
@@ -179,10 +223,11 @@ void Property::on_pushButton_clicked()
     }
     for(const auto& shape : shapes) {
         if(shape.link.name == currentShape.link.name) {
-            QMessageBox::information(NULL, "ERROR", "The name of the link is already used. Please choose a different name.", QMessageBox::Yes | QMessageBox::No, QMessageBox::Yes);
+            QMessageBox::information(NULL, "ERROR", "The name of the link is already used. Please choose a different name.", QMessageBox::Ok);
             return;
         }
     }
+    currentShape.link.iscreated = true;
     updateShapeProperties(currentShape);
     shapes.push_back(currentShape);
     emit createshape();
@@ -193,6 +238,7 @@ void Property::on_pushButton_clicked()
 
 void Property::on_listWidget_currentTextChanged(const QString &currentText)
 {
+    ui->pushButton->show();
     createShape(currentText);
 }
 

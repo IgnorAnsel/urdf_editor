@@ -18,6 +18,10 @@ public:
     ~shape_relation();
 public slots:
     void update_shape();
+private slots:
+    void on_treeWidget_itemClicked(QTreeWidgetItem *item, int column);
+signals:
+    void updateInde(int index);
 private:
     Ui::shape_relation *ui;
 };

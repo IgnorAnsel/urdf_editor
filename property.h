@@ -15,13 +15,16 @@ class Property : public QWidget
 public:
     explicit Property(QWidget *parent = nullptr);
     void createShape(const QString &shapeType);
+    void updateShape();
     ~Property();
 public slots:
     void updateShapeProperties(const Shape &shape); // 定义槽
+    void receiveindex(int index);
 signals:
     void shapeCreated(const Shape &newShape); // 定义信号
     void createshape(); // 定义create信号
     void updateshape(const Shape &shape); // 重复创建时更新name用信号
+
 private slots:
     void on_collision_geometry_type_currentTextChanged(const QString &arg1);
     void on_visual_geometry_type_currentTextChanged(const QString &arg1);
@@ -42,6 +45,7 @@ private:
     URDFLink link;
     Ui::Property *ui;
     Shape currentShape;
+    Shape currentSetlectShape;
     int num = 0;
 
 };

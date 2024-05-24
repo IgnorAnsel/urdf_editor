@@ -16,6 +16,7 @@ public:
     explicit Urdf_editor(QWidget *parent = nullptr);
 public slots:
     void updateShape(); // 定义槽
+    void receiveIndex(int index);
 protected:
     void initializeGL() override;
     void resizeGL(int w, int h) override;
@@ -29,6 +30,7 @@ protected:
     void drawCylinder(const Shape &shape);
 private:
     int selectedShapeIndex = -1; // -1 表示没有选中任何形状
+    int lastselectedShapeIndex = -1;
     void renderShape(const Shape &shape);
     QMatrix4x4 viewMatrix;
     QPoint lastMousePos;
@@ -41,6 +43,7 @@ private:
     GLdouble projectionMatrix[16];
     GLdouble modelviewMatrix[16];
     GLint viewport[4];
+    QColor precolor;
 };
 
 #endif // URDF_EDITOR_H

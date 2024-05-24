@@ -33,3 +33,16 @@ void shape_relation::update_shape(){
         ui->treeWidget->addTopLevelItem(item);
     }
 }
+
+void shape_relation::on_treeWidget_itemClicked(QTreeWidgetItem *item, int column)
+{
+    // 获取点击项的文本信息
+    QString text = item->text(column);
+    qDebug() << "Clicked item text:" << text;
+    // 获取行号
+    int index = -1;
+    index = ui->treeWidget->indexOfTopLevelItem(item);
+    emit updateInde(index);
+}
+
+

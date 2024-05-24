@@ -37,15 +37,19 @@ Urdf_editor::Urdf_editor(QWidget *parent) : QOpenGLWidget(parent), cube(Shape::C
 
 void Urdf_editor::updateShape()
 {
+    qDebug()<< selectedShapeIndex;
     update();  // 请求重新绘制窗口
 }
-
+void Urdf_editor::receiveIndex(int index)
+{
+    selectedShapeIndex = index;
+    update();  // 请求重新绘制窗口
+}
 void Urdf_editor::initializeGL() {
     initializeOpenGLFunctions();
     glEnable(GL_DEPTH_TEST);
     glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 }
-
 void Urdf_editor::resizeGL(int w, int h) {
     glViewport(0, 0, w, h);
 
@@ -92,15 +96,16 @@ void Urdf_editor::paintGL() {
 
     // 渲染列表中的所有形状对象
     for (size_t i = 0; i < shapes.size(); ++i) {
-        if (i == selectedShapeIndex) {
-            // 高亮显示选中的形状
-            glColor3f(1.0, 1.0, 0.0); // 使用黄色显示选中的形状
+        // 如果选中的形状发生变化，更新颜色
+        if (lastselectedShapeIndex != selectedShapeIndex) {
+            qDebug()<<"lastselectedShapeIndex:" << lastselectedShapeIndex << "selectedShapeIndex:" << selectedShapeIndex;
+            shapes[lastselectedShapeIndex].link.visuals.color = precolor;  // 恢复之前选中的形状的颜色
+            precolor = shapes[selectedShapeIndex].link.visuals.color;      // 保存当前选中形状的原始颜色
+            shapes[selectedShapeIndex].link.visuals.color = QColor(Qt::yellow);  // 高亮显示新选中的形状
+            lastselectedShapeIndex = selectedShapeIndex;
         }
-        renderShape(shapes[i]);
-        if (i == selectedShapeIndex) {
-            // 恢复正常颜色
-            glColor3f(1.0, 1.0, 1.0); // 恢复为白色
-        }
+        //glColor3f(shapes[i].link.visuals.color.redF(), shapes[i].link.visuals.color.greenF(), shapes[i].link.visuals.color.blueF()); // 设置OpenGL颜色
+        renderShape(shapes[i]); // 渲染每个形状
     }
 
     // 获取投影矩阵、模型视图矩阵和视口

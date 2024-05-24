@@ -38,7 +38,9 @@ MainWindow::MainWindow(QWidget *parent)
     ui->widget->setLayout(verticalLayout);
     connect(pro,&Property::createshape,urdf_editor,&Urdf_editor::updateShape);
     connect(pro,&Property::createshape,tree,&shape_relation::update_shape);
-
+    connect(pro,&Property::updateshape,urdf_editor,&Urdf_editor::updateShape);
+    connect(tree,&shape_relation::updateInde,urdf_editor,&Urdf_editor::receiveIndex);
+    connect(tree,&shape_relation::updateInde,pro,&Property::receiveindex);
 }
 
 MainWindow::~MainWindow()
