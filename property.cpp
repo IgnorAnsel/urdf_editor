@@ -53,7 +53,7 @@ void Property::updateShape(int index)
     //currentShape.link.visuals.color.setAlphaF(ui->visual_color_a->text().toFloat());
     shapes[index].link.visuals.geometry.box.size.setX(ui->visual_box_l->text().toFloat());
     shapes[index].link.visuals.geometry.box.size.setY(ui->visual_box_w->text().toFloat());
-    shapes[index].link.visuals.geometry.box.size.setZ(ui->visual_box_label->text().toFloat());
+    shapes[index].link.visuals.geometry.box.size.setZ(ui->visual_box_h->text().toFloat());
     shapes[index].link.visuals.geometry.sphere.radius = ui->visual_sphere_radius->text().toFloat();
     shapes[index].link.visuals.geometry.cylinder.radius = ui->visual_cylinder_radius->text().toFloat();
     shapes[index].link.visuals.geometry.cylinder.length = ui->visual_cylinder_length->text().toFloat();
@@ -160,6 +160,10 @@ void Property::on_visual_geometry_type_currentTextChanged(const QString &arg1)
         ui->visual_geometry_cylinder->hide();
         ui->visual_geometry_sphere->show();
     }
+//    if(currentIndex>=0)
+//    {
+//        updateShape(currentIndex);
+//    }
 }
 
 
@@ -167,10 +171,12 @@ void Property::on_visual_geometry_type_currentTextChanged(const QString &arg1)
 void Property::on_link_name_textChanged(const QString &arg1)
 {
     currentShape.link.name = arg1.toStdString();
+    if(currentIndex>=0)
+        updateShape(currentIndex);
 }
 
 
-void Property::on_visual_origin_y_textChanged(const QString &arg1)
+void Property::on_visual_origin_y_editingFinished()
 {
     currentShape.link.visuals.origin.xyz.setY(ui->visual_origin_y->text().toFloat());
     if(currentIndex>=0)
@@ -208,7 +214,7 @@ void Property::on_pushButton_clicked()
     //currentShape.link.visuals.color.setAlphaF(ui->visual_color_a->text().toFloat());
     currentShape.link.visuals.geometry.box.size.setX(ui->visual_box_l->text().toFloat());
     currentShape.link.visuals.geometry.box.size.setY(ui->visual_box_w->text().toFloat());
-    currentShape.link.visuals.geometry.box.size.setZ(ui->visual_box_label->text().toFloat());
+    currentShape.link.visuals.geometry.box.size.setZ(ui->visual_box_h->text().toFloat());
     currentShape.link.visuals.geometry.sphere.radius = ui->visual_sphere_radius->text().toFloat();
     currentShape.link.visuals.geometry.cylinder.radius = ui->visual_cylinder_radius->text().toFloat();
     currentShape.link.visuals.geometry.cylinder.length = ui->visual_cylinder_length->text().toFloat();
@@ -240,5 +246,78 @@ void Property::on_listWidget_currentTextChanged(const QString &currentText)
     ui->pushButton->show();
     currentIndex = -1;
     createShape(currentText);
+}
+
+
+void Property::on_visual_origin_r_editingFinished()
+{
+    currentShape.link.visuals.origin.rpy.setX(ui->visual_origin_r->text().toFloat());
+    if(currentIndex>=0)
+        updateShape(currentIndex);
+}
+
+
+
+void Property::on_visual_origin_p_editingFinished()
+{
+    currentShape.link.visuals.origin.rpy.setY(ui->visual_origin_p->text().toFloat());
+    if(currentIndex>=0)
+        updateShape(currentIndex);
+}
+
+
+void Property::on_visual_origin_y_2_editingFinished()
+{
+    currentShape.link.visuals.origin.rpy.setZ(ui->visual_origin_y->text().toFloat());
+    if(currentIndex>=0)
+        updateShape(currentIndex);
+}
+
+
+void Property::on_visual_box_l_editingFinished()
+{
+    currentShape.link.visuals.geometry.box.size.setX(ui->visual_box_l->text().toFloat());
+    if(currentIndex>=0)
+        updateShape(currentIndex);
+}
+
+
+void Property::on_visual_box_w_editingFinished()
+{
+    currentShape.link.visuals.geometry.box.size.setY(ui->visual_box_w->text().toFloat());
+    if(currentIndex>=0)
+        updateShape(currentIndex);
+}
+
+
+void Property::on_visual_box_h_editingFinished()
+{
+    currentShape.link.visuals.geometry.box.size.setZ(ui->visual_box_h->text().toFloat());
+    if(currentIndex>=0)
+        updateShape(currentIndex);
+}
+
+
+void Property::on_visual_cylinder_radius_editingFinished()
+{
+    currentShape.link.visuals.geometry.cylinder.radius = (ui->visual_cylinder_radius->text().toFloat());
+    if(currentIndex>=0)
+        updateShape(currentIndex);
+}
+
+
+void Property::on_visual_cylinder_length_editingFinished()
+{
+    currentShape.link.visuals.geometry.cylinder.length = (ui->visual_cylinder_length->text().toFloat());
+    if(currentIndex>=0)
+        updateShape(currentIndex);
+}
+
+
+void Property::on_visual_sphere_radius_editingFinished()
+{
+    currentShape.link.visuals.geometry.sphere.radius = (ui->visual_sphere_radius->text().toFloat());
+    if(currentIndex>=0)
+        updateShape(currentIndex);
 }
 

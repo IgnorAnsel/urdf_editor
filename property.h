@@ -30,16 +30,32 @@ private slots:
     void on_visual_geometry_type_currentTextChanged(const QString &arg1);
 
     void on_link_name_textChanged(const QString &arg1);
-
-    void on_visual_origin_y_textChanged(const QString &arg1);
-
+    // visual_origin
+    void on_visual_origin_y_editingFinished();
     void on_visual_origin_x_editingFinished();
-
     void on_visual_origin_z_editingFinished();
 
-    void on_pushButton_clicked();
 
+    void on_pushButton_clicked();
     void on_listWidget_currentTextChanged(const QString &currentText);
+
+    void on_visual_origin_r_editingFinished();
+
+    void on_visual_origin_p_editingFinished();
+
+    void on_visual_origin_y_2_editingFinished();
+
+    void on_visual_box_l_editingFinished();
+
+    void on_visual_box_w_editingFinished();
+
+    void on_visual_box_h_editingFinished();
+
+    void on_visual_cylinder_radius_editingFinished();
+
+    void on_visual_cylinder_length_editingFinished();
+
+    void on_visual_sphere_radius_editingFinished();
 
 private:
     URDFLink link;
