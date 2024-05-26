@@ -57,6 +57,34 @@ private slots:
 
     void on_visual_sphere_radius_editingFinished();
 
+    void on_toolButton_link_clicked(bool checked);
+
+    void on_toolButton_base_clicked(bool checked);
+
+    void on_toolButton_visuals_clicked(bool checked);
+
+    void on_toolButton_collisions_clicked(bool checked);
+
+    void on_toolButton_inertial_clicked(bool checked);
+
+    void on_toolButton_visuals_origin_clicked(bool checked);
+
+    void on_toolButton_visuals_geometry_clicked(bool checked);
+
+    void on_toolButton_mesh_clicked(bool checked);
+
+    void on_toolButton_meterial_clicked(bool checked);
+
+    void on_toolButton_color_clicked(bool checked);
+
+    void on_toolButton_collisions_origin_clicked(bool checked);
+
+    void on_toolButton_collisions_geometry_clicked(bool checked);
+
+    void on_toolButton_inertial_origin_clicked(bool checked);
+
+    void on_toolButton_inertia_matrix_clicked(bool checked);
+
 private:
     URDFLink link;
     Ui::Property *ui;

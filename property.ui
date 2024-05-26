@@ -6,77 +6,186 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>381</width>
-    <height>1500</height>
+    <width>409</width>
+    <height>1062</height>
    </rect>
+  </property>
+  <property name="maximumSize">
+   <size>
+    <width>16777215</width>
+    <height>16777215</height>
+   </size>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_2">
-   <item row="0" column="0">
+  <layout class="QVBoxLayout" name="verticalLayout_2">
+   <item>
     <widget class="QSplitter" name="splitter">
      <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>
      <widget class="QScrollArea" name="scrollArea">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>1</verstretch>
+       </sizepolicy>
+      </property>
       <property name="horizontalScrollBarPolicy">
        <enum>Qt::ScrollBarAlwaysOff</enum>
       </property>
       <property name="widgetResizable">
-       <bool>false</bool>
+       <bool>true</bool>
       </property>
       <widget class="QWidget" name="scrollAreaWidgetContents">
        <property name="geometry">
         <rect>
          <x>0</x>
-         <y>0</y>
-         <width>397</width>
-         <height>1600</height>
+         <y>-964</y>
+         <width>421</width>
+         <height>1810</height>
         </rect>
        </property>
-       <layout class="QHBoxLayout" name="horizontalLayout_18">
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
         <item>
-         <widget class="QWidget" name="widget" native="true">
-          <layout class="QVBoxLayout" name="verticalLayout_12">
-           <item>
-            <widget class="QPushButton" name="pushButton">
+         <widget class="QPushButton" name="pushButton">
+          <property name="text">
+           <string>Create</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QWidget" name="widget_18" native="true">
+          <property name="enabled">
+           <bool>true</bool>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>16777215</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <layout class="QFormLayout" name="formLayout">
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item row="0" column="0">
+            <widget class="QToolButton" name="toolButton_link">
              <property name="text">
-              <string>Create</string>
+              <string>-</string>
+             </property>
+             <property name="checkable">
+              <bool>true</bool>
              </property>
             </widget>
            </item>
-           <item>
-            <widget class="QWidget" name="widget_2" native="true">
-             <layout class="QVBoxLayout" name="verticalLayout_3">
+           <item row="0" column="1">
+            <widget class="QLabel" name="label_11">
+             <property name="text">
+              <string>Link</string>
+             </property>
+            </widget>
+           </item>
+           <item row="1" column="0" colspan="2">
+            <widget class="QWidget" name="widget_link" native="true">
+             <property name="minimumSize">
+              <size>
+               <width>0</width>
+               <height>0</height>
+              </size>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_18">
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
               <item>
-               <widget class="QWidget" name="widget_3" native="true">
-                <layout class="QGridLayout" name="gridLayout">
+               <widget class="QWidget" name="widget_36" native="true">
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <layout class="QFormLayout" name="formLayout_9">
+                 <property name="topMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>0</number>
+                 </property>
                  <item row="0" column="0">
-                  <widget class="QLabel" name="label">
+                  <widget class="QToolButton" name="toolButton_base">
                    <property name="text">
-                    <string>Name:</string>
+                    <string>-</string>
+                   </property>
+                   <property name="checkable">
+                    <bool>true</bool>
                    </property>
                   </widget>
                  </item>
-                 <item row="1" column="1" colspan="2">
-                  <widget class="QLabel" name="label_3">
-                   <property name="text">
-                    <string>Link</string>
+                 <item row="1" column="0" colspan="2">
+                  <widget class="QWidget" name="widget_base" native="true">
+                   <property name="minimumSize">
+                    <size>
+                     <width>0</width>
+                     <height>0</height>
+                    </size>
                    </property>
-                  </widget>
-                 </item>
-                 <item row="1" column="0">
-                  <widget class="QLabel" name="label_2">
-                   <property name="text">
-                    <string>Type:</string>
-                   </property>
+                   <layout class="QFormLayout" name="formLayout_10">
+                    <property name="topMargin">
+                     <number>0</number>
+                    </property>
+                    <property name="bottomMargin">
+                     <number>0</number>
+                    </property>
+                    <item row="0" column="0">
+                     <widget class="QLabel" name="label_90">
+                      <property name="text">
+                       <string>Name:</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="0" column="1">
+                     <widget class="QLineEdit" name="link_name">
+                      <property name="placeholderText">
+                       <string>请输入内容...</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="0">
+                     <widget class="QLabel" name="label_92">
+                      <property name="text">
+                       <string>Type:</string>
+                      </property>
+                     </widget>
+                    </item>
+                    <item row="1" column="1">
+                     <widget class="QLabel" name="label_91">
+                      <property name="text">
+                       <string>Link</string>
+                      </property>
+                     </widget>
+                    </item>
+                   </layout>
                   </widget>
                  </item>
                  <item row="0" column="1">
-                  <widget class="QLineEdit" name="link_name">
-                   <property name="placeholderText">
-                    <string>请输入内容...</string>
+                  <widget class="QLabel" name="label_89">
+                   <property name="text">
+                    <string>base</string>
                    </property>
                   </widget>
                  </item>
@@ -84,171 +193,170 @@
                </widget>
               </item>
               <item>
-               <widget class="QGroupBox" name="groupBox">
-                <property name="styleSheet">
-                 <string notr="true"/>
+               <widget class="QWidget" name="widget_111" native="true">
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>16777215</height>
+                 </size>
                 </property>
-                <property name="title">
-                 <string>visuals</string>
-                </property>
-                <layout class="QVBoxLayout" name="verticalLayout_2">
-                 <item>
-                  <widget class="QGroupBox" name="groupBox_2">
-                   <property name="title">
-                    <string>origin</string>
+                <layout class="QFormLayout" name="formLayout_8">
+                 <property name="topMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>0</number>
+                 </property>
+                 <item row="0" column="0">
+                  <widget class="QToolButton" name="toolButton_visuals">
+                   <property name="text">
+                    <string>-</string>
                    </property>
-                   <layout class="QVBoxLayout" name="verticalLayout_4">
-                    <item>
-                     <widget class="QWidget" name="widget_4" native="true">
-                      <layout class="QHBoxLayout" name="horizontalLayout_2">
-                       <item>
-                        <widget class="QLabel" name="label_4">
-                         <property name="text">
-                          <string>x:</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QLineEdit" name="visual_origin_x"/>
-                       </item>
-                       <item>
-                        <widget class="QLabel" name="label_5">
-                         <property name="text">
-                          <string>y:</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QLineEdit" name="visual_origin_y"/>
-                       </item>
-                       <item>
-                        <widget class="QLabel" name="label_6">
-                         <property name="text">
-                          <string>z:</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QLineEdit" name="visual_origin_z"/>
-                       </item>
-                      </layout>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QWidget" name="widget_5" native="true">
-                      <layout class="QHBoxLayout" name="horizontalLayout">
-                       <item>
-                        <widget class="QLabel" name="label_7">
-                         <property name="text">
-                          <string>r:</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QLineEdit" name="visual_origin_r"/>
-                       </item>
-                       <item>
-                        <widget class="QLabel" name="label_8">
-                         <property name="text">
-                          <string>p:</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QLineEdit" name="visual_origin_p"/>
-                       </item>
-                       <item>
-                        <widget class="QLabel" name="label_9">
-                         <property name="text">
-                          <string>y:</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QLineEdit" name="visual_origin_y_2"/>
-                       </item>
-                      </layout>
-                     </widget>
-                    </item>
-                   </layout>
+                   <property name="checkable">
+                    <bool>true</bool>
+                   </property>
                   </widget>
                  </item>
-                 <item>
-                  <widget class="QGroupBox" name="groupBox_15">
-                   <property name="title">
-                    <string>geometry</string>
+                 <item row="0" column="1">
+                  <widget class="QLabel" name="label_88">
+                   <property name="text">
+                    <string>visuals</string>
                    </property>
-                   <layout class="QGridLayout" name="gridLayout_7">
-                    <item row="5" column="0" colspan="2">
-                     <widget class="QGroupBox" name="groupBox_16">
-                      <property name="title">
-                       <string>mesh</string>
+                  </widget>
+                 </item>
+                 <item row="1" column="0" colspan="2">
+                  <widget class="QWidget" name="widget_visuals" native="true">
+                   <property name="minimumSize">
+                    <size>
+                     <width>0</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <layout class="QVBoxLayout" name="verticalLayout_16">
+                    <property name="topMargin">
+                     <number>0</number>
+                    </property>
+                    <property name="bottomMargin">
+                     <number>0</number>
+                    </property>
+                    <item>
+                     <widget class="QWidget" name="widget_25" native="true">
+                      <property name="minimumSize">
+                       <size>
+                        <width>0</width>
+                        <height>0</height>
+                       </size>
                       </property>
-                      <layout class="QGridLayout" name="gridLayout_8">
+                      <layout class="QFormLayout" name="formLayout_6">
+                       <property name="topMargin">
+                        <number>0</number>
+                       </property>
+                       <property name="bottomMargin">
+                        <number>0</number>
+                       </property>
                        <item row="0" column="0">
-                        <widget class="QLabel" name="label_42">
+                        <widget class="QToolButton" name="toolButton_visuals_origin">
                          <property name="text">
-                          <string>filename:</string>
+                          <string>-</string>
+                         </property>
+                         <property name="checkable">
+                          <bool>true</bool>
                          </property>
                         </widget>
-                       </item>
-                       <item row="1" column="1">
-                        <widget class="QLineEdit" name="lineEdit_38"/>
                        </item>
                        <item row="0" column="1">
-                        <widget class="QLineEdit" name="lineEdit_37"/>
-                       </item>
-                       <item row="1" column="0">
-                        <widget class="QLabel" name="label_43">
+                        <widget class="QLabel" name="label_75">
                          <property name="text">
-                          <string>scale:</string>
+                          <string>origin</string>
                          </property>
                         </widget>
                        </item>
-                      </layout>
-                     </widget>
-                    </item>
-                    <item row="4" column="0" colspan="2">
-                     <widget class="QWidget" name="widget_13" native="true"/>
-                    </item>
-                    <item row="1" column="0" colspan="2">
-                     <widget class="QGroupBox" name="visual_geometry_box">
-                      <property name="title">
-                       <string>Box</string>
-                      </property>
-                      <layout class="QVBoxLayout" name="verticalLayout_7">
-                       <item>
-                        <widget class="QWidget" name="widget_15" native="true">
-                         <layout class="QHBoxLayout" name="horizontalLayout_13">
+                       <item row="1" column="0" colspan="2">
+                        <widget class="QWidget" name="widget_visuals_origin" native="true">
+                         <property name="minimumSize">
+                          <size>
+                           <width>0</width>
+                           <height>0</height>
+                          </size>
+                         </property>
+                         <layout class="QVBoxLayout" name="verticalLayout_15">
+                          <property name="topMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="bottomMargin">
+                           <number>0</number>
+                          </property>
                           <item>
-                           <widget class="QLabel" name="label_39">
-                            <property name="text">
-                             <string>l:</string>
-                            </property>
+                           <widget class="QWidget" name="widget_32" native="true">
+                            <layout class="QHBoxLayout" name="horizontalLayout_32">
+                             <item>
+                              <widget class="QLabel" name="label_82">
+                               <property name="text">
+                                <string>x:</string>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QLineEdit" name="visual_origin_x"/>
+                             </item>
+                             <item>
+                              <widget class="QLabel" name="label_83">
+                               <property name="text">
+                                <string>y:</string>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QLineEdit" name="visual_origin_y"/>
+                             </item>
+                             <item>
+                              <widget class="QLabel" name="label_84">
+                               <property name="text">
+                                <string>z:</string>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QLineEdit" name="visual_origin_z"/>
+                             </item>
+                            </layout>
                            </widget>
                           </item>
                           <item>
-                           <widget class="QLineEdit" name="visual_box_l"/>
-                          </item>
-                          <item>
-                           <widget class="QLabel" name="label_40">
-                            <property name="text">
-                             <string>w:</string>
-                            </property>
+                           <widget class="QWidget" name="widget_33" native="true">
+                            <layout class="QHBoxLayout" name="horizontalLayout_33">
+                             <item>
+                              <widget class="QLabel" name="label_85">
+                               <property name="text">
+                                <string>r:</string>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QLineEdit" name="visual_origin_r"/>
+                             </item>
+                             <item>
+                              <widget class="QLabel" name="label_86">
+                               <property name="text">
+                                <string>p:</string>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QLineEdit" name="visual_origin_p"/>
+                             </item>
+                             <item>
+                              <widget class="QLabel" name="label_87">
+                               <property name="text">
+                                <string>y:</string>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QLineEdit" name="visual_origin_y_2"/>
+                             </item>
+                            </layout>
                            </widget>
-                          </item>
-                          <item>
-                           <widget class="QLineEdit" name="visual_box_w"/>
-                          </item>
-                          <item>
-                           <widget class="QLabel" name="visual_box_label">
-                            <property name="text">
-                             <string>h:</string>
-                            </property>
-                           </widget>
-                          </item>
-                          <item>
-                           <widget class="QLineEdit" name="visual_box_h"/>
                           </item>
                          </layout>
                         </widget>
@@ -256,401 +364,353 @@
                       </layout>
                      </widget>
                     </item>
-                    <item row="0" column="0">
-                     <widget class="QLabel" name="label_41">
-                      <property name="text">
-                       <string>Type:</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item row="0" column="1">
-                     <widget class="QComboBox" name="visual_geometry_type">
-                      <item>
-                       <property name="text">
-                        <string>Box</string>
+                    <item>
+                     <widget class="QWidget" name="widget_27" native="true">
+                      <layout class="QFormLayout" name="formLayout_7">
+                       <property name="topMargin">
+                        <number>0</number>
                        </property>
-                      </item>
-                      <item>
-                       <property name="text">
-                        <string>Cylinder</string>
+                       <property name="bottomMargin">
+                        <number>0</number>
                        </property>
-                      </item>
-                      <item>
-                       <property name="text">
-                        <string>Sphere</string>
-                       </property>
-                      </item>
-                     </widget>
-                    </item>
-                    <item row="2" column="0" colspan="2">
-                     <widget class="QGroupBox" name="visual_geometry_cylinder">
-                      <property name="title">
-                       <string>Cylinder</string>
-                      </property>
-                      <layout class="QHBoxLayout" name="horizontalLayout_12">
-                       <item>
-                        <widget class="QLabel" name="label_10">
-                         <property name="text">
-                          <string>radius:</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QLineEdit" name="visual_cylinder_radius"/>
-                       </item>
-                       <item>
-                        <widget class="QLabel" name="visual_cylinder_lenth">
-                         <property name="text">
-                          <string>length</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QLineEdit" name="visual_cylinder_length"/>
-                       </item>
-                      </layout>
-                     </widget>
-                    </item>
-                    <item row="3" column="0" colspan="2">
-                     <widget class="QGroupBox" name="visual_geometry_sphere">
-                      <property name="title">
-                       <string>Sphere</string>
-                      </property>
-                      <layout class="QHBoxLayout" name="horizontalLayout_14">
-                       <item>
-                        <widget class="QLabel" name="label_12">
-                         <property name="text">
-                          <string>radius:</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QLineEdit" name="visual_sphere_radius"/>
-                       </item>
-                      </layout>
-                     </widget>
-                    </item>
-                   </layout>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QGroupBox" name="groupBox_9">
-                   <property name="title">
-                    <string>material</string>
-                   </property>
-                   <layout class="QHBoxLayout" name="horizontalLayout_5">
-                    <item>
-                     <widget class="QLabel" name="label_22">
-                      <property name="text">
-                       <string>path:</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QLineEdit" name="lineEdit_18"/>
-                    </item>
-                   </layout>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QGroupBox" name="groupBox_10">
-                   <property name="title">
-                    <string>color</string>
-                   </property>
-                   <layout class="QHBoxLayout" name="horizontalLayout_6">
-                    <item>
-                     <widget class="QLabel" name="label_25">
-                      <property name="text">
-                       <string>r:</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QLineEdit" name="visual_color_r"/>
-                    </item>
-                    <item>
-                     <widget class="QLabel" name="label_23">
-                      <property name="text">
-                       <string>g:</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QLineEdit" name="visual_color_g"/>
-                    </item>
-                    <item>
-                     <widget class="QLabel" name="label_24">
-                      <property name="text">
-                       <string>b:</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QLineEdit" name="visual_color_b"/>
-                    </item>
-                   </layout>
-                  </widget>
-                 </item>
-                </layout>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item>
-            <widget class="QWidget" name="widget_12" native="true">
-             <layout class="QVBoxLayout" name="verticalLayout_5">
-              <item>
-               <widget class="QGroupBox" name="groupBox_5">
-                <property name="title">
-                 <string>collisions</string>
-                </property>
-                <layout class="QVBoxLayout" name="verticalLayout_6">
-                 <item>
-                  <widget class="QGroupBox" name="groupBox_6">
-                   <property name="title">
-                    <string>origin</string>
-                   </property>
-                   <layout class="QVBoxLayout" name="verticalLayout_8">
-                    <item>
-                     <widget class="QWidget" name="widget_6" native="true">
-                      <layout class="QHBoxLayout" name="horizontalLayout_3">
-                       <item>
-                        <widget class="QLabel" name="label_13">
-                         <property name="text">
-                          <string>x:</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QLineEdit" name="lineEdit_10"/>
-                       </item>
-                       <item>
-                        <widget class="QLabel" name="label_14">
-                         <property name="text">
-                          <string>y:</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QLineEdit" name="lineEdit_11"/>
-                       </item>
-                       <item>
-                        <widget class="QLabel" name="label_15">
-                         <property name="text">
-                          <string>z:</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QLineEdit" name="lineEdit_12"/>
-                       </item>
-                      </layout>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QWidget" name="widget_7" native="true">
-                      <layout class="QHBoxLayout" name="horizontalLayout_4">
-                       <item>
-                        <widget class="QLabel" name="label_16">
-                         <property name="text">
-                          <string>r:</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QLineEdit" name="lineEdit_13"/>
-                       </item>
-                       <item>
-                        <widget class="QLabel" name="label_17">
-                         <property name="text">
-                          <string>p:</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QLineEdit" name="lineEdit_14"/>
-                       </item>
-                       <item>
-                        <widget class="QLabel" name="label_18">
-                         <property name="text">
-                          <string>y:</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QLineEdit" name="lineEdit_15"/>
-                       </item>
-                      </layout>
-                     </widget>
-                    </item>
-                   </layout>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QGroupBox" name="groupBox_7">
-                   <property name="minimumSize">
-                    <size>
-                     <width>0</width>
-                     <height>168</height>
-                    </size>
-                   </property>
-                   <property name="title">
-                    <string>geometry</string>
-                   </property>
-                   <layout class="QGridLayout" name="gridLayout_4">
-                    <item row="4" column="0" colspan="2">
-                     <widget class="QGroupBox" name="groupBox_8">
-                      <property name="minimumSize">
-                       <size>
-                        <width>0</width>
-                        <height>93</height>
-                       </size>
-                      </property>
-                      <property name="title">
-                       <string>mesh</string>
-                      </property>
-                      <layout class="QGridLayout" name="gridLayout_5">
                        <item row="0" column="0">
-                        <widget class="QLabel" name="label_20">
+                        <widget class="QToolButton" name="toolButton_visuals_geometry">
                          <property name="text">
-                          <string>filename:</string>
+                          <string>-</string>
+                         </property>
+                         <property name="checkable">
+                          <bool>true</bool>
                          </property>
                         </widget>
                        </item>
                        <item row="0" column="1">
-                        <widget class="QLineEdit" name="lineEdit_16"/>
-                       </item>
-                       <item row="1" column="0">
-                        <widget class="QLabel" name="label_21">
+                        <widget class="QLabel" name="label_76">
                          <property name="text">
-                          <string>scale:</string>
+                          <string>geometry</string>
                          </property>
                         </widget>
                        </item>
-                       <item row="1" column="1">
-                        <widget class="QLineEdit" name="lineEdit_17"/>
+                       <item row="1" column="0" colspan="2">
+                        <widget class="QWidget" name="widget_visuals_geometry" native="true">
+                         <property name="minimumSize">
+                          <size>
+                           <width>0</width>
+                           <height>0</height>
+                          </size>
+                         </property>
+                         <layout class="QVBoxLayout" name="verticalLayout">
+                          <property name="topMargin">
+                           <number>0</number>
+                          </property>
+                          <property name="bottomMargin">
+                           <number>0</number>
+                          </property>
+                          <item>
+                           <widget class="QLabel" name="label_78">
+                            <property name="text">
+                             <string>Type:</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QComboBox" name="visual_geometry_type">
+                            <item>
+                             <property name="text">
+                              <string>Box</string>
+                             </property>
+                            </item>
+                            <item>
+                             <property name="text">
+                              <string>Cylinder</string>
+                             </property>
+                            </item>
+                            <item>
+                             <property name="text">
+                              <string>Sphere</string>
+                             </property>
+                            </item>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QGroupBox" name="visual_geometry_box">
+                            <property name="title">
+                             <string>Box</string>
+                            </property>
+                            <layout class="QVBoxLayout" name="verticalLayout_14">
+                             <item>
+                              <widget class="QWidget" name="widget_29" native="true">
+                               <layout class="QHBoxLayout" name="horizontalLayout_31">
+                                <item>
+                                 <widget class="QLabel" name="label_80">
+                                  <property name="text">
+                                   <string>l:</string>
+                                  </property>
+                                 </widget>
+                                </item>
+                                <item>
+                                 <widget class="QLineEdit" name="visual_box_l"/>
+                                </item>
+                                <item>
+                                 <widget class="QLabel" name="label_81">
+                                  <property name="text">
+                                   <string>w:</string>
+                                  </property>
+                                 </widget>
+                                </item>
+                                <item>
+                                 <widget class="QLineEdit" name="visual_box_w"/>
+                                </item>
+                                <item>
+                                 <widget class="QLabel" name="visual_box_label">
+                                  <property name="text">
+                                   <string>h:</string>
+                                  </property>
+                                 </widget>
+                                </item>
+                                <item>
+                                 <widget class="QLineEdit" name="visual_box_h"/>
+                                </item>
+                               </layout>
+                              </widget>
+                             </item>
+                            </layout>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QGroupBox" name="visual_geometry_cylinder">
+                            <property name="title">
+                             <string>Cylinder</string>
+                            </property>
+                            <layout class="QHBoxLayout" name="horizontalLayout_30">
+                             <item>
+                              <widget class="QLabel" name="label_79">
+                               <property name="text">
+                                <string>radius:</string>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QLineEdit" name="visual_cylinder_radius"/>
+                             </item>
+                             <item>
+                              <widget class="QLabel" name="visual_cylinder_lenth">
+                               <property name="text">
+                                <string>length</string>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QLineEdit" name="visual_cylinder_length"/>
+                             </item>
+                            </layout>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QGroupBox" name="visual_geometry_sphere">
+                            <property name="title">
+                             <string>Sphere</string>
+                            </property>
+                            <layout class="QHBoxLayout" name="horizontalLayout_29">
+                             <item>
+                              <widget class="QLabel" name="label_77">
+                               <property name="text">
+                                <string>radius:</string>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QLineEdit" name="visual_sphere_radius"/>
+                             </item>
+                            </layout>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QWidget" name="widget_19" native="true">
+                            <layout class="QFormLayout" name="formLayout_2">
+                             <property name="topMargin">
+                              <number>0</number>
+                             </property>
+                             <property name="bottomMargin">
+                              <number>0</number>
+                             </property>
+                             <item row="0" column="0">
+                              <widget class="QToolButton" name="toolButton_mesh">
+                               <property name="text">
+                                <string>-</string>
+                               </property>
+                               <property name="checkable">
+                                <bool>true</bool>
+                               </property>
+                              </widget>
+                             </item>
+                             <item row="0" column="1">
+                              <widget class="QLabel" name="label_44">
+                               <property name="text">
+                                <string>mesh</string>
+                               </property>
+                              </widget>
+                             </item>
+                             <item row="1" column="0" colspan="2">
+                              <widget class="QWidget" name="widget_mesh" native="true">
+                               <property name="minimumSize">
+                                <size>
+                                 <width>100</width>
+                                 <height>100</height>
+                                </size>
+                               </property>
+                               <layout class="QFormLayout" name="formLayout_5">
+                                <item row="0" column="0">
+                                 <widget class="QLabel" name="label_73">
+                                  <property name="text">
+                                   <string>filename:</string>
+                                  </property>
+                                 </widget>
+                                </item>
+                                <item row="0" column="1">
+                                 <widget class="QLineEdit" name="lineEdit_48"/>
+                                </item>
+                                <item row="1" column="0">
+                                 <widget class="QLabel" name="label_74">
+                                  <property name="text">
+                                   <string>scale:</string>
+                                  </property>
+                                 </widget>
+                                </item>
+                                <item row="1" column="1">
+                                 <widget class="QLineEdit" name="lineEdit_47"/>
+                                </item>
+                               </layout>
+                              </widget>
+                             </item>
+                            </layout>
+                           </widget>
+                          </item>
+                         </layout>
+                        </widget>
                        </item>
                       </layout>
                      </widget>
                     </item>
-                    <item row="1" column="0" colspan="2">
-                     <widget class="QGroupBox" name="collision_geometry_box">
-                      <property name="title">
-                       <string>Box</string>
-                      </property>
-                      <layout class="QVBoxLayout" name="verticalLayout_11">
-                       <item>
-                        <widget class="QWidget" name="widget_16" native="true">
-                         <layout class="QHBoxLayout" name="horizontalLayout_16">
+                    <item>
+                     <widget class="QWidget" name="widget_21" native="true">
+                      <layout class="QFormLayout" name="formLayout_3">
+                       <property name="topMargin">
+                        <number>0</number>
+                       </property>
+                       <property name="bottomMargin">
+                        <number>0</number>
+                       </property>
+                       <item row="0" column="0">
+                        <widget class="QToolButton" name="toolButton_meterial">
+                         <property name="text">
+                          <string>-</string>
+                         </property>
+                         <property name="checkable">
+                          <bool>true</bool>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="0" column="1">
+                        <widget class="QLabel" name="label_67">
+                         <property name="text">
+                          <string>material</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="1" column="0" colspan="2">
+                        <widget class="QWidget" name="widget_meterial" native="true">
+                         <property name="minimumSize">
+                          <size>
+                           <width>0</width>
+                           <height>0</height>
+                          </size>
+                         </property>
+                         <layout class="QHBoxLayout" name="horizontalLayout_28">
                           <item>
-                           <widget class="QLabel" name="label_46">
+                           <widget class="QLabel" name="label_72">
+                            <property name="text">
+                             <string>path:</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QLineEdit" name="lineEdit_19"/>
+                          </item>
+                         </layout>
+                        </widget>
+                       </item>
+                      </layout>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QWidget" name="widget_23" native="true">
+                      <layout class="QFormLayout" name="formLayout_4">
+                       <property name="topMargin">
+                        <number>0</number>
+                       </property>
+                       <property name="bottomMargin">
+                        <number>0</number>
+                       </property>
+                       <item row="0" column="0">
+                        <widget class="QToolButton" name="toolButton_color">
+                         <property name="text">
+                          <string>-</string>
+                         </property>
+                         <property name="checkable">
+                          <bool>true</bool>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="0" column="1">
+                        <widget class="QLabel" name="label_68">
+                         <property name="text">
+                          <string>color</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="1" column="0" colspan="2">
+                        <widget class="QWidget" name="widget_color" native="true">
+                         <property name="minimumSize">
+                          <size>
+                           <width>0</width>
+                           <height>0</height>
+                          </size>
+                         </property>
+                         <layout class="QHBoxLayout" name="horizontalLayout_19">
+                          <item>
+                           <widget class="QLabel" name="label_70">
                             <property name="text">
                              <string>r:</string>
                             </property>
                            </widget>
                           </item>
                           <item>
-                           <widget class="QLineEdit" name="lineEdit_42"/>
+                           <widget class="QLineEdit" name="visual_color_r"/>
                           </item>
                           <item>
-                           <widget class="QLabel" name="label_47">
+                           <widget class="QLabel" name="label_71">
                             <property name="text">
-                             <string>p:</string>
+                             <string>g:</string>
                             </property>
                            </widget>
                           </item>
                           <item>
-                           <widget class="QLineEdit" name="lineEdit_43"/>
+                           <widget class="QLineEdit" name="visual_color_g"/>
                           </item>
                           <item>
-                           <widget class="QLabel" name="label_48">
+                           <widget class="QLabel" name="label_69">
                             <property name="text">
-                             <string>y:</string>
+                             <string>b:</string>
                             </property>
                            </widget>
                           </item>
                           <item>
-                           <widget class="QLineEdit" name="lineEdit_44"/>
+                           <widget class="QLineEdit" name="visual_color_b"/>
                           </item>
                          </layout>
                         </widget>
                        </item>
                       </layout>
-                     </widget>
-                    </item>
-                    <item row="3" column="0" colspan="2">
-                     <widget class="QGroupBox" name="collision_geometry_cylinder">
-                      <property name="title">
-                       <string>Cylinder</string>
-                      </property>
-                      <layout class="QHBoxLayout" name="horizontalLayout_17">
-                       <item>
-                        <widget class="QLabel" name="label_49">
-                         <property name="text">
-                          <string>r:</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QLineEdit" name="lineEdit_45"/>
-                       </item>
-                       <item>
-                        <widget class="QLabel" name="label_50">
-                         <property name="text">
-                          <string>p:</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QLineEdit" name="lineEdit_46"/>
-                       </item>
-                      </layout>
-                     </widget>
-                    </item>
-                    <item row="2" column="0" colspan="2">
-                     <widget class="QGroupBox" name="collision_geometry_sphere">
-                      <property name="title">
-                       <string>Sphere</string>
-                      </property>
-                      <layout class="QHBoxLayout" name="horizontalLayout_15">
-                       <item>
-                        <widget class="QLabel" name="label_45">
-                         <property name="text">
-                          <string>r:</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QLineEdit" name="lineEdit_41"/>
-                       </item>
-                      </layout>
-                     </widget>
-                    </item>
-                    <item row="0" column="1">
-                     <widget class="QComboBox" name="collision_geometry_type">
-                      <item>
-                       <property name="text">
-                        <string>Box</string>
-                       </property>
-                      </item>
-                      <item>
-                       <property name="text">
-                        <string>Cylinder</string>
-                       </property>
-                      </item>
-                      <item>
-                       <property name="text">
-                        <string>Sphere</string>
-                       </property>
-                      </item>
-                     </widget>
-                    </item>
-                    <item row="0" column="0">
-                     <widget class="QLabel" name="label_19">
-                      <property name="text">
-                       <string>Type:</string>
-                      </property>
                      </widget>
                     </item>
                    </layout>
@@ -660,107 +720,609 @@
                </widget>
               </item>
               <item>
-               <widget class="QGroupBox" name="groupBox_11">
-                <property name="title">
-                 <string>inertial</string>
+               <widget class="QWidget" name="widget_40" native="true">
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>16777215</height>
+                 </size>
                 </property>
-                <layout class="QVBoxLayout" name="verticalLayout_9">
-                 <item>
-                  <widget class="QWidget" name="widget_8" native="true">
-                   <layout class="QHBoxLayout" name="horizontalLayout_7">
+                <layout class="QFormLayout" name="formLayout_12">
+                 <property name="topMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>0</number>
+                 </property>
+                 <item row="0" column="0">
+                  <widget class="QToolButton" name="toolButton_collisions">
+                   <property name="text">
+                    <string>-</string>
+                   </property>
+                   <property name="checkable">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="0" colspan="2">
+                  <widget class="QWidget" name="widget_collisions" native="true">
+                   <property name="minimumSize">
+                    <size>
+                     <width>0</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <layout class="QVBoxLayout" name="verticalLayout_25">
+                    <property name="topMargin">
+                     <number>0</number>
+                    </property>
+                    <property name="bottomMargin">
+                     <number>0</number>
+                    </property>
                     <item>
-                     <widget class="QLabel" name="label_26">
-                      <property name="text">
-                       <string>mass:</string>
-                      </property>
+                     <widget class="QWidget" name="widget_53" native="true">
+                      <layout class="QFormLayout" name="formLayout_16">
+                       <property name="topMargin">
+                        <number>0</number>
+                       </property>
+                       <property name="bottomMargin">
+                        <number>0</number>
+                       </property>
+                       <item row="0" column="0">
+                        <widget class="QToolButton" name="toolButton_collisions_origin">
+                         <property name="text">
+                          <string>-</string>
+                         </property>
+                         <property name="checkable">
+                          <bool>true</bool>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="0" column="1">
+                        <widget class="QLabel" name="label_114">
+                         <property name="text">
+                          <string>origin</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="1" column="0" colspan="2">
+                        <widget class="QWidget" name="widget_collisions_origin" native="true">
+                         <property name="minimumSize">
+                          <size>
+                           <width>0</width>
+                           <height>0</height>
+                          </size>
+                         </property>
+                         <layout class="QVBoxLayout" name="verticalLayout_22">
+                          <item>
+                           <widget class="QWidget" name="widget_55" native="true">
+                            <layout class="QHBoxLayout" name="horizontalLayout_35">
+                             <item>
+                              <widget class="QLabel" name="label_115">
+                               <property name="text">
+                                <string>x:</string>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QLineEdit" name="visual_origin_x_4"/>
+                             </item>
+                             <item>
+                              <widget class="QLabel" name="label_116">
+                               <property name="text">
+                                <string>y:</string>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QLineEdit" name="visual_origin_y_7"/>
+                             </item>
+                             <item>
+                              <widget class="QLabel" name="label_117">
+                               <property name="text">
+                                <string>z:</string>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QLineEdit" name="visual_origin_z_4"/>
+                             </item>
+                            </layout>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QWidget" name="widget_56" native="true">
+                            <layout class="QHBoxLayout" name="horizontalLayout_42">
+                             <item>
+                              <widget class="QLabel" name="label_118">
+                               <property name="text">
+                                <string>r:</string>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QLineEdit" name="visual_origin_r_4"/>
+                             </item>
+                             <item>
+                              <widget class="QLabel" name="label_119">
+                               <property name="text">
+                                <string>p:</string>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QLineEdit" name="visual_origin_p_4"/>
+                             </item>
+                             <item>
+                              <widget class="QLabel" name="label_120">
+                               <property name="text">
+                                <string>y:</string>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QLineEdit" name="visual_origin_y_8"/>
+                             </item>
+                            </layout>
+                           </widget>
+                          </item>
+                         </layout>
+                        </widget>
+                       </item>
+                      </layout>
                      </widget>
                     </item>
                     <item>
-                     <widget class="QLineEdit" name="lineEdit_22"/>
+                     <widget class="QWidget" name="widget_57" native="true">
+                      <layout class="QFormLayout" name="formLayout_17">
+                       <property name="topMargin">
+                        <number>0</number>
+                       </property>
+                       <property name="bottomMargin">
+                        <number>0</number>
+                       </property>
+                       <item row="0" column="0">
+                        <widget class="QToolButton" name="toolButton_collisions_geometry">
+                         <property name="text">
+                          <string>-</string>
+                         </property>
+                         <property name="checkable">
+                          <bool>true</bool>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="0" column="1">
+                        <widget class="QLabel" name="label_121">
+                         <property name="text">
+                          <string>geometry</string>
+                         </property>
+                        </widget>
+                       </item>
+                       <item row="1" column="0" colspan="2">
+                        <widget class="QWidget" name="widget_collisions_geometry" native="true">
+                         <property name="minimumSize">
+                          <size>
+                           <width>0</width>
+                           <height>0</height>
+                          </size>
+                         </property>
+                         <layout class="QVBoxLayout" name="verticalLayout_23">
+                          <item>
+                           <widget class="QLabel" name="label_122">
+                            <property name="text">
+                             <string>Type:</string>
+                            </property>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QComboBox" name="collision_geometry_type">
+                            <item>
+                             <property name="text">
+                              <string>Box</string>
+                             </property>
+                            </item>
+                            <item>
+                             <property name="text">
+                              <string>Cylinder</string>
+                             </property>
+                            </item>
+                            <item>
+                             <property name="text">
+                              <string>Sphere</string>
+                             </property>
+                            </item>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QGroupBox" name="collision_geometry_box">
+                            <property name="title">
+                             <string>Box</string>
+                            </property>
+                            <layout class="QVBoxLayout" name="verticalLayout_24">
+                             <item>
+                              <widget class="QWidget" name="widget_59" native="true">
+                               <layout class="QHBoxLayout" name="horizontalLayout_43">
+                                <item>
+                                 <widget class="QLabel" name="label_123">
+                                  <property name="text">
+                                   <string>l:</string>
+                                  </property>
+                                 </widget>
+                                </item>
+                                <item>
+                                 <widget class="QLineEdit" name="visual_box_l_4"/>
+                                </item>
+                                <item>
+                                 <widget class="QLabel" name="label_124">
+                                  <property name="text">
+                                   <string>w:</string>
+                                  </property>
+                                 </widget>
+                                </item>
+                                <item>
+                                 <widget class="QLineEdit" name="visual_box_w_4"/>
+                                </item>
+                                <item>
+                                 <widget class="QLabel" name="visual_box_label_4">
+                                  <property name="text">
+                                   <string>h:</string>
+                                  </property>
+                                 </widget>
+                                </item>
+                                <item>
+                                 <widget class="QLineEdit" name="visual_box_h_4"/>
+                                </item>
+                               </layout>
+                              </widget>
+                             </item>
+                            </layout>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QGroupBox" name="collision_geometry_cylinder">
+                            <property name="title">
+                             <string>Cylinder</string>
+                            </property>
+                            <layout class="QHBoxLayout" name="horizontalLayout_44">
+                             <item>
+                              <widget class="QLabel" name="label_125">
+                               <property name="text">
+                                <string>radius:</string>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QLineEdit" name="visual_cylinder_radius_4"/>
+                             </item>
+                             <item>
+                              <widget class="QLabel" name="visual_cylinder_lenth_4">
+                               <property name="text">
+                                <string>length</string>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QLineEdit" name="visual_cylinder_length_4"/>
+                             </item>
+                            </layout>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QGroupBox" name="collision_geometry_sphere">
+                            <property name="title">
+                             <string>Sphere</string>
+                            </property>
+                            <layout class="QHBoxLayout" name="horizontalLayout_45">
+                             <item>
+                              <widget class="QLabel" name="label_126">
+                               <property name="text">
+                                <string>radius:</string>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QLineEdit" name="visual_sphere_radius_4"/>
+                             </item>
+                            </layout>
+                           </widget>
+                          </item>
+                         </layout>
+                        </widget>
+                       </item>
+                      </layout>
+                     </widget>
                     </item>
                    </layout>
                   </widget>
                  </item>
-                 <item>
-                  <widget class="QGroupBox" name="groupBox_12">
+                 <item row="0" column="1">
+                  <widget class="QLabel" name="label_97">
+                   <property name="text">
+                    <string>collisions</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </widget>
+              </item>
+              <item>
+               <widget class="QWidget" name="widget_42" native="true">
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>16777215</height>
+                 </size>
+                </property>
+                <layout class="QFormLayout" name="formLayout_13">
+                 <property name="topMargin">
+                  <number>0</number>
+                 </property>
+                 <property name="bottomMargin">
+                  <number>0</number>
+                 </property>
+                 <item row="0" column="0">
+                  <widget class="QToolButton" name="toolButton_inertial">
+                   <property name="text">
+                    <string>-</string>
+                   </property>
+                   <property name="checkable">
+                    <bool>true</bool>
+                   </property>
+                  </widget>
+                 </item>
+                 <item row="1" column="0" colspan="2">
+                  <widget class="QWidget" name="widget_inertial" native="true">
                    <property name="minimumSize">
                     <size>
                      <width>0</width>
-                     <height>127</height>
+                     <height>0</height>
                     </size>
                    </property>
-                   <property name="title">
-                    <string>origin</string>
-                   </property>
-                   <layout class="QVBoxLayout" name="verticalLayout_10">
+                   <layout class="QVBoxLayout" name="verticalLayout_21">
                     <item>
-                     <widget class="QWidget" name="widget_9" native="true">
-                      <layout class="QHBoxLayout" name="horizontalLayout_8">
+                     <widget class="QWidget" name="widget_52" native="true">
+                      <layout class="QHBoxLayout" name="horizontalLayout_36">
+                       <property name="topMargin">
+                        <number>0</number>
+                       </property>
+                       <property name="bottomMargin">
+                        <number>0</number>
+                       </property>
                        <item>
-                        <widget class="QLabel" name="label_27">
+                        <widget class="QLabel" name="label_113">
                          <property name="text">
-                          <string>x:</string>
+                          <string>mass:</string>
                          </property>
                         </widget>
                        </item>
                        <item>
-                        <widget class="QLineEdit" name="lineEdit_23"/>
-                       </item>
-                       <item>
-                        <widget class="QLabel" name="label_28">
-                         <property name="text">
-                          <string>y:</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QLineEdit" name="lineEdit_24"/>
-                       </item>
-                       <item>
-                        <widget class="QLabel" name="label_29">
-                         <property name="text">
-                          <string>z:</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QLineEdit" name="lineEdit_25"/>
+                        <widget class="QLineEdit" name="lineEdit_62"/>
                        </item>
                       </layout>
                      </widget>
                     </item>
                     <item>
-                     <widget class="QWidget" name="widget_10" native="true">
-                      <layout class="QHBoxLayout" name="horizontalLayout_9">
-                       <item>
-                        <widget class="QLabel" name="label_30">
+                     <widget class="QWidget" name="widget_44" native="true">
+                      <layout class="QFormLayout" name="formLayout_14">
+                       <property name="topMargin">
+                        <number>0</number>
+                       </property>
+                       <property name="bottomMargin">
+                        <number>0</number>
+                       </property>
+                       <item row="0" column="0">
+                        <widget class="QToolButton" name="toolButton_inertial_origin">
                          <property name="text">
-                          <string>r:</string>
+                          <string>-</string>
+                         </property>
+                         <property name="checkable">
+                          <bool>true</bool>
                          </property>
                         </widget>
                        </item>
-                       <item>
-                        <widget class="QLineEdit" name="lineEdit_26"/>
+                       <item row="1" column="0" colspan="2">
+                        <widget class="QWidget" name="widget_inertial_origin" native="true">
+                         <property name="minimumSize">
+                          <size>
+                           <width>0</width>
+                           <height>0</height>
+                          </size>
+                         </property>
+                         <layout class="QVBoxLayout" name="verticalLayout_20">
+                          <item>
+                           <widget class="QWidget" name="widget_50" native="true">
+                            <layout class="QHBoxLayout" name="horizontalLayout_37">
+                             <item>
+                              <widget class="QLabel" name="label_107">
+                               <property name="text">
+                                <string>x:</string>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QLineEdit" name="lineEdit_56"/>
+                             </item>
+                             <item>
+                              <widget class="QLabel" name="label_108">
+                               <property name="text">
+                                <string>y:</string>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QLineEdit" name="lineEdit_57"/>
+                             </item>
+                             <item>
+                              <widget class="QLabel" name="label_109">
+                               <property name="text">
+                                <string>z:</string>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QLineEdit" name="lineEdit_58"/>
+                             </item>
+                            </layout>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QWidget" name="widget_51" native="true">
+                            <layout class="QHBoxLayout" name="horizontalLayout_41">
+                             <item>
+                              <widget class="QLabel" name="label_110">
+                               <property name="text">
+                                <string>r:</string>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QLineEdit" name="lineEdit_59"/>
+                             </item>
+                             <item>
+                              <widget class="QLabel" name="label_111">
+                               <property name="text">
+                                <string>p:</string>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QLineEdit" name="lineEdit_60"/>
+                             </item>
+                             <item>
+                              <widget class="QLabel" name="label_112">
+                               <property name="text">
+                                <string>y:</string>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QLineEdit" name="lineEdit_61"/>
+                             </item>
+                            </layout>
+                           </widget>
+                          </item>
+                         </layout>
+                        </widget>
                        </item>
-                       <item>
-                        <widget class="QLabel" name="label_31">
+                       <item row="0" column="1">
+                        <widget class="QLabel" name="label_99">
                          <property name="text">
-                          <string>p:</string>
+                          <string>origin</string>
                          </property>
                         </widget>
                        </item>
-                       <item>
-                        <widget class="QLineEdit" name="lineEdit_27"/>
-                       </item>
-                       <item>
-                        <widget class="QLabel" name="label_32">
+                      </layout>
+                     </widget>
+                    </item>
+                    <item>
+                     <widget class="QWidget" name="widget_46" native="true">
+                      <layout class="QFormLayout" name="formLayout_15">
+                       <property name="topMargin">
+                        <number>0</number>
+                       </property>
+                       <property name="bottomMargin">
+                        <number>0</number>
+                       </property>
+                       <item row="0" column="0">
+                        <widget class="QToolButton" name="toolButton_inertia_matrix">
                          <property name="text">
-                          <string>y:</string>
+                          <string>-</string>
+                         </property>
+                         <property name="checkable">
+                          <bool>true</bool>
                          </property>
                         </widget>
                        </item>
-                       <item>
-                        <widget class="QLineEdit" name="lineEdit_28"/>
+                       <item row="1" column="0" colspan="2">
+                        <widget class="QWidget" name="widget_inertia_matrix" native="true">
+                         <property name="minimumSize">
+                          <size>
+                           <width>0</width>
+                           <height>0</height>
+                          </size>
+                         </property>
+                         <layout class="QVBoxLayout" name="verticalLayout_19">
+                          <item>
+                           <widget class="QWidget" name="widget_48" native="true">
+                            <layout class="QHBoxLayout" name="horizontalLayout_39">
+                             <item>
+                              <widget class="QLabel" name="label_93">
+                               <property name="text">
+                                <string>ixx:</string>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QLineEdit" name="lineEdit_35"/>
+                             </item>
+                             <item>
+                              <widget class="QLabel" name="label_94">
+                               <property name="text">
+                                <string>ixy:</string>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QLineEdit" name="lineEdit_36"/>
+                             </item>
+                             <item>
+                              <widget class="QLabel" name="label_95">
+                               <property name="text">
+                                <string>ixz:</string>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QLineEdit" name="lineEdit_49"/>
+                             </item>
+                            </layout>
+                           </widget>
+                          </item>
+                          <item>
+                           <widget class="QWidget" name="widget_49" native="true">
+                            <layout class="QHBoxLayout" name="horizontalLayout_38">
+                             <item>
+                              <widget class="QLabel" name="label_104">
+                               <property name="text">
+                                <string>iyy:</string>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QLineEdit" name="lineEdit_53"/>
+                             </item>
+                             <item>
+                              <widget class="QLabel" name="label_105">
+                               <property name="text">
+                                <string>iyz:</string>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QLineEdit" name="lineEdit_54"/>
+                             </item>
+                             <item>
+                              <widget class="QLabel" name="label_106">
+                               <property name="text">
+                                <string>izz:</string>
+                               </property>
+                              </widget>
+                             </item>
+                             <item>
+                              <widget class="QLineEdit" name="lineEdit_55"/>
+                             </item>
+                            </layout>
+                           </widget>
+                          </item>
+                         </layout>
+                        </widget>
+                       </item>
+                       <item row="0" column="1">
+                        <widget class="QLabel" name="label_100">
+                         <property name="text">
+                          <string>inertia_matrix</string>
+                         </property>
+                        </widget>
                        </item>
                       </layout>
                      </widget>
@@ -768,91 +1330,11 @@
                    </layout>
                   </widget>
                  </item>
-                 <item>
-                  <widget class="QGroupBox" name="groupBox_13">
-                   <property name="minimumSize">
-                    <size>
-                     <width>0</width>
-                     <height>128</height>
-                    </size>
+                 <item row="0" column="1">
+                  <widget class="QLabel" name="label_98">
+                   <property name="text">
+                    <string>inertial</string>
                    </property>
-                   <property name="title">
-                    <string>inertia_matrix</string>
-                   </property>
-                   <layout class="QVBoxLayout" name="verticalLayout_13">
-                    <item>
-                     <widget class="QWidget" name="widget_11" native="true">
-                      <layout class="QHBoxLayout" name="horizontalLayout_11">
-                       <item>
-                        <widget class="QLabel" name="label_36">
-                         <property name="text">
-                          <string>ixx:</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QLineEdit" name="lineEdit_32"/>
-                       </item>
-                       <item>
-                        <widget class="QLabel" name="label_37">
-                         <property name="text">
-                          <string>ixy:</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QLineEdit" name="lineEdit_33"/>
-                       </item>
-                       <item>
-                        <widget class="QLabel" name="label_38">
-                         <property name="text">
-                          <string>ixz:</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QLineEdit" name="lineEdit_34"/>
-                       </item>
-                      </layout>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QWidget" name="widget_14" native="true">
-                      <layout class="QHBoxLayout" name="horizontalLayout_10">
-                       <item>
-                        <widget class="QLabel" name="label_33">
-                         <property name="text">
-                          <string>iyy:</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QLineEdit" name="lineEdit_29"/>
-                       </item>
-                       <item>
-                        <widget class="QLabel" name="label_34">
-                         <property name="text">
-                          <string>iyz:</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QLineEdit" name="lineEdit_30"/>
-                       </item>
-                       <item>
-                        <widget class="QLabel" name="label_35">
-                         <property name="text">
-                          <string>izz:</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QLineEdit" name="lineEdit_31"/>
-                       </item>
-                      </layout>
-                     </widget>
-                    </item>
-                   </layout>
                   </widget>
                  </item>
                 </layout>
@@ -868,6 +1350,12 @@
       </widget>
      </widget>
      <widget class="QListWidget" name="listWidget">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
       <item>
        <property name="text">
         <string>Box</string>

@@ -321,3 +321,172 @@ void Property::on_visual_sphere_radius_editingFinished()
         updateShape(currentIndex);
 }
 
+
+
+void Property::on_toolButton_link_clicked(bool checked)
+{
+    if (checked) {
+        ui->toolButton_link->setText("+");
+        ui->widget_link->hide();
+    } else {
+        ui->toolButton_link->setText("-");
+        ui->widget_link->show();
+    }
+}
+
+
+void Property::on_toolButton_base_clicked(bool checked)
+{
+    if (checked) {
+        ui->toolButton_base->setText("+");
+        ui->widget_base->hide();
+    } else {
+        ui->toolButton_base->setText("-");
+        ui->widget_base->show();
+    }
+}
+
+
+void Property::on_toolButton_visuals_clicked(bool checked)
+{
+    if (checked) {
+        ui->toolButton_visuals->setText("+");
+        ui->widget_visuals->hide();
+    } else {
+        ui->toolButton_visuals->setText("-");
+        ui->widget_visuals->show();
+    }
+}
+
+
+void Property::on_toolButton_collisions_clicked(bool checked)
+{
+    if (checked) {
+        ui->toolButton_collisions->setText("+");
+        ui->widget_collisions->hide();
+    } else {
+        ui->toolButton_collisions->setText("-");
+        ui->widget_collisions->show();
+    }
+}
+
+
+void Property::on_toolButton_inertial_clicked(bool checked)
+{
+    if (checked) {
+        ui->toolButton_inertial->setText("+");
+        ui->widget_inertial->hide();
+    } else {
+        ui->toolButton_inertial->setText("-");
+        ui->widget_inertial->show();
+    }
+}
+
+
+void Property::on_toolButton_visuals_origin_clicked(bool checked)
+{
+    if (checked) {
+        ui->toolButton_visuals_origin->setText("+");
+        ui->widget_visuals_origin->hide();
+    } else {
+        ui->toolButton_visuals_origin->setText("-");
+        ui->widget_visuals_origin->show();
+    }
+}
+
+
+void Property::on_toolButton_visuals_geometry_clicked(bool checked)
+{
+    if (checked) {
+        ui->toolButton_visuals_geometry->setText("+");
+        ui->widget_visuals_geometry->hide();
+    } else {
+        ui->toolButton_visuals_geometry->setText("-");
+        ui->widget_visuals_geometry->show();
+    }
+}
+
+
+void Property::on_toolButton_mesh_clicked(bool checked)
+{
+    if (checked) {
+        ui->toolButton_mesh->setText("+");
+        ui->widget_mesh->hide();
+    } else {
+        ui->toolButton_mesh->setText("-");
+        ui->widget_mesh->show();
+    }
+}
+
+
+void Property::on_toolButton_meterial_clicked(bool checked)
+{
+    if (checked) {
+        ui->toolButton_meterial->setText("+");
+        ui->widget_meterial->hide();
+    } else {
+        ui->toolButton_meterial->setText("-");
+        ui->widget_meterial->show();
+    }
+}
+
+
+void Property::on_toolButton_color_clicked(bool checked)
+{
+    if (checked) {
+        ui->toolButton_color->setText("+");
+        ui->widget_color->hide();
+    } else {
+        ui->toolButton_color->setText("-");
+        ui->widget_color->show();
+    }
+}
+
+
+void Property::on_toolButton_collisions_origin_clicked(bool checked)
+{
+    if (checked) {
+        ui->toolButton_collisions_origin->setText("+");
+        ui->widget_collisions_origin->hide();
+    } else {
+        ui->toolButton_collisions_origin->setText("-");
+        ui->widget_collisions_origin->show();
+    }
+}
+
+
+void Property::on_toolButton_collisions_geometry_clicked(bool checked)
+{
+    if (checked) {
+        ui->toolButton_collisions_geometry->setText("+");
+        ui->widget_collisions_geometry->hide();
+    } else {
+        ui->toolButton_collisions_geometry->setText("-");
+        ui->widget_collisions_geometry->show();
+    }
+}
+
+
+void Property::on_toolButton_inertial_origin_clicked(bool checked)
+{
+    if (checked) {
+        ui->toolButton_inertial_origin->setText("+");
+        ui->widget_inertial_origin->hide();
+    } else {
+        ui->toolButton_inertial_origin->setText("-");
+        ui->widget_inertial_origin->show();
+    }
+}
+
+
+void Property::on_toolButton_inertia_matrix_clicked(bool checked)
+{
+    if (checked) {
+        ui->toolButton_inertia_matrix->setText("+");
+        ui->widget_inertia_matrix->hide();
+    } else {
+        ui->toolButton_inertia_matrix->setText("-");
+        ui->widget_inertia_matrix->show();
+    }
+}
+
