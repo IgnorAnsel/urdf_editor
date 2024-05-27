@@ -38,6 +38,7 @@ Urdf_editor::Urdf_editor(QWidget *parent) : QOpenGLWidget(parent), cube(Shape::C
 void Urdf_editor::updateShape()
 {
     qDebug()<< selectedShapeIndex;
+    //selectedShapeIndex = shapes.size()-1;
     update();  // 请求重新绘制窗口
 }
 void Urdf_editor::receiveIndex(int index)
@@ -65,7 +66,7 @@ void Urdf_editor::resizeGL(int w, int h) {
 
 void Urdf_editor::paintGL() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+qDebug()<< selectedShapeIndex;
     // 更新视图矩阵
     QMatrix4x4 transform;
     transform.translate(0.0f, 0.0f, -zoomFactor * 15.0f);
@@ -294,13 +295,13 @@ void Urdf_editor::mousePressEvent(QMouseEvent *event) {
         }
     }
 
-    if (minDistance < 100.0f) { // 如果距离小于一定阈值，认为点击到了形状
+    if (minDistance < 50.0f) { // 如果距离小于一定阈值，认为点击到了形状
         selectedShapeIndex = closestShapeIndex;
-        //qDebug() << "Shape selected:" << selectedShapeIndex;
-    } else {
+        qDebug() << "Shape selected:" << minDistance;
+    } /*else {
         selectedShapeIndex = -1;
         //qDebug() << "No shape selected";
-    }
+    }*/
     update();
 }
 
