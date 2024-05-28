@@ -11,7 +11,8 @@
 #include "param_struct.h"
 #include <QMimeData>
 extern std::vector<Shape> shapes;
-class Urdf_editor : public QOpenGLWidget, protected QOpenGLFunctions {
+class Urdf_editor : public QOpenGLWidget, protected QOpenGLFunctions
+{
     Q_OBJECT
 public:
     explicit Urdf_editor(QWidget *parent = nullptr);
@@ -19,6 +20,7 @@ public slots:
     void updateShape(); // 定义槽
     void receiveIndex(int index);
     void dropCreate(const Shape &shape);
+
 protected:
     void initializeGL() override;
     void resizeGL(int w, int h) override;
@@ -32,6 +34,7 @@ protected:
     void drawCube(const Shape &shape);
     void drawSphere(const Shape &shape);
     void drawCylinder(const Shape &shape);
+
 private:
     int selectedShapeIndex = -1; // -1 表示没有选中任何形状
     int lastselectedShapeIndex = -1;

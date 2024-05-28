@@ -6,11 +6,12 @@
 #include "urdf_editor.h"
 #include <QDrag>
 #include <QMimeData>
-namespace Ui {
-class Property;
+namespace Ui
+{
+    class Property;
 }
 
-class Property : public QWidget/*,public QOpenGLWidget*/
+class Property : public QWidget /*,public QOpenGLWidget*/
 {
     Q_OBJECT
 
@@ -24,12 +25,12 @@ public slots:
     void receiveindex(int index);
 signals:
     void shapeCreated(const Shape &newShape); // 定义信号
-    void createshape(); // 定义create信号
-    void updateshape(const Shape &shape); // 重复创建时更新name用信号
-    void updateshapes(); // 选中的物块更改进行更新
-    void drapcreate(const Shape &newShape); //
+    void createshape();                       // 定义create信号
+    void updateshape(const Shape &shape);     // 重复创建时更新name用信号
+    void updateshapes();                      // 选中的物块更改进行更新
+    void drapcreate(const Shape &newShape);   //
 protected:
-//    void startDrag(Qt::DropActions supportedActions);
+    //    void startDrag(Qt::DropActions supportedActions);
     void mousePressEvent(QMouseEvent *event) override;
     bool eventFilter(QObject *obj, QEvent *event) override;
 
@@ -41,7 +42,6 @@ private slots:
     void on_visual_origin_y_editingFinished();
     void on_visual_origin_x_editingFinished();
     void on_visual_origin_z_editingFinished();
-
 
     void on_pushButton_clicked();
     void on_listWidget_currentTextChanged(const QString &currentText);
@@ -102,7 +102,6 @@ private:
     int currentIndex = -1;
     QString currenttext;
     int num = 0;
-
 };
 
 #endif // PROPERTY_H

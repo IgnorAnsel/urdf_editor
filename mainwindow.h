@@ -8,7 +8,10 @@
 #include "property2.h"
 #include "shape_relation.h"
 QT_BEGIN_NAMESPACE
-namespace Ui { class MainWindow; }
+namespace Ui
+{
+    class MainWindow;
+}
 QT_END_NAMESPACE
 
 class MainWindow : public QMainWindow
@@ -26,6 +29,5 @@ private:
     Property *pro;
     property2 *pro2;
     shape_relation *tree;
-
 };
 #endif // MAINWINDOW_H

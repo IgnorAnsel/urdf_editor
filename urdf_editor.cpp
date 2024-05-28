@@ -6,57 +6,60 @@
 #include <GL/glu.h>
 std::vector<Shape> shapes;
 
-Urdf_editor::Urdf_editor(QWidget *parent) : QOpenGLWidget(parent), cube(Shape::Cube), sphere(Shape::Sphere),cylinder(Shape::Cylinder) {
+Urdf_editor::Urdf_editor(QWidget *parent) : QOpenGLWidget(parent), cube(Shape::Cube), sphere(Shape::Sphere), cylinder(Shape::Cylinder)
+{
     setMinimumSize(640, 480);
     zoomFactor = 1.0f;
     rotationAngleX = 0.0f;
     rotationAngleY = 0.0f;
-    setAcceptDrops(true);  // 启用拖放功能
-//    // 初始化立方体对象并设置属性
-//    cube.link.visuals.origin.xyz = QVector3D(0.0f, 0.0f, 0.0f);
-//    //cube.scale = QVector3D(1.0f, 1.0f, 1.0f);
-//    cube.link.visuals.origin.rpy = QVector3D(0.0f, 0.0f, 0.0f);
-//    cube.link.visuals.color = QColor(Qt::red);
-//    cube.link.visuals.geometry.box.size = QVector3D(10.0f,1.0f,1.0f);
+    setAcceptDrops(true); // 启用拖放功能
+    //    // 初始化立方体对象并设置属性
+    //    cube.link.visuals.origin.xyz = QVector3D(0.0f, 0.0f, 0.0f);
+    //    //cube.scale = QVector3D(1.0f, 1.0f, 1.0f);
+    //    cube.link.visuals.origin.rpy = QVector3D(0.0f, 0.0f, 0.0f);
+    //    cube.link.visuals.color = QColor(Qt::red);
+    //    cube.link.visuals.geometry.box.size = QVector3D(10.0f,1.0f,1.0f);
 
-//    sphere.link.visuals.origin.xyz = QVector3D(1.0f,0.0f,0.0f);
-//    sphere.link.visuals.origin.rpy = QVector3D(0.0f, 0.0f, 0.0f);
-//    sphere.link.visuals.geometry.sphere.radius = 1;
-//    sphere.link.visuals.color = QColor(Qt::blue);
+    //    sphere.link.visuals.origin.xyz = QVector3D(1.0f,0.0f,0.0f);
+    //    sphere.link.visuals.origin.rpy = QVector3D(0.0f, 0.0f, 0.0f);
+    //    sphere.link.visuals.geometry.sphere.radius = 1;
+    //    sphere.link.visuals.color = QColor(Qt::blue);
 
-//    cylinder.link.visuals.origin.xyz = QVector3D(1.0f,0.0f,0.0f);
-//    cylinder.link.visuals.origin.rpy = QVector3D(0.0f, 0.0f, 0.0f);
-//    cylinder.link.visuals.geometry.cylinder.radius = 1;
-//    cylinder.link.visuals.geometry.cylinder.length = 2;
-//    cylinder.link.visuals.color = QColor(Qt::green);
+    //    cylinder.link.visuals.origin.xyz = QVector3D(1.0f,0.0f,0.0f);
+    //    cylinder.link.visuals.origin.rpy = QVector3D(0.0f, 0.0f, 0.0f);
+    //    cylinder.link.visuals.geometry.cylinder.radius = 1;
+    //    cylinder.link.visuals.geometry.cylinder.length = 2;
+    //    cylinder.link.visuals.color = QColor(Qt::green);
 
-//    //shapes.push_back(cube);
-//    //shapes.push_back(sphere);
-//    //shapes.push_back(cylinder);
+    //    //shapes.push_back(cube);
+    //    //shapes.push_back(sphere);
+    //    //shapes.push_back(cylinder);
 }
 
 void Urdf_editor::updateShape()
 {
-    //selectedShapeIndex = shapes.size()-1;
-    update();  // 请求重新绘制窗口
+    // selectedShapeIndex = shapes.size()-1;
+    update(); // 请求重新绘制窗口
 }
 void Urdf_editor::receiveIndex(int index)
 {
     selectedShapeIndex = index;
-    update();  // 请求重新绘制窗口
+    update(); // 请求重新绘制窗口
 }
 
 void Urdf_editor::dropCreate(const Shape &shape)
 {
-    qDebug()<<"2";
+    qDebug() << "2";
     currentShape = shape;
 }
-void Urdf_editor::initializeGL() {
+void Urdf_editor::initializeGL()
+{
     initializeOpenGLFunctions();
     glEnable(GL_DEPTH_TEST);
     glClearColor(0.5f, 0.5f, 0.5f, 1.0f); // 设置背景颜色为灰色
 }
-void Urdf_editor::resizeGL(int w, int h) {
+void Urdf_editor::resizeGL(int w, int h)
+{
     glViewport(0, 0, w, h);
 
     // 创建透视投影矩阵
@@ -69,7 +72,8 @@ void Urdf_editor::resizeGL(int w, int h) {
     glMultMatrixf(projection.constData());
 }
 
-void Urdf_editor::paintGL() {
+void Urdf_editor::paintGL()
+{
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     // 更新视图矩阵
     QMatrix4x4 transform;
@@ -78,13 +82,13 @@ void Urdf_editor::paintGL() {
     transform.rotate(rotationAngleY, 0.0f, 1.0f, 0.0f);
 
     // 设置相机位置和目标点
-//    QVector3D eye(0.0f, 0.0f, zoomFactor * 10.0f); // 相机位置
-//    QVector3D center(0.0f, 0.0f, 0.0f); // 看向的中心点
-//    QVector3D up(0.0f, 1.0f, 0.0f); // 上方向
+    //    QVector3D eye(0.0f, 0.0f, zoomFactor * 10.0f); // 相机位置
+    //    QVector3D center(0.0f, 0.0f, 0.0f); // 看向的中心点
+    //    QVector3D up(0.0f, 1.0f, 0.0f); // 上方向
 
     QVector3D eye(0.0f, 0.0f, zoomFactor * 10.0f); // 相机位置
-    QVector3D center(0.0f, 0.0f, 0.0f); // 看向的中心点，使相机朝向 y 轴正方向
-    QVector3D up(-1.0f, 0.0f, 0.0f); // 上方向，使 x 轴朝向相机
+    QVector3D center(0.0f, 0.0f, 0.0f);            // 看向的中心点，使相机朝向 y 轴正方向
+    QVector3D up(-1.0f, 0.0f, 0.0f);               // 上方向，使 x 轴朝向相机
 
     // 创建相机变换矩阵
     QMatrix4x4 viewMatrix;
@@ -95,13 +99,18 @@ void Urdf_editor::paintGL() {
     glMatrixMode(GL_MODELVIEW);
     glLoadMatrixf(viewMatrix.constData());
 
-
     // 绘制坐标轴
     glLineWidth(2.0);
     glBegin(GL_LINES);
-    glColor3f(1.0, 0.0, 0.0); glVertex3f(0.0, 0.0, 0.0); glVertex3f(100.0, 0.0, 0.0); // X 轴
-    glColor3f(0.0, 1.0, 0.0); glVertex3f(0.0, 0.0, 0.0); glVertex3f(0.0, 100.0, 0.0); // Y 轴
-    glColor3f(0.0, 0.0, 1.0); glVertex3f(0.0, 0.0, 0.0); glVertex3f(0.0, 0.0, 100.0); // Z 轴
+    glColor3f(1.0, 0.0, 0.0);
+    glVertex3f(0.0, 0.0, 0.0);
+    glVertex3f(100.0, 0.0, 0.0); // X 轴
+    glColor3f(0.0, 1.0, 0.0);
+    glVertex3f(0.0, 0.0, 0.0);
+    glVertex3f(0.0, 100.0, 0.0); // Y 轴
+    glColor3f(0.0, 0.0, 1.0);
+    glVertex3f(0.0, 0.0, 0.0);
+    glVertex3f(0.0, 0.0, 100.0); // Z 轴
 
     // 绘制平面
     drawPlane(10, 10, 1);
@@ -109,16 +118,18 @@ void Urdf_editor::paintGL() {
     glEnd();
 
     // 渲染列表中的所有形状对象
-    for (size_t i = 0; i < shapes.size(); ++i) {
+    for (size_t i = 0; i < shapes.size(); ++i)
+    {
         // 如果选中的形状发生变化，更新颜色
-        if (selectedShapeIndex >=0) {
-            qDebug()<<"lastselectedShapeIndex:" << lastselectedShapeIndex << "selectedShapeIndex:" << selectedShapeIndex;
-            shapes[lastselectedShapeIndex].link.visuals.color = precolor;  // 恢复之前选中的形状的颜色
-            precolor = shapes[selectedShapeIndex].link.visuals.color;      // 保存当前选中形状的原始颜色
-            shapes[selectedShapeIndex].link.visuals.color = QColor(Qt::yellow);  // 高亮显示新选中的形状
+        if (selectedShapeIndex >= 0)
+        {
+            qDebug() << "lastselectedShapeIndex:" << lastselectedShapeIndex << "selectedShapeIndex:" << selectedShapeIndex;
+            shapes[lastselectedShapeIndex].link.visuals.color = precolor;       // 恢复之前选中的形状的颜色
+            precolor = shapes[selectedShapeIndex].link.visuals.color;           // 保存当前选中形状的原始颜色
+            shapes[selectedShapeIndex].link.visuals.color = QColor(Qt::yellow); // 高亮显示新选中的形状
             lastselectedShapeIndex = selectedShapeIndex;
         }
-        //glColor3f(shapes[i].link.visuals.color.redF(), shapes[i].link.visuals.color.greenF(), shapes[i].link.visuals.color.blueF()); // 设置OpenGL颜色
+        // glColor3f(shapes[i].link.visuals.color.redF(), shapes[i].link.visuals.color.greenF(), shapes[i].link.visuals.color.blueF()); // 设置OpenGL颜色
         renderShape(shapes[i]); // 渲染每个形状
     }
 
@@ -128,8 +139,8 @@ void Urdf_editor::paintGL() {
     glGetIntegerv(GL_VIEWPORT, viewport);
 }
 
-
-void Urdf_editor::drawCube(const Shape &shape) {
+void Urdf_editor::drawCube(const Shape &shape)
+{
     // 设置颜色
     glColor3f(shape.link.visuals.color.redF(), shape.link.visuals.color.greenF(), shape.link.visuals.color.blueF());
 
@@ -176,7 +187,8 @@ void Urdf_editor::drawCube(const Shape &shape) {
     glEnd();
 }
 
-void Urdf_editor::drawSphere(const Shape &shape) {
+void Urdf_editor::drawSphere(const Shape &shape)
+{
     // 设置颜色
     glColor3f(shape.link.visuals.color.redF(), shape.link.visuals.color.greenF(), shape.link.visuals.color.blueF());
 
@@ -184,7 +196,8 @@ void Urdf_editor::drawSphere(const Shape &shape) {
     const int slices = 30;
     const int stacks = 30;
 
-    for (int i = 0; i <= stacks; ++i) {
+    for (int i = 0; i <= stacks; ++i)
+    {
         double lat0 = M_PI * (-0.5 + (double)(i - 1) / stacks);
         double z0 = sin(lat0);
         double zr0 = cos(lat0);
@@ -194,7 +207,8 @@ void Urdf_editor::drawSphere(const Shape &shape) {
         double zr1 = cos(lat1);
 
         glBegin(GL_QUAD_STRIP);
-        for (int j = 0; j <= slices; ++j) {
+        for (int j = 0; j <= slices; ++j)
+        {
             double lng = 2 * M_PI * (double)(j - 1) / slices;
             double x = cos(lng);
             double y = sin(lng);
@@ -209,8 +223,8 @@ void Urdf_editor::drawSphere(const Shape &shape) {
     }
 }
 
-
-void Urdf_editor::drawCylinder(const Shape &shape) {
+void Urdf_editor::drawCylinder(const Shape &shape)
+{
     // 设置颜色
     glColor3f(shape.link.visuals.color.redF(), shape.link.visuals.color.greenF(), shape.link.visuals.color.blueF());
 
@@ -221,7 +235,8 @@ void Urdf_editor::drawCylinder(const Shape &shape) {
     // 绘制圆柱体的圆面
     glBegin(GL_TRIANGLE_FAN);
     glVertex3f(0.0f, 0.0f, 0.0f);
-    for (int i = 0; i <= slices; ++i) {
+    for (int i = 0; i <= slices; ++i)
+    {
         double angle = 2.0 * M_PI * i / slices;
         double x = radius * cos(angle);
         double y = radius * sin(angle);
@@ -231,7 +246,8 @@ void Urdf_editor::drawCylinder(const Shape &shape) {
 
     glBegin(GL_TRIANGLE_FAN);
     glVertex3f(0.0f, 0.0f, height);
-    for (int i = 0; i <= slices; ++i) {
+    for (int i = 0; i <= slices; ++i)
+    {
         double angle = 2.0 * M_PI * i / slices;
         double x = radius * cos(angle);
         double y = radius * sin(angle);
@@ -241,7 +257,8 @@ void Urdf_editor::drawCylinder(const Shape &shape) {
 
     // 绘制圆柱体的侧面
     glBegin(GL_QUAD_STRIP);
-    for (int i = 0; i <= slices; ++i) {
+    for (int i = 0; i <= slices; ++i)
+    {
         double angle = 2.0 * M_PI * i / slices;
         double x = radius * cos(angle);
         double y = radius * sin(angle);
@@ -252,7 +269,8 @@ void Urdf_editor::drawCylinder(const Shape &shape) {
     glEnd();
 }
 
-void Urdf_editor::drawPlane(float width, float height, float gridSize) {
+void Urdf_editor::drawPlane(float width, float height, float gridSize)
+{
     // 设置平面颜色
     glColor3f(0.7f, 0.7f, 0.7f);
 
@@ -262,18 +280,21 @@ void Urdf_editor::drawPlane(float width, float height, float gridSize) {
 
     // 绘制网格线
     glBegin(GL_LINES);
-    for (int i = -numGridX / 2; i <= numGridX / 2; ++i) {
+    for (int i = -numGridX / 2; i <= numGridX / 2; ++i)
+    {
         glVertex3f(i * gridSize, -height / 2, 0.0f);
         glVertex3f(i * gridSize, height / 2, 0.0f);
     }
-    for (int j = -numGridY / 2; j <= numGridY / 2; ++j) {
+    for (int j = -numGridY / 2; j <= numGridY / 2; ++j)
+    {
         glVertex3f(-width / 2, j * gridSize, 0.0f);
         glVertex3f(width / 2, j * gridSize, 0.0f);
     }
     glEnd();
 }
 
-void Urdf_editor::renderShape(const Shape &shape) {
+void Urdf_editor::renderShape(const Shape &shape)
+{
     // 设置几何变换
     QMatrix4x4 modelMatrix;
     modelMatrix.translate(shape.link.visuals.origin.xyz);
@@ -287,11 +308,16 @@ void Urdf_editor::renderShape(const Shape &shape) {
     glMultMatrixf(modelMatrix.constData());
 
     // 绘制形状
-    if (shape.type == Shape::Cube) {
+    if (shape.type == Shape::Cube)
+    {
         drawCube(shape);
-    } else if (shape.type == Shape::Sphere) {
+    }
+    else if (shape.type == Shape::Sphere)
+    {
         drawSphere(shape);
-    } else if (shape.type == Shape::Cylinder) {
+    }
+    else if (shape.type == Shape::Cylinder)
+    {
         drawCylinder(shape);
     }
 
@@ -299,8 +325,9 @@ void Urdf_editor::renderShape(const Shape &shape) {
 }
 
 // 在鼠标点击事件中检测是否点击了某个形状
-void Urdf_editor::mousePressEvent(QMouseEvent *event) {
-    //qDebug() << "Mouse pressed at" << event->pos();
+void Urdf_editor::mousePressEvent(QMouseEvent *event)
+{
+    // qDebug() << "Mouse pressed at" << event->pos();
     lastMousePos = event->pos();
     float minDistance = 1000.0f;
     int closestShapeIndex = -1;
@@ -316,18 +343,21 @@ void Urdf_editor::mousePressEvent(QMouseEvent *event) {
     gluUnProject(winX, winY, winZ, modelviewMatrix, projectionMatrix, viewport, &worldX, &worldY, &worldZ);
     QVector3D clickPos(worldX, worldY, worldZ);
 
-    for (size_t i = 0; i < shapes.size(); ++i) {
+    for (size_t i = 0; i < shapes.size(); ++i)
+    {
         QVector3D shapePos = shapes[i].link.visuals.origin.xyz;
-        //qDebug() << "Checking shape at" << shapePos << "with index" << i;
+        // qDebug() << "Checking shape at" << shapePos << "with index" << i;
         float distance = (shapePos - clickPos).length();
-        //qDebug() << "Distance to shape" << distance;
-        if (distance < minDistance) {
+        // qDebug() << "Distance to shape" << distance;
+        if (distance < minDistance)
+        {
             minDistance = distance;
             closestShapeIndex = i;
         }
     }
 
-    if (minDistance < 50.0f) { // 如果距离小于一定阈值，认为点击到了形状
+    if (minDistance < 50.0f)
+    { // 如果距离小于一定阈值，认为点击到了形状
         selectedShapeIndex = closestShapeIndex;
         qDebug() << "Shape selected:" << minDistance;
     } /*else {
@@ -337,15 +367,17 @@ void Urdf_editor::mousePressEvent(QMouseEvent *event) {
     update();
 }
 
-
-
-void Urdf_editor::mouseMoveEvent(QMouseEvent *event) {
+void Urdf_editor::mouseMoveEvent(QMouseEvent *event)
+{
     float dy = float(event->x() - lastMousePos.x()) / width();
     float dx = float(event->y() - lastMousePos.y()) / height();
-    if (event->buttons() & Qt::LeftButton) {
+    if (event->buttons() & Qt::LeftButton)
+    {
         rotationAngleX -= dy * 180; // 绕 x 轴旋转
         rotationAngleY += dx * 180; // 绕 z 轴旋转
-    } else if (event->buttons() & Qt::RightButton) {
+    }
+    else if (event->buttons() & Qt::RightButton)
+    {
         rotationAngleX -= dy * 180; // 绕 x 轴旋转
         rotationAngleY += dx * 180; // 绕 z 轴旋转
     }
@@ -354,12 +386,13 @@ void Urdf_editor::mouseMoveEvent(QMouseEvent *event) {
     update();
 }
 
-
-void Urdf_editor::mouseReleaseEvent(QMouseEvent *event) {
+void Urdf_editor::mouseReleaseEvent(QMouseEvent *event)
+{
     // 处理鼠标释放事件
 }
 
-void Urdf_editor::wheelEvent(QWheelEvent *event) {
+void Urdf_editor::wheelEvent(QWheelEvent *event)
+{
     zoomFactor -= event->angleDelta().y() / 1200.0f;
     if (zoomFactor < 0.1f)
         zoomFactor = 0.1f;
@@ -369,7 +402,8 @@ void Urdf_editor::wheelEvent(QWheelEvent *event) {
 void Urdf_editor::dragEnterEvent(QDragEnterEvent *event)
 {
 
-    if (event->mimeData()->hasText()) {
+    if (event->mimeData()->hasText())
+    {
         event->acceptProposedAction();
     }
 }
@@ -377,13 +411,13 @@ void Urdf_editor::dragEnterEvent(QDragEnterEvent *event)
 void Urdf_editor::dropEvent(QDropEvent *event)
 {
 
-    qDebug()<<"3";
-    if (event->mimeData()->hasText()) {
+    qDebug() << "3";
+    if (event->mimeData()->hasText())
+    {
         // 获取拖放数据
         QString text = event->mimeData()->text();
         shapes.push_back(currentShape);
         update();
         event->acceptProposedAction();
-
     }
 }
