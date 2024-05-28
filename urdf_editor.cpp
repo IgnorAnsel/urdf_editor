@@ -11,7 +11,7 @@ Urdf_editor::Urdf_editor(QWidget *parent) : QOpenGLWidget(parent), cube(Shape::C
     zoomFactor = 1.0f;
     rotationAngleX = 0.0f;
     rotationAngleY = 0.0f;
-
+    setAcceptDrops(true);  // 启用拖放功能
 //    // 初始化立方体对象并设置属性
 //    cube.link.visuals.origin.xyz = QVector3D(0.0f, 0.0f, 0.0f);
 //    //cube.scale = QVector3D(1.0f, 1.0f, 1.0f);
@@ -44,6 +44,12 @@ void Urdf_editor::receiveIndex(int index)
 {
     selectedShapeIndex = index;
     update();  // 请求重新绘制窗口
+}
+
+void Urdf_editor::dropCreate(const Shape &shape)
+{
+    qDebug()<<"2";
+    currentShape = shape;
 }
 void Urdf_editor::initializeGL() {
     initializeOpenGLFunctions();
@@ -362,19 +368,22 @@ void Urdf_editor::wheelEvent(QWheelEvent *event) {
 
 void Urdf_editor::dragEnterEvent(QDragEnterEvent *event)
 {
+
     if (event->mimeData()->hasText()) {
         event->acceptProposedAction();
-        qDebug() << "yes";
     }
 }
 
 void Urdf_editor::dropEvent(QDropEvent *event)
 {
+
+    qDebug()<<"3";
     if (event->mimeData()->hasText()) {
         // 获取拖放数据
         QString text = event->mimeData()->text();
-        // 在OpenGL场景中创建相应的对象或图形
-        //createObjectAt(event->pos(), text); // 你需要实现这个方法来根据拖放数据在场景中创建对象
+        shapes.push_back(currentShape);
+        update();
         event->acceptProposedAction();
+
     }
 }

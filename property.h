@@ -27,9 +27,11 @@ signals:
     void createshape(); // 定义create信号
     void updateshape(const Shape &shape); // 重复创建时更新name用信号
     void updateshapes(); // 选中的物块更改进行更新
+    void drapcreate(const Shape &newShape); //
 protected:
 //    void startDrag(Qt::DropActions supportedActions);
     void mousePressEvent(QMouseEvent *event) override;
+    bool eventFilter(QObject *obj, QEvent *event) override;
 
 private slots:
     void on_collision_geometry_type_currentTextChanged(const QString &arg1);
@@ -98,6 +100,7 @@ private:
     Shape currentShape;
     Shape currentSetlectShape;
     int currentIndex = -1;
+    QString currenttext;
     int num = 0;
 
 };

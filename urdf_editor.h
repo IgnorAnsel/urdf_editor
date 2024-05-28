@@ -18,6 +18,7 @@ public:
 public slots:
     void updateShape(); // 定义槽
     void receiveIndex(int index);
+    void dropCreate(const Shape &shape);
 protected:
     void initializeGL() override;
     void resizeGL(int w, int h) override;
@@ -44,6 +45,7 @@ private:
     Shape cube; // 将cube定义为类的成员变量
     Shape sphere;
     Shape cylinder;
+    Shape currentShape;
     GLdouble projectionMatrix[16];
     GLdouble modelviewMatrix[16];
     GLint viewport[4];

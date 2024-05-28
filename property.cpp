@@ -10,7 +10,7 @@ Property::Property(QWidget *parent) :
     on_visual_geometry_type_currentTextChanged(ui->visual_geometry_type->currentText());
     setMouseTracking(true);
     setAttribute(Qt::WA_Hover, true);
-
+    ui->listWidget->installEventFilter(this);
 }
 
 void Property::createShape(const QString &shapeType)
@@ -145,9 +145,39 @@ void Property::mousePressEvent(QMouseEvent *event)
             drag->setMimeData(mimeData);
             drag->exec(Qt::CopyAction | Qt::MoveAction);
             qDebug() << "Drag started";
+
         }
     }
     QWidget::mousePressEvent(event);  // 调用基类的事件处理函数
+}
+bool Property::eventFilter(QObject *obj, QEvent *event)
+{
+    if (obj == ui->listWidget) {
+        //qDebug() <<event->type();
+        if (event->type() == QEvent::ChildRemoved) {
+            QListWidgetItem *item_choose;
+            for (int i = 0; i < ui->listWidget->count(); ++i) {
+                QListWidgetItem *item = ui->listWidget->item(i);
+                if (item->text() == currenttext) {
+                    item_choose = item; // 找到的匹配项
+                }
+            }
+                if (item_choose) {
+                    qDebug()<<"1";
+                    emit drapcreate(currentShape);
+                    QDrag *drag = new QDrag(this);
+                    QMimeData *mimeData = new QMimeData;
+                    mimeData->setText(item_choose->text());
+                    drag->setMimeData(mimeData);
+                    drag->exec(Qt::CopyAction | Qt::MoveAction);
+                    qDebug() << "Drag started" << item_choose->text();
+                    emit updateshapes(); //
+                    qDebug()<<"4";
+                }
+                return true; // 表示事件已处理
+        }
+    }
+    return QWidget::eventFilter(obj, event); // 传递未处理的事件
 }
 
 
@@ -257,6 +287,7 @@ void Property::on_pushButton_clicked()
 void Property::on_listWidget_currentTextChanged(const QString &currentText)
 {
     ui->pushButton->show();
+    currenttext = currentText;
     currentIndex = -1;
     createShape(currentText);
 }
