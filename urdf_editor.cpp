@@ -37,7 +37,6 @@ Urdf_editor::Urdf_editor(QWidget *parent) : QOpenGLWidget(parent), cube(Shape::C
 
 void Urdf_editor::updateShape()
 {
-    qDebug()<< selectedShapeIndex;
     //selectedShapeIndex = shapes.size()-1;
     update();  // 请求重新绘制窗口
 }
@@ -49,7 +48,7 @@ void Urdf_editor::receiveIndex(int index)
 void Urdf_editor::initializeGL() {
     initializeOpenGLFunctions();
     glEnable(GL_DEPTH_TEST);
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+    glClearColor(0.5f, 0.5f, 0.5f, 1.0f); // 设置背景颜色为灰色
 }
 void Urdf_editor::resizeGL(int w, int h) {
     glViewport(0, 0, w, h);
@@ -66,7 +65,6 @@ void Urdf_editor::resizeGL(int w, int h) {
 
 void Urdf_editor::paintGL() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-qDebug()<< selectedShapeIndex;
     // 更新视图矩阵
     QMatrix4x4 transform;
     transform.translate(0.0f, 0.0f, -zoomFactor * 15.0f);
@@ -74,9 +72,13 @@ qDebug()<< selectedShapeIndex;
     transform.rotate(rotationAngleY, 0.0f, 1.0f, 0.0f);
 
     // 设置相机位置和目标点
+//    QVector3D eye(0.0f, 0.0f, zoomFactor * 10.0f); // 相机位置
+//    QVector3D center(0.0f, 0.0f, 0.0f); // 看向的中心点
+//    QVector3D up(0.0f, 1.0f, 0.0f); // 上方向
+
     QVector3D eye(0.0f, 0.0f, zoomFactor * 10.0f); // 相机位置
-    QVector3D center(0.0f, 0.0f, 0.0f); // 看向的中心点
-    QVector3D up(0.0f, 1.0f, 0.0f); // 上方向
+    QVector3D center(0.0f, 0.0f, 0.0f); // 看向的中心点，使相机朝向 y 轴正方向
+    QVector3D up(-1.0f, 0.0f, 0.0f); // 上方向，使 x 轴朝向相机
 
     // 创建相机变换矩阵
     QMatrix4x4 viewMatrix;
@@ -87,18 +89,23 @@ qDebug()<< selectedShapeIndex;
     glMatrixMode(GL_MODELVIEW);
     glLoadMatrixf(viewMatrix.constData());
 
+
     // 绘制坐标轴
     glLineWidth(2.0);
     glBegin(GL_LINES);
     glColor3f(1.0, 0.0, 0.0); glVertex3f(0.0, 0.0, 0.0); glVertex3f(100.0, 0.0, 0.0); // X 轴
     glColor3f(0.0, 1.0, 0.0); glVertex3f(0.0, 0.0, 0.0); glVertex3f(0.0, 100.0, 0.0); // Y 轴
     glColor3f(0.0, 0.0, 1.0); glVertex3f(0.0, 0.0, 0.0); glVertex3f(0.0, 0.0, 100.0); // Z 轴
+
+    // 绘制平面
+    drawPlane(10, 10, 1);
+
     glEnd();
 
     // 渲染列表中的所有形状对象
     for (size_t i = 0; i < shapes.size(); ++i) {
         // 如果选中的形状发生变化，更新颜色
-        if (lastselectedShapeIndex != selectedShapeIndex) {
+        if (selectedShapeIndex >=0) {
             qDebug()<<"lastselectedShapeIndex:" << lastselectedShapeIndex << "selectedShapeIndex:" << selectedShapeIndex;
             shapes[lastselectedShapeIndex].link.visuals.color = precolor;  // 恢复之前选中的形状的颜色
             precolor = shapes[selectedShapeIndex].link.visuals.color;      // 保存当前选中形状的原始颜色
@@ -239,7 +246,26 @@ void Urdf_editor::drawCylinder(const Shape &shape) {
     glEnd();
 }
 
+void Urdf_editor::drawPlane(float width, float height, float gridSize) {
+    // 设置平面颜色
+    glColor3f(0.7f, 0.7f, 0.7f);
 
+    // 计算平面顶点
+    int numGridX = width / gridSize;
+    int numGridY = height / gridSize;
+
+    // 绘制网格线
+    glBegin(GL_LINES);
+    for (int i = -numGridX / 2; i <= numGridX / 2; ++i) {
+        glVertex3f(i * gridSize, -height / 2, 0.0f);
+        glVertex3f(i * gridSize, height / 2, 0.0f);
+    }
+    for (int j = -numGridY / 2; j <= numGridY / 2; ++j) {
+        glVertex3f(-width / 2, j * gridSize, 0.0f);
+        glVertex3f(width / 2, j * gridSize, 0.0f);
+    }
+    glEnd();
+}
 
 void Urdf_editor::renderShape(const Shape &shape) {
     // 设置几何变换
@@ -308,20 +334,20 @@ void Urdf_editor::mousePressEvent(QMouseEvent *event) {
 
 
 void Urdf_editor::mouseMoveEvent(QMouseEvent *event) {
-    float dx = float(event->x() - lastMousePos.x()) / width();
-    float dy = float(event->y() - lastMousePos.y()) / height();
-
+    float dy = float(event->x() - lastMousePos.x()) / width();
+    float dx = float(event->y() - lastMousePos.y()) / height();
     if (event->buttons() & Qt::LeftButton) {
-        rotationAngleX += dy * 180;
-        rotationAngleY += dx * 180;
+        rotationAngleX -= dy * 180; // 绕 x 轴旋转
+        rotationAngleY += dx * 180; // 绕 z 轴旋转
     } else if (event->buttons() & Qt::RightButton) {
-        rotationAngleX += dy * 180;
-        rotationAngleY += dx * 180;
+        rotationAngleX -= dy * 180; // 绕 x 轴旋转
+        rotationAngleY += dx * 180; // 绕 z 轴旋转
     }
 
     lastMousePos = event->pos();
     update();
 }
+
 
 void Urdf_editor::mouseReleaseEvent(QMouseEvent *event) {
     // 处理鼠标释放事件
@@ -332,4 +358,23 @@ void Urdf_editor::wheelEvent(QWheelEvent *event) {
     if (zoomFactor < 0.1f)
         zoomFactor = 0.1f;
     update();
+}
+
+void Urdf_editor::dragEnterEvent(QDragEnterEvent *event)
+{
+    if (event->mimeData()->hasText()) {
+        event->acceptProposedAction();
+        qDebug() << "yes";
+    }
+}
+
+void Urdf_editor::dropEvent(QDropEvent *event)
+{
+    if (event->mimeData()->hasText()) {
+        // 获取拖放数据
+        QString text = event->mimeData()->text();
+        // 在OpenGL场景中创建相应的对象或图形
+        //createObjectAt(event->pos(), text); // 你需要实现这个方法来根据拖放数据在场景中创建对象
+        event->acceptProposedAction();
+    }
 }

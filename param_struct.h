@@ -61,6 +61,7 @@ struct URDFLink {
     Visual visuals;       // link的可视化属性
     Collision collisions; // link的碰撞属性
     bool iscreated;
+    bool isSelected;
 };
 
 //

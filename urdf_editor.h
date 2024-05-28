@@ -9,6 +9,7 @@
 #include <QMessageBox>
 #include "shape.h"
 #include "param_struct.h"
+#include <QMimeData>
 extern std::vector<Shape> shapes;
 class Urdf_editor : public QOpenGLWidget, protected QOpenGLFunctions {
     Q_OBJECT
@@ -25,6 +26,8 @@ protected:
     void mouseMoveEvent(QMouseEvent *event) override;
     void mouseReleaseEvent(QMouseEvent *event) override;
     void wheelEvent(QWheelEvent *event) override;
+    void dragEnterEvent(QDragEnterEvent *event) override;
+    void dropEvent(QDropEvent *event) override;
     void drawCube(const Shape &shape);
     void drawSphere(const Shape &shape);
     void drawCylinder(const Shape &shape);
@@ -32,6 +35,7 @@ private:
     int selectedShapeIndex = -1; // -1 表示没有选中任何形状
     int lastselectedShapeIndex = -1;
     void renderShape(const Shape &shape);
+    void drawPlane(float width, float height, float gridSize);
     QMatrix4x4 viewMatrix;
     QPoint lastMousePos;
     float zoomFactor;

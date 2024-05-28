@@ -8,6 +8,9 @@ Property::Property(QWidget *parent) :
     ui->setupUi(this);
     on_collision_geometry_type_currentTextChanged(ui->collision_geometry_type->currentText());
     on_visual_geometry_type_currentTextChanged(ui->visual_geometry_type->currentText());
+    setMouseTracking(true);
+    setAttribute(Qt::WA_Hover, true);
+
 }
 
 void Property::createShape(const QString &shapeType)
@@ -121,7 +124,6 @@ void Property::receiveindex(int index)
 {
     if(index>=0)
     {
-        qDebug()<<shapes[index].link.name;
         shapes[index].link.iscreated =true;
         currentSetlectShape = shapes[index];
         currentIndex = index;
@@ -129,6 +131,25 @@ void Property::receiveindex(int index)
         ui->pushButton->hide();
     }
 }
+
+void Property::mousePressEvent(QMouseEvent *event)
+{
+    qDebug() << "mousePressEvent in Property";
+    if (event->button() == Qt::LeftButton) {
+        QListWidgetItem *item = ui->listWidget->itemAt(event->pos());
+        qDebug() << "Item found: " << (item != nullptr);
+        if (item) {
+            QDrag *drag = new QDrag(this);
+            QMimeData *mimeData = new QMimeData;
+            mimeData->setText(item->text());
+            drag->setMimeData(mimeData);
+            drag->exec(Qt::CopyAction | Qt::MoveAction);
+            qDebug() << "Drag started";
+        }
+    }
+    QWidget::mousePressEvent(event);  // 调用基类的事件处理函数
+}
+
 
 void Property::on_collision_geometry_type_currentTextChanged(const QString &arg1)
 {
@@ -180,7 +201,6 @@ void Property::on_visual_origin_x_editingFinished()
     currentShape.link.visuals.origin.xyz.setX(ui->visual_origin_x->text().toFloat());
     if(currentIndex>=0)
     updateShape(currentIndex);
-
 }
 
 

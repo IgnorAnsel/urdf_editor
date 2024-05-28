@@ -4,11 +4,13 @@
 #include <QWidget>
 #include "param_struct.h"
 #include "urdf_editor.h"
+#include <QDrag>
+#include <QMimeData>
 namespace Ui {
 class Property;
 }
 
-class Property : public QWidget
+class Property : public QWidget/*,public QOpenGLWidget*/
 {
     Q_OBJECT
 
@@ -25,6 +27,10 @@ signals:
     void createshape(); // 定义create信号
     void updateshape(const Shape &shape); // 重复创建时更新name用信号
     void updateshapes(); // 选中的物块更改进行更新
+protected:
+//    void startDrag(Qt::DropActions supportedActions);
+    void mousePressEvent(QMouseEvent *event) override;
+
 private slots:
     void on_collision_geometry_type_currentTextChanged(const QString &arg1);
     void on_visual_geometry_type_currentTextChanged(const QString &arg1);
