@@ -41,6 +41,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(pro,&Property::createshape,tree,&shape_relation::update_shape);
     connect(pro,&Property::updateshape,urdf_editor,&Urdf_editor::updateShape);
     connect(pro,&Property::updateshapes,urdf_editor,&Urdf_editor::updateShape);
+    connect(pro,&Property::updateshapes,tree,&shape_relation::update_shape);
     connect(tree,&shape_relation::updateInde,urdf_editor,&Urdf_editor::receiveIndex);
     connect(tree,&shape_relation::updateInde,pro,&Property::receiveindex);
 }

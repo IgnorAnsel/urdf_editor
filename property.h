@@ -29,7 +29,6 @@ private slots:
     void on_collision_geometry_type_currentTextChanged(const QString &arg1);
     void on_visual_geometry_type_currentTextChanged(const QString &arg1);
 
-    void on_link_name_textChanged(const QString &arg1);
     // visual_origin
     void on_visual_origin_y_editingFinished();
     void on_visual_origin_x_editingFinished();
@@ -84,6 +83,10 @@ private slots:
     void on_toolButton_inertial_origin_clicked(bool checked);
 
     void on_toolButton_inertia_matrix_clicked(bool checked);
+
+    void on_link_name_textEdited(const QString &arg1);
+
+    void on_link_name_editingFinished();
 
 private:
     URDFLink link;

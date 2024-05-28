@@ -42,9 +42,9 @@
        <property name="geometry">
         <rect>
          <x>0</x>
-         <y>-964</y>
+         <y>-938</y>
          <width>421</width>
-         <height>1810</height>
+         <height>1784</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -81,6 +81,24 @@
            </property>
            <item row="0" column="0">
             <widget class="QToolButton" name="toolButton_link">
+             <property name="minimumSize">
+              <size>
+               <width>24</width>
+               <height>24</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>24</width>
+               <height>24</height>
+              </size>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">QToolButton:pressed {
+    background-color: none; /* 或者设置为你想要的颜色 */
+}
+</string>
+             </property>
              <property name="text">
               <string>-</string>
              </property>
@@ -128,6 +146,18 @@
                  </property>
                  <item row="0" column="0">
                   <widget class="QToolButton" name="toolButton_base">
+                   <property name="minimumSize">
+                    <size>
+                     <width>24</width>
+                     <height>24</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>24</width>
+                     <height>24</height>
+                    </size>
+                   </property>
                    <property name="text">
                     <string>-</string>
                    </property>
@@ -209,6 +239,18 @@
                  </property>
                  <item row="0" column="0">
                   <widget class="QToolButton" name="toolButton_visuals">
+                   <property name="minimumSize">
+                    <size>
+                     <width>24</width>
+                     <height>24</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>24</width>
+                     <height>24</height>
+                    </size>
+                   </property>
                    <property name="text">
                     <string>-</string>
                    </property>
@@ -256,6 +298,24 @@
                        </property>
                        <item row="0" column="0">
                         <widget class="QToolButton" name="toolButton_visuals_origin">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="minimumSize">
+                          <size>
+                           <width>24</width>
+                           <height>24</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>24</width>
+                           <height>24</height>
+                          </size>
+                         </property>
                          <property name="text">
                           <string>-</string>
                          </property>
@@ -375,6 +435,24 @@
                        </property>
                        <item row="0" column="0">
                         <widget class="QToolButton" name="toolButton_visuals_geometry">
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="minimumSize">
+                          <size>
+                           <width>24</width>
+                           <height>24</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>24</width>
+                           <height>24</height>
+                          </size>
+                         </property>
                          <property name="text">
                           <string>-</string>
                          </property>
@@ -535,6 +613,18 @@
                              </property>
                              <item row="0" column="0">
                               <widget class="QToolButton" name="toolButton_mesh">
+                               <property name="minimumSize">
+                                <size>
+                                 <width>24</width>
+                                 <height>24</height>
+                                </size>
+                               </property>
+                               <property name="maximumSize">
+                                <size>
+                                 <width>24</width>
+                                 <height>24</height>
+                                </size>
+                               </property>
                                <property name="text">
                                 <string>-</string>
                                </property>
@@ -554,8 +644,8 @@
                               <widget class="QWidget" name="widget_mesh" native="true">
                                <property name="minimumSize">
                                 <size>
-                                 <width>100</width>
-                                 <height>100</height>
+                                 <width>0</width>
+                                 <height>0</height>
                                 </size>
                                </property>
                                <layout class="QFormLayout" name="formLayout_5">
@@ -602,6 +692,18 @@
                        </property>
                        <item row="0" column="0">
                         <widget class="QToolButton" name="toolButton_meterial">
+                         <property name="minimumSize">
+                          <size>
+                           <width>24</width>
+                           <height>24</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>24</width>
+                           <height>24</height>
+                          </size>
+                         </property>
                          <property name="text">
                           <string>-</string>
                          </property>
@@ -653,6 +755,18 @@
                        </property>
                        <item row="0" column="0">
                         <widget class="QToolButton" name="toolButton_color">
+                         <property name="minimumSize">
+                          <size>
+                           <width>24</width>
+                           <height>24</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>24</width>
+                           <height>24</height>
+                          </size>
+                         </property>
                          <property name="text">
                           <string>-</string>
                          </property>
@@ -736,6 +850,18 @@
                  </property>
                  <item row="0" column="0">
                   <widget class="QToolButton" name="toolButton_collisions">
+                   <property name="minimumSize">
+                    <size>
+                     <width>24</width>
+                     <height>24</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>24</width>
+                     <height>24</height>
+                    </size>
+                   </property>
                    <property name="text">
                     <string>-</string>
                    </property>
@@ -770,6 +896,18 @@
                        </property>
                        <item row="0" column="0">
                         <widget class="QToolButton" name="toolButton_collisions_origin">
+                         <property name="minimumSize">
+                          <size>
+                           <width>24</width>
+                           <height>24</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>24</width>
+                           <height>24</height>
+                          </size>
+                         </property>
                          <property name="text">
                           <string>-</string>
                          </property>
@@ -883,6 +1021,18 @@
                        </property>
                        <item row="0" column="0">
                         <widget class="QToolButton" name="toolButton_collisions_geometry">
+                         <property name="minimumSize">
+                          <size>
+                           <width>24</width>
+                           <height>24</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>24</width>
+                           <height>24</height>
+                          </size>
+                         </property>
                          <property name="text">
                           <string>-</string>
                          </property>
@@ -1062,6 +1212,18 @@
                  </property>
                  <item row="0" column="0">
                   <widget class="QToolButton" name="toolButton_inertial">
+                   <property name="minimumSize">
+                    <size>
+                     <width>24</width>
+                     <height>24</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>24</width>
+                     <height>24</height>
+                    </size>
+                   </property>
                    <property name="text">
                     <string>-</string>
                    </property>
@@ -1112,6 +1274,18 @@
                        </property>
                        <item row="0" column="0">
                         <widget class="QToolButton" name="toolButton_inertial_origin">
+                         <property name="minimumSize">
+                          <size>
+                           <width>24</width>
+                           <height>24</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>24</width>
+                           <height>24</height>
+                          </size>
+                         </property>
                          <property name="text">
                           <string>-</string>
                          </property>
@@ -1225,6 +1399,18 @@
                        </property>
                        <item row="0" column="0">
                         <widget class="QToolButton" name="toolButton_inertia_matrix">
+                         <property name="minimumSize">
+                          <size>
+                           <width>24</width>
+                           <height>24</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>24</width>
+                           <height>24</height>
+                          </size>
+                         </property>
                          <property name="text">
                           <string>-</string>
                          </property>

@@ -13,7 +13,6 @@ Property::Property(QWidget *parent) :
 void Property::createShape(const QString &shapeType)
 {
     Shape newShape;
-    newShape.link.iscreated = false;
     if (shapeType == "Box")
     {
         newShape = Shape(Shape::Cube);
@@ -36,6 +35,7 @@ void Property::createShape(const QString &shapeType)
     newShape.link.visuals.color = QColor(Qt::white);
     QString link_name = QString("base_").append(QString::number(num));
     newShape.link.name = link_name.toStdString();
+    newShape.link.iscreated = false;
     updateShapeProperties(newShape);
 }
 
@@ -58,7 +58,7 @@ void Property::updateShape(int index)
     shapes[index].link.visuals.geometry.cylinder.radius = ui->visual_cylinder_radius->text().toFloat();
     shapes[index].link.visuals.geometry.cylinder.length = ui->visual_cylinder_length->text().toFloat();
     shapes[index].link.name = ui->link_name->text().toStdString();
-    shapes[index].link.iscreated = false;
+    //shapes[index].link.iscreated = true;
     updateShapeProperties(shapes[index]);
     emit updateshapes();
     //emit createshape();
@@ -73,10 +73,10 @@ void Property::updateShapeProperties(const Shape &shape)
 {
     currentShape = shape;
     // 更新UI以显示形状的属性
-    // if(shape.link.iscreated)
-    //     ui->link_name->setText(QString::fromStdString(shape.link.name));
-    // else
-    //     ui->link_name->setText("");
+    if(shape.link.iscreated)
+         ui->link_name->setText(QString::fromStdString(shape.link.name));
+    else
+         ui->link_name->clear();
     ui->visual_origin_x->setText(QString::number(shape.link.visuals.origin.xyz.x()));
     ui->visual_origin_y->setText(QString::number(shape.link.visuals.origin.xyz.y()));
     ui->visual_origin_z->setText(QString::number(shape.link.visuals.origin.xyz.z()));
@@ -98,6 +98,7 @@ void Property::updateShapeProperties(const Shape &shape)
 
     ui->visual_cylinder_radius->setText(QString::number(shape.link.visuals.geometry.cylinder.radius));
     ui->visual_cylinder_length->setText(QString::number(shape.link.visuals.geometry.cylinder.length));
+    ui->link_name->setPlaceholderText(QString::fromStdString(QString("base_").append(QString::number(num)).toStdString()));
     if (shape.type == Shape::Cube)
     {
         ui->visual_geometry_type->setCurrentText("Box");
@@ -120,6 +121,7 @@ void Property::receiveindex(int index)
 {
     if(index>=0)
     {
+        qDebug()<<shapes[index].link.name;
         shapes[index].link.iscreated =true;
         currentSetlectShape = shapes[index];
         currentIndex = index;
@@ -165,16 +167,6 @@ void Property::on_visual_geometry_type_currentTextChanged(const QString &arg1)
 //        updateShape(currentIndex);
 //    }
 }
-
-
-
-void Property::on_link_name_textChanged(const QString &arg1)
-{
-    currentShape.link.name = arg1.toStdString();
-    if(currentIndex>=0)
-        updateShape(currentIndex);
-}
-
 
 void Property::on_visual_origin_y_editingFinished()
 {
@@ -225,6 +217,7 @@ void Property::on_pushButton_clicked()
     if(currentShape.link.name.empty())
     {
         currentShape.link.name = QString("base_").append(QString::number(num)).toStdString();
+        ui->link_name->setPlaceholderText(QString::fromStdString(currentShape.link.name));
         num++;
     }
     for(const auto& shape : shapes) {
@@ -487,6 +480,22 @@ void Property::on_toolButton_inertia_matrix_clicked(bool checked)
     } else {
         ui->toolButton_inertia_matrix->setText("-");
         ui->widget_inertia_matrix->show();
+    }
+}
+
+
+void Property::on_link_name_textEdited(const QString &arg1)
+{
+
+}
+
+
+void Property::on_link_name_editingFinished()
+{
+    currentShape.link.name = ui->link_name->text().toStdString();
+    if(currentIndex>=0)
+    {
+        updateShape(currentIndex);
     }
 }
 
