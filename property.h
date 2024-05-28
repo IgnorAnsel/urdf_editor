@@ -84,8 +84,6 @@ private slots:
 
     void on_toolButton_inertia_matrix_clicked(bool checked);
 
-    void on_link_name_textEdited(const QString &arg1);
-
     void on_link_name_editingFinished();
 
 private:

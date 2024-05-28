@@ -484,12 +484,6 @@ void Property::on_toolButton_inertia_matrix_clicked(bool checked)
 }
 
 
-void Property::on_link_name_textEdited(const QString &arg1)
-{
-
-}
-
-
 void Property::on_link_name_editingFinished()
 {
     currentShape.link.name = ui->link_name->text().toStdString();
