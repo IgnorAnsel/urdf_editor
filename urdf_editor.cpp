@@ -123,7 +123,7 @@ void Urdf_editor::paintGL()
         // 如果选中的形状发生变化，更新颜色
         if (selectedShapeIndex >= 0)
         {
-            qDebug() << "lastselectedShapeIndex:" << lastselectedShapeIndex << "selectedShapeIndex:" << selectedShapeIndex;
+            //qDebug() << "lastselectedShapeIndex:" << lastselectedShapeIndex << "selectedShapeIndex:" << selectedShapeIndex;
             shapes[lastselectedShapeIndex].link.visuals.color = precolor;       // 恢复之前选中的形状的颜色
             precolor = shapes[selectedShapeIndex].link.visuals.color;           // 保存当前选中形状的原始颜色
             shapes[selectedShapeIndex].link.visuals.color = QColor(Qt::yellow); // 高亮显示新选中的形状
@@ -327,9 +327,8 @@ void Urdf_editor::renderShape(const Shape &shape)
 // 在鼠标点击事件中检测是否点击了某个形状
 void Urdf_editor::mousePressEvent(QMouseEvent *event)
 {
-    // qDebug() << "Mouse pressed at" << event->pos();
     lastMousePos = event->pos();
-    float minDistance = 1000.0f;
+    float minDistance = std::numeric_limits<float>::max();
     int closestShapeIndex = -1;
 
     // 获取鼠标点击位置
@@ -343,29 +342,87 @@ void Urdf_editor::mousePressEvent(QMouseEvent *event)
     gluUnProject(winX, winY, winZ, modelviewMatrix, projectionMatrix, viewport, &worldX, &worldY, &worldZ);
     QVector3D clickPos(worldX, worldY, worldZ);
 
-    for (size_t i = 0; i < shapes.size(); ++i)
-    {
-        QVector3D shapePos = shapes[i].link.visuals.origin.xyz;
-        // qDebug() << "Checking shape at" << shapePos << "with index" << i;
-        float distance = (shapePos - clickPos).length();
-        // qDebug() << "Distance to shape" << distance;
-        if (distance < minDistance)
-        {
-            minDistance = distance;
-            closestShapeIndex = i;
-        }
-    }
+//    for (size_t i = 0; i < shapes.size(); ++i)
+//    {
+//        QVector3D shapePos = shapes[i].link.visuals.origin.xyz;
+//        float distance = (shapePos - clickPos).length();
+//        if (distance < minDistance)
+//        {
+//            //minDistance = distance;
+//            closestShapeIndex = i;
+//        }
+//    }
 
-    if (minDistance < 50.0f)
-    { // 如果距离小于一定阈值，认为点击到了形状
-        selectedShapeIndex = closestShapeIndex;
-        qDebug() << "Shape selected:" << minDistance;
-    } /*else {
-        selectedShapeIndex = -1;
-        //qDebug() << "No shape selected";
-    }*/
+//    if (closestShapeIndex != -1)
+//    {
+//        selectedShapeIndex = closestShapeIndex;
+//        qDebug() << "Shape selected:" << closestShapeIndex << "at distance:" << minDistance;
+//    }
+//    else
+//    {
+//        selectedShapeIndex = -1;
+//    }
+
     update();
 }
+
+//void Urdf_editor::mousePressEvent(QMouseEvent *event)
+//{
+//    // 获取鼠标点击位置
+//    float mouseX = event->pos().x();
+//    float mouseY = event->pos().y();
+
+//    // 转换鼠标位置到 OpenGL 坐标系
+//    GLint viewport[4];
+//    glGetIntegerv(GL_VIEWPORT, viewport);
+//    mouseY = viewport[3] - mouseY;
+
+//    // 设置选择半径（可以根据需要调整）
+//    float selectionRadius = 0.05f; // 假设选择半径为 0.05（在 -1 到 1 的范围内）
+
+//    // 将鼠标位置转换为屏幕空间坐标
+//    QVector2D mousePos((mouseX / viewport[2]) * 2 - 1, (mouseY / viewport[3]) * 2 - 1);
+
+//    // 遍历所有顶点，检查是否在选中范围内
+//    for (int i = 0; i < vertices.size() / 6; i++)
+//    {
+//        QVector4D screen = mvp.map(QVector4D(QVector3D(vertices[i * 6 + 0], vertices[i * 6 + 1], vertices[i * 6 + 2]), 1.0f));
+
+//        // 将齐次坐标转换为笛卡尔坐标
+//        if (screen.w() != 0.0f)
+//        {
+//            screen.setX(screen.x() / screen.w());
+//            screen.setY(screen.y() / screen.w());
+//            screen.setZ(screen.z() / screen.w());
+//        }
+
+//        // 检查顶点是否在中心矩形内
+//        if (screen.x() > -0.5 && screen.x() < 0.5 && screen.y() > -0.5 && screen.y() < 0.5)
+//        {
+//            // 计算顶点在屏幕空间中的位置
+//            QVector2D vertexPos(screen.x(), screen.y());
+
+//            // 计算顶点与鼠标位置的距离
+//            float distance = (vertexPos - mousePos).length();
+
+//            // 如果顶点在选择半径内，则认为选中了形状
+//            if (distance < selectionRadius)
+//            {
+//                selectedShapeIndex = i / (vertices.size() / 6 / shapes.size()); // 计算选中的形状索引
+//                qDebug() << "Shape selected at index:" << selectedShapeIndex << "Distance:" << distance;
+//                break; // 找到一个选中的形状后跳出循环
+//            }
+//        }
+//    }
+
+//    if (selectedShapeIndex == -1)
+//    {
+//        qDebug() << "No shape selected";
+//    }
+
+//    // 更新窗口
+//    update();
+//}
 
 void Urdf_editor::mouseMoveEvent(QMouseEvent *event)
 {

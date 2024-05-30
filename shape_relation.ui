@@ -16,9 +16,26 @@
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0">
     <widget class="QTreeWidget" name="treeWidget">
+     <property name="dragEnabled">
+      <bool>true</bool>
+     </property>
+     <property name="dragDropMode">
+      <enum>QAbstractItemView::InternalMove</enum>
+     </property>
+     <property name="headerHidden">
+      <bool>false</bool>
+     </property>
+     <property name="columnCount">
+      <number>2</number>
+     </property>
      <column>
       <property name="text">
        <string notr="true">Link</string>
+      </property>
+     </column>
+     <column>
+      <property name="text">
+       <string>Joint</string>
       </property>
      </column>
     </widget>

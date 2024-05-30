@@ -22,7 +22,7 @@ public:
     Shape() : type(Cube) {}
     Type type;
     URDFLink link;
-
+    URDFJoint joint;
 private:
 };
 

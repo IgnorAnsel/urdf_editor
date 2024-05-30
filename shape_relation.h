@@ -21,10 +21,20 @@ public slots:
     void update_shape();
 private slots:
     void on_treeWidget_itemClicked(QTreeWidgetItem *item, int column);
+
+    void on_treeWidget_itemChanged(QTreeWidgetItem *item, int column);
+
 signals:
     void updateInde(int index);
+protected:
+    void dropEvent(QDropEvent *event) override;
+    void dragEnterEvent(QDragEnterEvent *event) override;
+    void dragMoveEvent(QDragMoveEvent *event) override;
+    bool eventFilter(QObject *watched, QEvent *event) override;
+
 
 private:
+    int num =0;
     Ui::shape_relation *ui;
 };
 

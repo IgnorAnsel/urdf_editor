@@ -11,6 +11,7 @@
 #include "param_struct.h"
 #include <QMimeData>
 extern std::vector<Shape> shapes;
+extern std::vector<URDFJoint> joints;
 class Urdf_editor : public QOpenGLWidget, protected QOpenGLFunctions
 {
     Q_OBJECT
