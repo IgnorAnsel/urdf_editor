@@ -1,7 +1,6 @@
 #include "shape_relation.h"
 #include "ui_shape_relation.h"
 #include <QString>
-#include <set>
 std::vector<URDFJoint> joints;
 shape_relation::shape_relation(QWidget *parent) : QWidget(parent),
                                                   ui(new Ui::shape_relation)
@@ -103,6 +102,41 @@ void shape_relation::removeInvalidNodes(QTreeWidgetItem *parent, const std::set<
     }
 }
 
+void shape_relation::copyItem()
+{
+    copiedShape = shapes[copiedId];
+}
+
+void shape_relation::pasteItem()
+{
+    Shape pasteShape = copiedShape;
+    pasteShape.id = shapes.back().id+1;
+    pasteShape.link.name = pasteShape.link.name.append(std::to_string(pasteShape.id));
+    QTreeWidgetItem *newItem = new QTreeWidgetItem();
+    newItem->setText(0, QString::fromStdString(pasteShape.link.name));
+    newItem->setData(0, Qt::UserRole, pasteShape.id);
+
+    QTreeWidgetItem *currentItem = ui->treeWidget->currentItem();
+    if (currentItem)
+    {
+        if (currentItem->parent())
+        {
+            currentItem->parent()->addChild(newItem);
+        }
+        else
+        {
+            ui->treeWidget->addTopLevelItem(newItem);
+        }
+    }
+    else
+    {
+        ui->treeWidget->addTopLevelItem(newItem);
+    }
+    shapes.push_back(pasteShape);
+    qDebug() << "Pasted shape id:" << copiedShape.id;
+    emit uptatepaste();
+}
+
 
 void shape_relation::on_treeWidget_itemClicked(QTreeWidgetItem *item, int column)
 {
@@ -114,11 +148,8 @@ void shape_relation::on_treeWidget_itemClicked(QTreeWidgetItem *item, int column
     int id = item->data(0, Qt::UserRole).toInt();
     qDebug() << "Clicked item id:" << id;
 
-    // 获取该项的完整路径（从顶级节点到当前节点）
-    //QString fullPath = getItemFullPath(item);
-    //qDebug() << "Clicked item full path:" << fullPath;
-
     // 触发更新索引的信号，传递 id
+    copiedId = id;
     emit updateInde(id);
 }
 void shape_relation::dragEnterEvent(QDragEnterEvent *event)
@@ -165,6 +196,25 @@ bool shape_relation::eventFilter(QObject *watched, QEvent *event) {
 
     // 默认情况下将事件传递给父类
     return QWidget::eventFilter(watched, event);
+}
+
+void shape_relation::keyPressEvent(QKeyEvent *event)
+{
+
+        if (event->matches(QKeySequence::Copy))
+        {
+        qDebug()<<"copy";
+            copyItem();
+        }
+        else if (event->matches(QKeySequence::Paste))
+        {
+            pasteItem();
+        }
+        else
+        {
+            //QTreeWidget::keyPressEvent(event);
+        }
+
 }
 
 void shape_relation::updateJointNames(QTreeWidgetItem* item, const QString& parentPath) {

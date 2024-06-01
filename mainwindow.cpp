@@ -44,6 +44,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(pro, &Property::drapcreate, urdf_editor, &Urdf_editor::dropCreate);
     connect(tree, &shape_relation::updateInde, urdf_editor, &Urdf_editor::receiveIndex);
     connect(tree, &shape_relation::updateInde, pro, &Property::receiveindex);
+    connect(tree,&shape_relation::uptatepaste,urdf_editor,&Urdf_editor::updateShape);
 }
 
 MainWindow::~MainWindow()
