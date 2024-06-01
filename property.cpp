@@ -168,6 +168,7 @@ bool Property::eventFilter(QObject *obj, QEvent *event)
             if (item_choose)
             {
                 currentShape.link.name = ui->link_name->text().toStdString();
+                currentShape.id = num;
                 // 添加到形状列表
                 if (currentShape.link.visuals.geometry.box.size == QVector3D(0.0f, 0.0f, 0.0f) && currentShape.type == Shape::Cube)
                     return 0;
@@ -291,6 +292,7 @@ void Property::on_pushButton_clicked()
     currentShape.link.visuals.geometry.cylinder.radius = ui->visual_cylinder_radius->text().toFloat();
     currentShape.link.visuals.geometry.cylinder.length = ui->visual_cylinder_length->text().toFloat();
     currentShape.link.name = ui->link_name->text().toStdString();
+    currentShape.id = num;
     // 添加到形状列表
     if (currentShape.link.visuals.geometry.box.size == QVector3D(0.0f, 0.0f, 0.0f) && currentShape.type == Shape::Cube)
         return;

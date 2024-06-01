@@ -4,6 +4,7 @@
 #include <QWidget>
 #include "urdf_editor.h"
 #include <QTreeWidget>
+#include <set>
 namespace Ui
 {
     class shape_relation;
@@ -39,6 +40,9 @@ private:
     QStringList getChildItemNames(QTreeWidgetItem* item);
     QTreeWidgetItem* findRemovedParentItem(QTreeWidgetItem* parentItem, const QString& removedChildName);
     void updateJointNames(QTreeWidgetItem* item, const QString& parentPath);
+    bool findAndUpdateNode(QTreeWidgetItem *parent, int id, const QString &name);
+    void removeInvalidNodes(QTreeWidgetItem *parent, const std::set<int> &shapeIds,const std::map<int, std::string> &shapeNameMap);
+
 };
 
 #endif // SHAPE_RELATION_H

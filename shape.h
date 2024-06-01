@@ -20,6 +20,7 @@ public:
     {
     }
     Shape() : type(Cube) {}
+    int id;
     Type type;
     URDFLink link;
     URDFJoint joint;
