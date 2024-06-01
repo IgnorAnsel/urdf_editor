@@ -106,20 +106,31 @@ void shape_relation::dropEvent(QDropEvent *event)
         event->acceptProposedAction();
     }
 }
-
-bool shape_relation::eventFilter(QObject *watched, QEvent *event)
-{
-    if (watched == ui->treeWidget) {
-            if(event->type()==QEvent::ChildRemoved){
-            URDFJoint joint;
-            for (const auto &shape : shapes)
-            {
-
-            }
-            }
+bool shape_relation::eventFilter(QObject *watched, QEvent *event) {
+    if (watched == ui->treeWidget && event->type() == QEvent::ChildRemoved) {
+        // 遍历所有顶级项目，更新父子关系
+        for (int i = 0; i < ui->treeWidget->topLevelItemCount(); ++i) {
+            QTreeWidgetItem* topLevelItem =ui->treeWidget->topLevelItem(i);
+            updateJointNames(topLevelItem, "");
+        }
     }
+
     // 默认情况下将事件传递给父类
     return QWidget::eventFilter(watched, event);
+}
+
+void shape_relation::updateJointNames(QTreeWidgetItem* item, const QString& parentPath) {
+    QString currentPath = parentPath.isEmpty() ? item->text(0) : parentPath + "_to_" + item->text(0);
+    item->setText(1, currentPath);
+    // 更新所有 shape 的 joint.name
+    for (auto &shape : shapes) {
+        shape.joint.name = currentPath.toStdString();
+        qDebug() << shape.joint.name;
+    }
+
+    for (int i = 0; i < item->childCount(); ++i) {
+        updateJointNames(item->child(i), currentPath);
+    }
 }
 
 void shape_relation::on_treeWidget_itemChanged(QTreeWidgetItem *item, int column)

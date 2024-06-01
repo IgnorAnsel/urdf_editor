@@ -36,6 +36,9 @@ protected:
 private:
     int num =0;
     Ui::shape_relation *ui;
+    QStringList getChildItemNames(QTreeWidgetItem* item);
+    QTreeWidgetItem* findRemovedParentItem(QTreeWidgetItem* parentItem, const QString& removedChildName);
+    void updateJointNames(QTreeWidgetItem* item, const QString& parentPath);
 };
 
 #endif // SHAPE_RELATION_H
