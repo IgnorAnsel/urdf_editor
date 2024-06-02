@@ -33,6 +33,7 @@ void shape_relation::update_shape()
     // 创建一个用于快速查找形状标识符的集合
     std::set<int> shapeIds;
     std::map<int, std::string> shapeNameMap; // 用于存储 id 到 name 的映射
+
     for (const auto &shape : shapes)
     {
         shapeIds.insert(shape.id);
@@ -57,7 +58,9 @@ void shape_relation::update_shape()
     }
 
     // 删除不在 shapes 中的节点
+    qDebug() << "yes";
     removeInvalidNodes(ui->treeWidget->invisibleRootItem(), shapeIds, shapeNameMap);
+
 }
 
 // 递归查找和更新节点
@@ -99,6 +102,58 @@ void shape_relation::removeInvalidNodes(QTreeWidgetItem *parent, const std::set<
             // 递归检查子节点
             removeInvalidNodes(child, shapeIds, shapeNameMap);
         }
+    }
+}
+void shape_relation::updateJointNames(QTreeWidgetItem* item, const QString& parentPath) {
+    QString currentPath;
+
+    // 如果 parentPath 为空，说明是顶级节点
+
+    if (parentPath.isEmpty()) {
+        currentPath = item->text(0);
+
+    } else {
+        // 仅使用父节点的名称构建 currentPath
+        currentPath = parentPath.split("_to_").last() + "_to_" + item->text(0);
+    }
+    item->setText(1, currentPath);
+
+    // 更新所有 shape 的 joint.name
+    for (auto &shape : shapes) {
+        shape.joint.name = currentPath.toStdString();
+        qDebug() << shape.joint.name;
+    }
+
+    // 递归处理子节点
+    for (int i = 0; i < item->childCount(); ++i) {
+        updateJointNames(item->child(i), currentPath);
+    }
+}
+void shape_relation::updateShapeIds(QTreeWidgetItem* root) {
+    // 递归地更新每个节点的 ID 信息
+    recursiveUpdateShapeIds(root, -1); // 假设顶级节点没有父节点，所以传递 -1
+}
+
+void shape_relation::recursiveUpdateShapeIds(QTreeWidgetItem* node, int parentId) {
+    if (!node) return;
+
+    int childId = node->data(0, Qt::UserRole).toInt(); // 假设每个节点的 child_id 存储在 UserRole
+
+    // 更新对应的 shape
+    for (auto &shape : shapes) {
+        if (shape.id == childId) {
+            shape.joint.child_id = childId;
+            shape.joint.parent_id = parentId;
+            qDebug() << "Updated shape ID " << shape.id
+                     << " with parent_id: " << parentId
+                     << " and child_id: " << childId;
+            break;
+        }
+    }
+
+    // 递归更新所有子节点
+    for (int i = 0; i < node->childCount(); ++i) {
+        recursiveUpdateShapeIds(node->child(i), childId); // 将当前节点的 ID 作为下一个调用的 parentId
     }
 }
 
@@ -186,17 +241,24 @@ void shape_relation::dropEvent(QDropEvent *event)
     }
 }
 bool shape_relation::eventFilter(QObject *watched, QEvent *event) {
-    if (watched == ui->treeWidget && event->type() == QEvent::ChildRemoved) {
-        // 遍历所有顶级项目，更新父子关系
-        for (int i = 0; i < ui->treeWidget->topLevelItemCount(); ++i) {
-            QTreeWidgetItem* topLevelItem = ui->treeWidget->topLevelItem(i);
-            updateJointNames(topLevelItem, "");
+    if (watched == ui->treeWidget) {
+        // 检查是否是拖拽释放事件
+        if (event->type() == QEvent::ChildRemoved) {
+            // 更新所有顶级项目的父子关系
+            for (int i = 0; i < ui->treeWidget->topLevelItemCount(); ++i) {
+                QTreeWidgetItem* topLevelItem = ui->treeWidget->topLevelItem(i);
+                updateShapeIds(topLevelItem);  // 确保这是正确的函数来更新 ID
+                updateJointNames(topLevelItem, "");
+
+            }
+            // 可能还需要在这里调用 updateJointNames 如果需要更新名称
         }
     }
 
     // 默认情况下将事件传递给父类
     return QWidget::eventFilter(watched, event);
 }
+
 
 void shape_relation::keyPressEvent(QKeyEvent *event)
 {
@@ -217,31 +279,7 @@ void shape_relation::keyPressEvent(QKeyEvent *event)
 
 }
 
-void shape_relation::updateJointNames(QTreeWidgetItem* item, const QString& parentPath) {
-    QString currentPath;
 
-    // 如果 parentPath 为空，说明是顶级节点
-
-    if (parentPath.isEmpty()) {
-        currentPath = item->text(0);
-    } else {
-        // 仅使用父节点的名称构建 currentPath
-        currentPath = parentPath.split("_to_").last() + "_to_" + item->text(0);
-    }
-
-    item->setText(1, currentPath);
-
-    // 更新所有 shape 的 joint.name
-    for (auto &shape : shapes) {
-        shape.joint.name = currentPath.toStdString();
-        qDebug() << shape.joint.name;
-    }
-
-    // 递归处理子节点
-    for (int i = 0; i < item->childCount(); ++i) {
-        updateJointNames(item->child(i), currentPath);
-    }
-}
 
 
 

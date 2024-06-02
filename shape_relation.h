@@ -48,6 +48,8 @@ private:
     void removeInvalidNodes(QTreeWidgetItem *parent, const std::set<int> &shapeIds,const std::map<int, std::string> &shapeNameMap);
     void copyItem();
     void pasteItem();
+    void updateShapeIds(QTreeWidgetItem *root);
+    void recursiveUpdateShapeIds(QTreeWidgetItem *node, int parentId);
 
 };
 
