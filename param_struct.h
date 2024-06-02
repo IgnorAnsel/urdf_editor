@@ -118,10 +118,10 @@ struct SafetyController
 // 定义一个URDFJoint结构体
 struct URDFJoint
 {
-    std::string name;                   // joint的名称
-    std::string type;                   // joint的类型，如"revolute"、"continuous"等
-    std::string parent_link;            // 父链接的名称
-    std::string child_link;             // 子链接的名称
+    std::string name;        // joint的名称
+    std::string type;        // joint的类型，如"revolute"、"continuous"等
+    std::string parent_link; // 父链接的名称
+    std::string child_link;  // 子链接的名称
     int parent_id;
     int child_id;
     int id;

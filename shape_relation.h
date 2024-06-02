@@ -29,6 +29,7 @@ signals:
     void updateInde(int index);
     void updateJointIndex(int index);
     void uptatepaste();
+
 protected:
     void dropEvent(QDropEvent *event) override;
     void dragEnterEvent(QDragEnterEvent *event) override;
@@ -36,23 +37,21 @@ protected:
     bool eventFilter(QObject *watched, QEvent *event) override;
     void keyPressEvent(QKeyEvent *event) override;
 
-
 private:
-    int num =0;
-    int joint_num= 0;
+    int num = 0;
+    int joint_num = 0;
     Ui::shape_relation *ui;
     Shape copiedShape;
     int copiedId;
-    QStringList getChildItemNames(QTreeWidgetItem* item);
-    QTreeWidgetItem* findRemovedParentItem(QTreeWidgetItem* parentItem, const QString& removedChildName);
-    void updateJointNames(QTreeWidgetItem* item, const QString& parentPath);
+    QStringList getChildItemNames(QTreeWidgetItem *item);
+    QTreeWidgetItem *findRemovedParentItem(QTreeWidgetItem *parentItem, const QString &removedChildName);
+    void updateJointNames(QTreeWidgetItem *item, const QString &parentPath);
     bool findAndUpdateNode(QTreeWidgetItem *parent, int id, const QString &name);
-    void removeInvalidNodes(QTreeWidgetItem *parent, const std::set<int> &shapeIds,const std::map<int, std::string> &shapeNameMap);
+    void removeInvalidNodes(QTreeWidgetItem *parent, const std::set<int> &shapeIds, const std::map<int, std::string> &shapeNameMap);
     void copyItem();
     void pasteItem();
     void updateShapeIds(QTreeWidgetItem *root);
     void recursiveUpdateShapeIds(QTreeWidgetItem *node, int parentId);
-
 };
 
 #endif // SHAPE_RELATION_H

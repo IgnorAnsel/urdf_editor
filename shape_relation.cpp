@@ -6,7 +6,7 @@ shape_relation::shape_relation(QWidget *parent) : QWidget(parent),
                                                   ui(new Ui::shape_relation)
 {
     ui->setupUi(this);
-    //addShapesToTreeWidget(shapes, ui->treeWidget);
+    // addShapesToTreeWidget(shapes, ui->treeWidget);
     setAcceptDrops(true);
     ui->treeWidget->installEventFilter(this);
 }
@@ -60,7 +60,6 @@ void shape_relation::update_shape()
     // 删除不在 shapes 中的节点
     qDebug() << "yes";
     removeInvalidNodes(ui->treeWidget->invisibleRootItem(), shapeIds, shapeNameMap);
-
 }
 
 // 递归查找和更新节点
@@ -104,61 +103,72 @@ void shape_relation::removeInvalidNodes(QTreeWidgetItem *parent, const std::set<
         }
     }
 }
-void shape_relation::updateJointNames(QTreeWidgetItem* item, const QString& parentPath) {
+void shape_relation::updateJointNames(QTreeWidgetItem *item, const QString &parentPath)
+{
     QString currentPath;
 
     // 如果 parentPath 为空，说明是顶级节点
 
-    if (parentPath.isEmpty()) {
+    if (parentPath.isEmpty())
+    {
         currentPath = item->text(0);
-    } else {
+    }
+    else
+    {
         // 仅使用父节点的名称构建 currentPath
         currentPath = parentPath.split("_to_").last() + "_to_" + item->text(0);
     }
     item->setText(1, currentPath);
 
     // 更新所有 shape 的 joint.name
-    for (auto &shape : shapes) {
+    for (auto &shape : shapes)
+    {
         shape.joint.name = currentPath.toStdString();
     }
 
     // 递归处理子节点
-    for (int i = 0; i < item->childCount(); ++i) {
+    for (int i = 0; i < item->childCount(); ++i)
+    {
         updateJointNames(item->child(i), currentPath);
     }
 }
-void shape_relation::updateShapeIds(QTreeWidgetItem* root) {
+void shape_relation::updateShapeIds(QTreeWidgetItem *root)
+{
     // 递归地更新每个节点的 ID 信息
     recursiveUpdateShapeIds(root, -1); // 假设顶级节点没有父节点，所以传递 -1
 }
 
-void shape_relation::recursiveUpdateShapeIds(QTreeWidgetItem* node, int parentId) {
-    if (!node) return;
+void shape_relation::recursiveUpdateShapeIds(QTreeWidgetItem *node, int parentId)
+{
+    if (!node)
+        return;
 
     int childId = node->data(0, Qt::UserRole).toInt(); // 假设每个节点的 child_id 存储在 UserRole
 
     // 更新对应的 shape
-    for (auto &shape : shapes) {
-        if (shape.id == childId) {
-            if (!shape.isjointset) {
+    for (auto &shape : shapes)
+    {
+        if (shape.id == childId)
+        {
+            if (!shape.isjointset)
+            {
                 shape.joint.child_id = childId;
                 shape.joint.parent_id = parentId;
                 shape.joint.id = joint_num++; // 设置 joint.id 并递增
-                shape.isjointset = true; // 设置标志位为 true
+                shape.isjointset = true;      // 设置标志位为 true
                 qDebug() << "Updated shape ID " << shape.id
                          << " with parent_id: " << parentId
                          << " and child_id: " << childId
                          << " joint ID: " << shape.joint.id;
                 node->setData(1, Qt::UserRole, shape.joint.id); // 存储 joint id
-
             }
             break;
         }
     }
 
-
     // 递归更新所有子节点
-    for (int i = 0; i < node->childCount(); ++i) {
+    for (int i = 0; i < node->childCount(); ++i)
+    {
         recursiveUpdateShapeIds(node->child(i), childId); // 将当前节点的 ID 作为下一个调用的 parentId
     }
 }
@@ -171,7 +181,7 @@ void shape_relation::copyItem()
 void shape_relation::pasteItem()
 {
     Shape pasteShape = copiedShape;
-    pasteShape.id = shapes.back().id+1;
+    pasteShape.id = shapes.back().id + 1;
     pasteShape.link.name = pasteShape.link.name.append(std::to_string(pasteShape.id));
     QTreeWidgetItem *newItem = new QTreeWidgetItem();
     newItem->setText(0, QString::fromStdString(pasteShape.link.name));
@@ -198,7 +208,6 @@ void shape_relation::pasteItem()
     emit uptatepaste();
 }
 
-
 void shape_relation::on_treeWidget_itemClicked(QTreeWidgetItem *item, int column)
 {
     // 获取点击项的文本信息
@@ -206,20 +215,20 @@ void shape_relation::on_treeWidget_itemClicked(QTreeWidgetItem *item, int column
     qDebug() << "Clicked item text:" << text;
     // 获取点击项的唯一标识符（id）
     int id;
-    if(column == 0)
+    if (column == 0)
     {
         id = item->data(0, Qt::UserRole).toInt();
         copiedId = id;
         emit updateInde(id);
     }
-    else if(column == 1)
+    else if (column == 1)
     {
-        int joint_id = item->data(1,Qt::UserRole).toInt();
+        int joint_id = item->data(1, Qt::UserRole).toInt();
         qDebug() << joint_id;
         // 查找对应的 shape
         for (const auto &shape : shapes)
         {
-            if(joint_id == -1)
+            if (joint_id == -1)
             {
                 id = item->data(0, Qt::UserRole).toInt();
                 emit updateInde(id);
@@ -242,22 +251,28 @@ void shape_relation::on_treeWidget_itemClicked(QTreeWidgetItem *item, int column
 }
 void shape_relation::dragEnterEvent(QDragEnterEvent *event)
 {
-    qDebug()<<2;
+    qDebug() << 2;
 
-    if (event->mimeData()->hasText()) {
+    if (event->mimeData()->hasText())
+    {
         event->acceptProposedAction();
-    } else {
+    }
+    else
+    {
         event->ignore();
     }
 }
 
 void shape_relation::dragMoveEvent(QDragMoveEvent *event)
 {
-    qDebug()<<3;
+    qDebug() << 3;
 
-    if (event->mimeData()->hasText()) {
+    if (event->mimeData()->hasText())
+    {
         event->acceptProposedAction();
-    } else {
+    }
+    else
+    {
         event->ignore();
     }
 }
@@ -269,20 +284,23 @@ void shape_relation::dropEvent(QDropEvent *event)
     {
         // 获取拖放的文本
         QString text = event->mimeData()->text();
-        qDebug()<<text;
+        qDebug() << text;
         event->acceptProposedAction();
     }
 }
-bool shape_relation::eventFilter(QObject *watched, QEvent *event) {
-    if (watched == ui->treeWidget) {
+bool shape_relation::eventFilter(QObject *watched, QEvent *event)
+{
+    if (watched == ui->treeWidget)
+    {
         // 检查是否是拖拽释放事件
-        if (event->type() == QEvent::ChildRemoved) {
+        if (event->type() == QEvent::ChildRemoved)
+        {
             // 更新所有顶级项目的父子关系
-            for (int i = 0; i < ui->treeWidget->topLevelItemCount(); ++i) {
-                QTreeWidgetItem* topLevelItem = ui->treeWidget->topLevelItem(i);
-                updateShapeIds(topLevelItem);  // 确保这是正确的函数来更新 ID
+            for (int i = 0; i < ui->treeWidget->topLevelItemCount(); ++i)
+            {
+                QTreeWidgetItem *topLevelItem = ui->treeWidget->topLevelItem(i);
+                updateShapeIds(topLevelItem); // 确保这是正确的函数来更新 ID
                 updateJointNames(topLevelItem, "");
-
             }
             // 可能还需要在这里调用 updateJointNames 如果需要更新名称
         }
@@ -292,35 +310,26 @@ bool shape_relation::eventFilter(QObject *watched, QEvent *event) {
     return QWidget::eventFilter(watched, event);
 }
 
-
 void shape_relation::keyPressEvent(QKeyEvent *event)
 {
 
-        if (event->matches(QKeySequence::Copy))
-        {
-        qDebug()<<"copy";
-            copyItem();
-        }
-        else if (event->matches(QKeySequence::Paste))
-        {
-            pasteItem();
-        }
-        else
-        {
-            //QTreeWidget::keyPressEvent(event);
-        }
-
+    if (event->matches(QKeySequence::Copy))
+    {
+        qDebug() << "copy";
+        copyItem();
+    }
+    else if (event->matches(QKeySequence::Paste))
+    {
+        pasteItem();
+    }
+    else
+    {
+        // QTreeWidget::keyPressEvent(event);
+    }
 }
-
-
-
-
-
 
 void shape_relation::on_treeWidget_itemChanged(QTreeWidgetItem *item, int column)
 {
-    qDebug()<<num;
+    qDebug() << num;
     num++;
-
 }
-

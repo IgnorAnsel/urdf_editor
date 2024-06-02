@@ -5,7 +5,7 @@
 #include "actionhandler.h"
 #include "urdf_editor.h"
 #include "property.h"
-//#include "property2.h"
+// #include "property2.h"
 #include "shape_relation.h"
 QT_BEGIN_NAMESPACE
 namespace Ui
@@ -27,7 +27,7 @@ private:
     ActionHandler *actionHandler = new ActionHandler(this);
     Urdf_editor *urdf_editor;
     Property *pro;
-    //property2 *pro2;
+    // property2 *pro2;
     shape_relation *tree;
 };
 #endif // MAINWINDOW_H

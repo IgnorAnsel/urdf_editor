@@ -123,7 +123,7 @@ void Urdf_editor::paintGL()
         // 如果选中的形状发生变化，更新颜色
         if (selectedShapeIndex >= 0)
         {
-            //qDebug() << "lastselectedShapeIndex:" << lastselectedShapeIndex << "selectedShapeIndex:" << selectedShapeIndex;
+            // qDebug() << "lastselectedShapeIndex:" << lastselectedShapeIndex << "selectedShapeIndex:" << selectedShapeIndex;
             shapes[lastselectedShapeIndex].link.visuals.color = precolor;       // 恢复之前选中的形状的颜色
             precolor = shapes[selectedShapeIndex].link.visuals.color;           // 保存当前选中形状的原始颜色
             shapes[selectedShapeIndex].link.visuals.color = QColor(Qt::yellow); // 高亮显示新选中的形状
@@ -342,35 +342,35 @@ void Urdf_editor::mousePressEvent(QMouseEvent *event)
     gluUnProject(winX, winY, winZ, modelviewMatrix, projectionMatrix, viewport, &worldX, &worldY, &worldZ);
     QVector3D clickPos(worldX, worldY, worldZ);
 
-//    for (size_t i = 0; i < shapes.size(); ++i)
-//    {
-//        QVector3D shapePos = shapes[i].link.visuals.origin.xyz;
-//        float distance = (shapePos - clickPos).length();
-//        if (distance < minDistance)
-//        {
-//            //minDistance = distance;
-//            closestShapeIndex = i;
-//        }
-//    }
+    //    for (size_t i = 0; i < shapes.size(); ++i)
+    //    {
+    //        QVector3D shapePos = shapes[i].link.visuals.origin.xyz;
+    //        float distance = (shapePos - clickPos).length();
+    //        if (distance < minDistance)
+    //        {
+    //            //minDistance = distance;
+    //            closestShapeIndex = i;
+    //        }
+    //    }
 
-//    if (closestShapeIndex != -1)
-//    {
-//        selectedShapeIndex = closestShapeIndex;
-//        qDebug() << "Shape selected:" << closestShapeIndex << "at distance:" << minDistance;
-//    }
-//    else
-//    {
-//        selectedShapeIndex = -1;
-//    }
+    //    if (closestShapeIndex != -1)
+    //    {
+    //        selectedShapeIndex = closestShapeIndex;
+    //        qDebug() << "Shape selected:" << closestShapeIndex << "at distance:" << minDistance;
+    //    }
+    //    else
+    //    {
+    //        selectedShapeIndex = -1;
+    //    }
 
     update();
 }
 
-//void Urdf_editor::mousePressEvent(QMouseEvent *event)
+// void Urdf_editor::mousePressEvent(QMouseEvent *event)
 //{
-//    // 获取鼠标点击位置
-//    float mouseX = event->pos().x();
-//    float mouseY = event->pos().y();
+//     // 获取鼠标点击位置
+//     float mouseX = event->pos().x();
+//     float mouseY = event->pos().y();
 
 //    // 转换鼠标位置到 OpenGL 坐标系
 //    GLint viewport[4];

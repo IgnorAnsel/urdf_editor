@@ -25,6 +25,7 @@ public:
     Type type;
     URDFLink link;
     URDFJoint joint;
+
 private:
 };
 
