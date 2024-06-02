@@ -10,6 +10,7 @@ Property::Property(QWidget *parent) : QWidget(parent),
     setMouseTracking(true);
     setAttribute(Qt::WA_Hover, true);
     ui->listWidget->installEventFilter(this);
+    ui->widget->hide();
 }
 
 void Property::createShape(const QString &shapeType)
@@ -120,6 +121,8 @@ void Property::updateShapeProperties(const Shape &shape)
 
 void Property::receiveindex(int index)
 {
+    ui->widget->hide();
+    ui->widget_18->show();
     if (index >= 0)
     {
         shapes[index].link.iscreated = true;
@@ -128,6 +131,13 @@ void Property::receiveindex(int index)
         updateShapeProperties(currentSetlectShape);
         ui->pushButton->hide();
     }
+}
+
+void Property::receivejointindex(int index)
+{
+    ui->widget->show();
+    ui->widget_18->hide();
+    ui->pushButton->hide();
 }
 
 void Property::mousePressEvent(QMouseEvent *event)

@@ -21,6 +21,7 @@ public:
     }
     Shape() : type(Cube) {}
     int id;
+    bool isjointset;
     Type type;
     URDFLink link;
     URDFJoint joint;

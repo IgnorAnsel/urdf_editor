@@ -124,6 +124,7 @@ struct URDFJoint
     std::string child_link;             // 子链接的名称
     int parent_id;
     int child_id;
+    int id;
     Pose parent_to_child_origin;        // 父链接到子链接的变换
     Axis axis;                          // 旋转关节的轴
     Limits limits;                      // 关节的限制

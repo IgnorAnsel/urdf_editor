@@ -27,6 +27,7 @@ private slots:
 
 signals:
     void updateInde(int index);
+    void updateJointIndex(int index);
     void uptatepaste();
 protected:
     void dropEvent(QDropEvent *event) override;
@@ -38,6 +39,7 @@ protected:
 
 private:
     int num =0;
+    int joint_num= 0;
     Ui::shape_relation *ui;
     Shape copiedShape;
     int copiedId;

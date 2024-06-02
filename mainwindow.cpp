@@ -22,7 +22,7 @@ MainWindow::MainWindow(QWidget *parent)
     QVBoxLayout *Layout_choose = new QVBoxLayout();
     QVBoxLayout *Layout2 = new QVBoxLayout();
     pro = new Property();
-    pro2 = new property2();
+//    pro2 = new property2();
     tree = new shape_relation();
     Layout->addWidget(pro);
     ui->widget_param->setLayout(Layout);
@@ -45,6 +45,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(tree, &shape_relation::updateInde, urdf_editor, &Urdf_editor::receiveIndex);
     connect(tree, &shape_relation::updateInde, pro, &Property::receiveindex);
     connect(tree,&shape_relation::uptatepaste,urdf_editor,&Urdf_editor::updateShape);
+    connect(tree,&shape_relation::updateJointIndex,pro,&Property::receivejointindex);
 }
 
 MainWindow::~MainWindow()
