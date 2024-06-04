@@ -67,6 +67,13 @@ void Property::updateShape(int index)
     // emit createshape();
 }
 
+void Property::updateJoint()
+{
+    ui->lineEdit_joint_name->setText(QString::fromStdString(currentjoint.name));
+    //ui->comboBox_joint_type
+    ui->comboBox_parent_link->setCurrentText(QString::fromStdString(currentjoint.parent_link));
+}
+
 Property::~Property()
 {
     delete ui;
@@ -122,7 +129,7 @@ void Property::updateShapeProperties(const Shape &shape)
 void Property::receiveindex(int index)
 {
     ui->widget->hide();
-    ui->widget_18->show();
+    ui->widget_joint->show();
     if (index >= 0)
     {
         shapes[index].link.iscreated = true;
@@ -136,8 +143,21 @@ void Property::receiveindex(int index)
 void Property::receivejointindex(int index)
 {
     ui->widget->show();
-    ui->widget_18->hide();
+    ui->widget_joint->hide();
     ui->pushButton->hide();
+    QStringList strList;
+    for(const auto &shape:shapes)
+    {
+        if(shape.joint.id == index)
+        {
+            currentjoint = shape.joint;
+        }
+        else
+            strList.append(QString::fromStdString(shape.link.name));
+    }
+    ui->comboBox_parent_link->clear();
+    ui->comboBox_parent_link->addItems(strList);
+    updateJoint();
 }
 
 void Property::mousePressEvent(QMouseEvent *event)

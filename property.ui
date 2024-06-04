@@ -42,7 +42,7 @@
        <property name="geometry">
         <rect>
          <x>0</x>
-         <y>-2035</y>
+         <y>0</y>
          <width>421</width>
          <height>2881</height>
         </rect>
@@ -71,7 +71,7 @@
             <widget class="QWidget" name="widget_41" native="true">
              <layout class="QGridLayout" name="gridLayout_3">
               <item row="0" column="3">
-               <widget class="QLineEdit" name="lineEdit_67"/>
+               <widget class="QLineEdit" name="lineEdit_joint_name"/>
               </item>
               <item row="1" column="0">
                <widget class="QLabel" name="label_63">
@@ -81,7 +81,7 @@
                </widget>
               </item>
               <item row="4" column="3">
-               <widget class="QComboBox" name="comboBox_7"/>
+               <widget class="QComboBox" name="comboBox_parent_link"/>
               </item>
               <item row="1" column="3" colspan="2">
                <widget class="QLabel" name="label_64">
@@ -91,7 +91,7 @@
                </widget>
               </item>
               <item row="5" column="3">
-               <widget class="QComboBox" name="comboBox_8"/>
+               <widget class="QComboBox" name="comboBox_child_link"/>
               </item>
               <item row="4" column="0">
                <widget class="QLabel" name="label_65">
@@ -115,7 +115,7 @@
                </widget>
               </item>
               <item row="2" column="3">
-               <widget class="QComboBox" name="comboBox_9"/>
+               <widget class="QComboBox" name="comboBox_joint_type"/>
               </item>
               <item row="5" column="0">
                <widget class="QLabel" name="label_101">
@@ -512,7 +512,7 @@
          </widget>
         </item>
         <item>
-         <widget class="QWidget" name="widget_18" native="true">
+         <widget class="QWidget" name="widget_joint" native="true">
           <property name="enabled">
            <bool>true</bool>
           </property>

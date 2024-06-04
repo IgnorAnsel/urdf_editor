@@ -19,6 +19,7 @@ public:
     explicit Property(QWidget *parent = nullptr);
     void createShape(const QString &shapeType);
     void updateShape(int index);
+    void updateJoint();
     ~Property();
 public slots:
     void updateShapeProperties(const Shape &shape); // 定义槽
@@ -100,6 +101,7 @@ private:
     Ui::Property *ui;
     Shape currentShape;
     Shape currentSetlectShape;
+    URDFJoint currentjoint;
     int currentIndex = -1;
     QString currenttext;
     int num = 0;

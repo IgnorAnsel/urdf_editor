@@ -2,6 +2,7 @@
 #include "ui_shape_relation.h"
 #include <QString>
 std::vector<URDFJoint> joints;
+std::map<int, std::string> shapeNameMap; // 用于存储 id 到 name 的映射
 shape_relation::shape_relation(QWidget *parent) : QWidget(parent),
                                                   ui(new Ui::shape_relation)
 {
@@ -31,7 +32,6 @@ void shape_relation::update_shape()
 {
     // 创建一个用于快速查找形状标识符的集合
     std::set<int> shapeIds;
-    std::map<int, std::string> shapeNameMap; // 用于存储 id 到 name 的映射
 
     for (const auto &shape : shapes)
     {
@@ -154,6 +154,8 @@ void shape_relation::recursiveUpdateShapeIds(QTreeWidgetItem *node, int parentId
             {
                 shape.joint.child_id = childId;
                 shape.joint.parent_id = parentId;
+                shape.joint.parent_link = shapeNameMap[parentId];
+                shape.joint.child_link = shapeNameMap[childId];
                 shape.joint.id = joint_num++; // 设置 joint.id 并递增
                 shape.isjointset = true;      // 设置标志位为 true
                 qDebug() << "Updated shape ID " << shape.id
