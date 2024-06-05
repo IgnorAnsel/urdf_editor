@@ -13,27 +13,6 @@ Urdf_editor::Urdf_editor(QWidget *parent) : QOpenGLWidget(parent), cube(Shape::C
     rotationAngleX = 0.0f;
     rotationAngleY = 0.0f;
     setAcceptDrops(true); // 启用拖放功能
-    //    // 初始化立方体对象并设置属性
-    //    cube.link.visuals.origin.xyz = QVector3D(0.0f, 0.0f, 0.0f);
-    //    //cube.scale = QVector3D(1.0f, 1.0f, 1.0f);
-    //    cube.link.visuals.origin.rpy = QVector3D(0.0f, 0.0f, 0.0f);
-    //    cube.link.visuals.color = QColor(Qt::red);
-    //    cube.link.visuals.geometry.box.size = QVector3D(10.0f,1.0f,1.0f);
-
-    //    sphere.link.visuals.origin.xyz = QVector3D(1.0f,0.0f,0.0f);
-    //    sphere.link.visuals.origin.rpy = QVector3D(0.0f, 0.0f, 0.0f);
-    //    sphere.link.visuals.geometry.sphere.radius = 1;
-    //    sphere.link.visuals.color = QColor(Qt::blue);
-
-    //    cylinder.link.visuals.origin.xyz = QVector3D(1.0f,0.0f,0.0f);
-    //    cylinder.link.visuals.origin.rpy = QVector3D(0.0f, 0.0f, 0.0f);
-    //    cylinder.link.visuals.geometry.cylinder.radius = 1;
-    //    cylinder.link.visuals.geometry.cylinder.length = 2;
-    //    cylinder.link.visuals.color = QColor(Qt::green);
-
-    //    //shapes.push_back(cube);
-    //    //shapes.push_back(sphere);
-    //    //shapes.push_back(cylinder);
 }
 
 void Urdf_editor::updateShape()
@@ -51,6 +30,14 @@ void Urdf_editor::dropCreate(const Shape &shape)
 {
     qDebug() << "2";
     currentShape = shape;
+}
+
+void Urdf_editor::updateJoint()
+{
+    for(const auto &shape:shapes)
+    {
+        renderShape(shape);
+    }
 }
 void Urdf_editor::initializeGL()
 {
@@ -295,8 +282,35 @@ void Urdf_editor::drawPlane(float width, float height, float gridSize)
 
 void Urdf_editor::renderShape(const Shape &shape)
 {
-    // 设置几何变换
+    // 初始化变换矩阵为单位矩阵
     QMatrix4x4 modelMatrix;
+
+    // 如果有父节点，通过关节变换计算子节点的变换矩阵
+    if (shape.joint.parent_id >= 0) {
+        for (const auto &s : shapes) {
+            if (s.id == shape.joint.parent_id) {
+                // 获取父节点的位置和旋转信息
+                QMatrix4x4 parentMatrix;
+                parentMatrix.translate(s.link.visuals.origin.xyz);
+                parentMatrix.rotate(s.link.visuals.origin.rpy.x(), 1.0f, 0.0f, 0.0f);
+                parentMatrix.rotate(s.link.visuals.origin.rpy.y(), 0.0f, 1.0f, 0.0f);
+                parentMatrix.rotate(s.link.visuals.origin.rpy.z(), 0.0f, 0.0f, 1.0f);
+
+                // 创建关节的变换矩阵
+                QMatrix4x4 jointMatrix;
+                jointMatrix.translate(shape.joint.parent_to_child_origin.xyz);
+                jointMatrix.rotate(shape.joint.parent_to_child_origin.rpy.x(), 1.0f, 0.0f, 0.0f);
+                jointMatrix.rotate(shape.joint.parent_to_child_origin.rpy.y(), 0.0f, 1.0f, 0.0f);
+                jointMatrix.rotate(shape.joint.parent_to_child_origin.rpy.z(), 0.0f, 0.0f, 1.0f);
+
+                // 计算子节点的变换矩阵
+                modelMatrix = parentMatrix * jointMatrix;
+                break;
+            }
+        }
+    }
+
+    // 应用几何变换
     modelMatrix.translate(shape.link.visuals.origin.xyz);
     modelMatrix.scale(QVector3D(1.0f, 1.0f, 1.0f));
     modelMatrix.rotate(shape.link.visuals.origin.rpy.x(), 1.0f, 0.0f, 0.0f);
@@ -323,6 +337,8 @@ void Urdf_editor::renderShape(const Shape &shape)
 
     glPopMatrix();
 }
+
+
 
 // 在鼠标点击事件中检测是否点击了某个形状
 void Urdf_editor::mousePressEvent(QMouseEvent *event)

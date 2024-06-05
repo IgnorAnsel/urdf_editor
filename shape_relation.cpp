@@ -307,7 +307,7 @@ bool shape_relation::eventFilter(QObject *watched, QEvent *event)
             // 可能还需要在这里调用 updateJointNames 如果需要更新名称
         }
     }
-
+    emit updateJoint();
     // 默认情况下将事件传递给父类
     return QWidget::eventFilter(watched, event);
 }

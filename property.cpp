@@ -72,6 +72,12 @@ void Property::updateJoint()
     ui->lineEdit_joint_name->setText(QString::fromStdString(currentjoint.name));
     //ui->comboBox_joint_type
     ui->comboBox_parent_link->setCurrentText(QString::fromStdString(currentjoint.parent_link));
+    ui->lineEdit_ptco_r->setText(QString::number(currentjoint.parent_to_child_origin.rpy.x()));
+    ui->lineEdit_ptco_p->setText(QString::number(currentjoint.parent_to_child_origin.rpy.y()));
+    ui->lineEdit_ptco_y->setText(QString::number(currentjoint.parent_to_child_origin.rpy.z()));
+    ui->lineEdit_ptco_x->setText(QString::number(currentjoint.parent_to_child_origin.xyz.x()));
+    ui->lineEdit_ptco_y_2->setText(QString::number(currentjoint.parent_to_child_origin.xyz.y()));
+    ui->lineEdit_ptco_z->setText(QString::number(currentjoint.parent_to_child_origin.xyz.z()));
 }
 
 Property::~Property()
@@ -146,6 +152,7 @@ void Property::receivejointindex(int index)
     ui->widget_joint->hide();
     ui->pushButton->hide();
     QStringList strList;
+    joint_index = index;
     for(const auto &shape:shapes)
     {
         if(shape.joint.id == index)
@@ -345,6 +352,21 @@ void Property::on_pushButton_clicked()
     emit createshape();
     // emit updateshape(currentShape);
     //    emit changenum();
+}
+
+void Property::updateformp()
+{
+    for(auto &shape:shapes)
+    {
+        if(shape.joint.id == joint_index)
+        {
+            qDebug() << "id:" << joint_index
+                     << "shape:"<< shape.joint.name;
+            shape.joint = currentjoint;
+            break;
+        }
+        else;
+    }
 }
 
 void Property::on_listWidget_currentTextChanged(const QString &currentText)
@@ -622,3 +644,43 @@ void Property::on_link_name_editingFinished()
         updateShape(currentIndex);
     }
 }
+
+void Property::on_lineEdit_ptco_r_editingFinished()
+{
+    currentjoint.parent_to_child_origin.rpy.setX(ui->lineEdit_ptco_r->text().toFloat());
+    updateformp();
+}
+
+void Property::on_lineEdit_ptco_p_editingFinished()
+{
+    currentjoint.parent_to_child_origin.rpy.setY(ui->lineEdit_ptco_p->text().toFloat());
+    updateformp();
+}
+
+void Property::on_lineEdit_ptco_y_editingFinished()
+{
+    currentjoint.parent_to_child_origin.rpy.setZ(ui->lineEdit_ptco_y->text().toFloat());
+    updateformp();
+}
+
+
+void Property::on_lineEdit_ptco_x_editingFinished()
+{
+    currentjoint.parent_to_child_origin.xyz.setX(ui->lineEdit_ptco_x->text().toFloat());
+    updateformp();
+}
+
+
+void Property::on_lineEdit_ptco_y_2_editingFinished()
+{
+    currentjoint.parent_to_child_origin.xyz.setY(ui->lineEdit_ptco_y_2->text().toFloat());
+    updateformp();
+}
+
+
+void Property::on_lineEdit_ptco_z_editingFinished()
+{
+    currentjoint.parent_to_child_origin.xyz.setZ(ui->lineEdit_ptco_z->text().toFloat());
+    updateformp();
+}
+

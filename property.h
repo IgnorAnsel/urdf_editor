@@ -96,15 +96,29 @@ private slots:
 
     void on_link_name_editingFinished();
 
+    void on_lineEdit_ptco_r_editingFinished();
+
+    void on_lineEdit_ptco_p_editingFinished();
+
+    void on_lineEdit_ptco_y_editingFinished();
+
+    void on_lineEdit_ptco_x_editingFinished();
+
+    void on_lineEdit_ptco_y_2_editingFinished();
+
+    void on_lineEdit_ptco_z_editingFinished();
+
 private:
     URDFLink link;
     Ui::Property *ui;
     Shape currentShape;
     Shape currentSetlectShape;
     URDFJoint currentjoint;
+    int joint_index = -1;
     int currentIndex = -1;
     QString currenttext;
     int num = 0;
+    void updateformp();
 };
 
 #endif // PROPERTY_H

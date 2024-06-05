@@ -29,6 +29,7 @@ signals:
     void updateInde(int index);
     void updateJointIndex(int index);
     void uptatepaste();
+    void updateJoint();
 
 protected:
     void dropEvent(QDropEvent *event) override;

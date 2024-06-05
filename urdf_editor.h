@@ -21,7 +21,7 @@ public slots:
     void updateShape(); // 定义槽
     void receiveIndex(int index);
     void dropCreate(const Shape &shape);
-
+    void updateJoint();
 protected:
     void initializeGL() override;
     void resizeGL(int w, int h) override;

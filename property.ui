@@ -115,7 +115,38 @@
                </widget>
               </item>
               <item row="2" column="3">
-               <widget class="QComboBox" name="comboBox_joint_type"/>
+               <widget class="QComboBox" name="comboBox_joint_type">
+                <item>
+                 <property name="text">
+                  <string>fixed</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>continuous</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>revolute</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>prismatic</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>planer</string>
+                 </property>
+                </item>
+                <item>
+                 <property name="text">
+                  <string>floating</string>
+                 </property>
+                </item>
+               </widget>
               </item>
               <item row="5" column="0">
                <widget class="QLabel" name="label_101">
@@ -147,7 +178,7 @@
                      </widget>
                     </item>
                     <item>
-                     <widget class="QLineEdit" name="lineEdit_68"/>
+                     <widget class="QLineEdit" name="lineEdit_ptco_r"/>
                     </item>
                     <item>
                      <widget class="QLabel" name="label_103">
@@ -157,7 +188,7 @@
                      </widget>
                     </item>
                     <item>
-                     <widget class="QLineEdit" name="lineEdit_69"/>
+                     <widget class="QLineEdit" name="lineEdit_ptco_p"/>
                     </item>
                     <item>
                      <widget class="QLabel" name="label_127">
@@ -167,7 +198,7 @@
                      </widget>
                     </item>
                     <item>
-                     <widget class="QLineEdit" name="lineEdit_70"/>
+                     <widget class="QLineEdit" name="lineEdit_ptco_y"/>
                     </item>
                    </layout>
                   </widget>
@@ -183,7 +214,7 @@
                      </widget>
                     </item>
                     <item>
-                     <widget class="QLineEdit" name="lineEdit_71"/>
+                     <widget class="QLineEdit" name="lineEdit_ptco_x"/>
                     </item>
                     <item>
                      <widget class="QLabel" name="label_129">
@@ -193,7 +224,7 @@
                      </widget>
                     </item>
                     <item>
-                     <widget class="QLineEdit" name="lineEdit_72"/>
+                     <widget class="QLineEdit" name="lineEdit_ptco_y_2"/>
                     </item>
                     <item>
                      <widget class="QLabel" name="label_130">
@@ -203,7 +234,7 @@
                      </widget>
                     </item>
                     <item>
-                     <widget class="QLineEdit" name="lineEdit_73"/>
+                     <widget class="QLineEdit" name="lineEdit_ptco_z"/>
                     </item>
                    </layout>
                   </widget>
