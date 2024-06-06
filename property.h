@@ -6,6 +6,7 @@
 #include "urdf_editor.h"
 #include <QDrag>
 #include <QMimeData>
+#include <QListWidgetItem>
 namespace Ui
 {
     class Property;
@@ -48,7 +49,7 @@ private slots:
     void on_visual_origin_z_editingFinished();
 
     void on_pushButton_clicked();
-    void on_listWidget_currentTextChanged(const QString &currentText);
+    //void on_listWidget_currentTextChanged(const QString &currentText);
 
     void on_visual_origin_r_editingFinished();
 
@@ -113,6 +114,8 @@ private slots:
     void on_comboBox_joint_type_currentTextChanged(const QString &arg1);
 
     void on_lineEdit_joint_name_editingFinished();
+
+    void on_listWidget_itemClicked(QListWidgetItem *item);
 
 private:
     URDFLink link;

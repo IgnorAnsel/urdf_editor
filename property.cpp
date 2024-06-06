@@ -372,14 +372,26 @@ void Property::updateformp()
     emit updateshapes();
 }
 
-void Property::on_listWidget_currentTextChanged(const QString &currentText)
+//void Property::on_listWidget_currentTextChanged(const QString &currentText)
+//{
+//    ui->pushButton->show();
+//    currenttext = currentText;
+//    currentIndex = -1;
+//    createShape(currentText);
+//}
+void Property::on_listWidget_itemClicked(QListWidgetItem *item)
 {
     ui->pushButton->show();
-    currenttext = currentText;
-    currentIndex = -1;
-    createShape(currentText);
-}
+    ui->widget->hide();
+    ui->widget_joint->show();
+    // 获取点击项的文本信息
+    QString itemText = item->text();
+    // 在点击时更新当前文本和索引
+    currenttext = itemText;
+    currentIndex = ui->listWidget->row(item);
+    createShape(currenttext);
 
+}
 void Property::on_visual_origin_r_editingFinished()
 {
     currentShape.link.visuals.origin.rpy.setX(ui->visual_origin_r->text().toFloat());
@@ -702,4 +714,7 @@ void Property::on_lineEdit_joint_name_editingFinished()
     updateformp();
     emit update_items();
 }
+
+
+
 
