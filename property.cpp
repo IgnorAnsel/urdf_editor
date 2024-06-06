@@ -153,15 +153,17 @@ void Property::receivejointindex(int index)
     ui->pushButton->hide();
     QStringList strList;
     joint_index = index;
+    qDebug() << "index:" <<index;
     for(const auto &shape:shapes)
     {
-        if(shape.joint.id == index)
+        if(shape.joint.id == joint_index)
         {
             currentjoint = shape.joint;
         }
         else
             strList.append(QString::fromStdString(shape.link.name));
     }
+    qDebug() << "zheli:" << currentjoint.name;
     ui->comboBox_parent_link->clear();
     ui->comboBox_parent_link->addItems(strList);
     updateJoint();
@@ -360,13 +362,14 @@ void Property::updateformp()
     {
         if(shape.joint.id == joint_index)
         {
-            qDebug() << "id:" << joint_index
-                     << "shape:"<< shape.joint.name;
+//            qDebug() << "id:" << joint_index
+//                     << "shape:"<< shape.joint.name;
             shape.joint = currentjoint;
             break;
         }
         else;
     }
+    emit updateshapes();
 }
 
 void Property::on_listWidget_currentTextChanged(const QString &currentText)
@@ -682,5 +685,21 @@ void Property::on_lineEdit_ptco_z_editingFinished()
 {
     currentjoint.parent_to_child_origin.xyz.setZ(ui->lineEdit_ptco_z->text().toFloat());
     updateformp();
+}
+
+
+void Property::on_comboBox_joint_type_currentTextChanged(const QString &arg1)
+{
+    currentjoint.type = arg1.toStdString();
+    updateformp();
+}
+
+
+void Property::on_lineEdit_joint_name_editingFinished()
+{
+    currentjoint.name = ui->lineEdit_joint_name->text().toStdString();
+    currentjoint.joint_name_manset = true;
+    updateformp();
+    emit update_items();
 }
 

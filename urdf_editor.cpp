@@ -287,6 +287,7 @@ void Urdf_editor::renderShape(const Shape &shape)
 
     // 如果有父节点，通过关节变换计算子节点的变换矩阵
     if (shape.joint.parent_id >= 0) {
+        //qDebug()<<"shape_parent_id:" << shape.joint.parent_id;
         for (const auto &s : shapes) {
             if (s.id == shape.joint.parent_id) {
                 // 获取父节点的位置和旋转信息
@@ -298,6 +299,7 @@ void Urdf_editor::renderShape(const Shape &shape)
 
                 // 创建关节的变换矩阵
                 QMatrix4x4 jointMatrix;
+                //qDebug()<<"joint x:" << shape.joint.parent_to_child_origin.xyz.x();
                 jointMatrix.translate(shape.joint.parent_to_child_origin.xyz);
                 jointMatrix.rotate(shape.joint.parent_to_child_origin.rpy.x(), 1.0f, 0.0f, 0.0f);
                 jointMatrix.rotate(shape.joint.parent_to_child_origin.rpy.y(), 0.0f, 1.0f, 0.0f);

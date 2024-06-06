@@ -19,6 +19,7 @@ public:
     void addShapesToTreeWidget(const std::vector<Shape> &shapes, QTreeWidget *treeWidget);
     ~shape_relation();
 public slots:
+    void update_item();
     void update_shape();
 private slots:
     void on_treeWidget_itemClicked(QTreeWidgetItem *item, int column);

@@ -16,6 +16,15 @@ shape_relation::~shape_relation()
 {
     delete ui;
 }
+
+void shape_relation::update_item()
+{
+    for (int i = 0; i < ui->treeWidget->topLevelItemCount(); ++i)
+    {
+        QTreeWidgetItem *topLevelItem = ui->treeWidget->topLevelItem(i);
+        updateJointNames(topLevelItem, "");
+    }
+}
 void shape_relation::addShapesToTreeWidget(const std::vector<Shape> &shapes, QTreeWidget *treeWidget)
 {
     ui->treeWidget->clear();
@@ -24,10 +33,13 @@ void shape_relation::addShapesToTreeWidget(const std::vector<Shape> &shapes, QTr
         // 创建一个新的树形控件项，并设置第一列为形状的名称
         QTreeWidgetItem *item = new QTreeWidgetItem(treeWidget);
         item->setText(0, QString::fromStdString(shape.link.name));
+        item->setData(0, Qt::UserRole, shape.id); // 存储形状 ID
+        item->setData(1, Qt::UserRole, shape.joint.id); // 存储 joint ID
         // 将该项目添加到树形控件中
         treeWidget->addTopLevelItem(item);
     }
 }
+
 void shape_relation::update_shape()
 {
     // 创建一个用于快速查找形状标识符的集合
@@ -108,7 +120,6 @@ void shape_relation::updateJointNames(QTreeWidgetItem *item, const QString &pare
     QString currentPath;
 
     // 如果 parentPath 为空，说明是顶级节点
-
     if (parentPath.isEmpty())
     {
         currentPath = item->text(0);
@@ -118,12 +129,23 @@ void shape_relation::updateJointNames(QTreeWidgetItem *item, const QString &pare
         // 仅使用父节点的名称构建 currentPath
         currentPath = parentPath.split("_to_").last() + "_to_" + item->text(0);
     }
-    item->setText(1, currentPath);
 
-    // 更新所有 shape 的 joint.name
+    // 找到对应的 shape，并更新其 joint.name
+    int shapeId = item->data(0, Qt::UserRole).toInt();
     for (auto &shape : shapes)
     {
-        shape.joint.name = currentPath.toStdString();
+        if (shape.id == shapeId)
+        {
+            if(!shape.joint.joint_name_manset)
+                {
+                shape.joint.name = currentPath.toStdString();
+                item->setText(1, currentPath);
+                }
+            else{
+                item->setText(1,QString::fromStdString(shape.joint.name));
+            }
+            break;
+        }
     }
 
     // 递归处理子节点
@@ -132,6 +154,7 @@ void shape_relation::updateJointNames(QTreeWidgetItem *item, const QString &pare
         updateJointNames(item->child(i), currentPath);
     }
 }
+
 void shape_relation::updateShapeIds(QTreeWidgetItem *root)
 {
     // 递归地更新每个节点的 ID 信息
@@ -150,20 +173,19 @@ void shape_relation::recursiveUpdateShapeIds(QTreeWidgetItem *node, int parentId
     {
         if (shape.id == childId)
         {
-            if (!shape.isjointset)
-            {
-                shape.joint.child_id = childId;
-                shape.joint.parent_id = parentId;
-                shape.joint.parent_link = shapeNameMap[parentId];
-                shape.joint.child_link = shapeNameMap[childId];
-                shape.joint.id = joint_num++; // 设置 joint.id 并递增
-                shape.isjointset = true;      // 设置标志位为 true
-                qDebug() << "Updated shape ID " << shape.id
-                         << " with parent_id: " << parentId
-                         << " and child_id: " << childId
-                         << " joint ID: " << shape.joint.id;
-                node->setData(1, Qt::UserRole, shape.joint.id); // 存储 joint id
-            }
+            // 确保 parentId 被正确传递和更新
+            shape.joint.parent_id = parentId;
+            shape.joint.child_id = childId;
+            shape.joint.parent_link = parentId != -1 ? shapeNameMap[parentId] : "";
+            shape.joint.child_link = shapeNameMap[childId];
+            shape.joint.id = joint_num++; // 设置 joint.id 并递增
+            shape.isjointset = true;      // 设置标志位为 true
+            qDebug() << "Updated shape ID " << shape.id
+                     << " with parent_id: " << parentId
+                     << " and child_id: " << childId
+                     << " joint ID: " << shape.joint.id
+                     << "joint Name:" << shape.joint.name;
+            node->setData(1, Qt::UserRole, shape.joint.id); // 存储 joint id
             break;
         }
     }
@@ -179,7 +201,6 @@ void shape_relation::copyItem()
 {
     copiedShape = shapes[copiedId];
 }
-
 void shape_relation::pasteItem()
 {
     Shape pasteShape = copiedShape;
@@ -240,7 +261,8 @@ void shape_relation::on_treeWidget_itemClicked(QTreeWidgetItem *item, int column
             {
                 qDebug() << "Found shape with joint id:" << joint_id
                          << ", parent_id:" << shape.joint.parent_id
-                         << ", child_id:" << shape.joint.child_id;
+                         << ", child_id:" << shape.joint.child_id
+                <<", joint_name:" << shape.joint.name;
                 id = shape.joint.child_id;
                 emit updateInde(id);
                 emit updateJointIndex(joint_id);

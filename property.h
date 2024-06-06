@@ -31,6 +31,8 @@ signals:
     void updateshape(const Shape &shape);     // 重复创建时更新name用信号
     void updateshapes();                      // 选中的物块更改进行更新
     void drapcreate(const Shape &newShape);   //
+    void update_items();
+
 protected:
     //    void startDrag(Qt::DropActions supportedActions);
     void mousePressEvent(QMouseEvent *event) override;
@@ -107,6 +109,10 @@ private slots:
     void on_lineEdit_ptco_y_2_editingFinished();
 
     void on_lineEdit_ptco_z_editingFinished();
+
+    void on_comboBox_joint_type_currentTextChanged(const QString &arg1);
+
+    void on_lineEdit_joint_name_editingFinished();
 
 private:
     URDFLink link;
