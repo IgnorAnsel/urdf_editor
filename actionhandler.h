@@ -5,12 +5,15 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QApplication>
+#include "codemaker.h"
 class ActionHandler : public QWidget
 {
     Q_OBJECT
 public:
     explicit ActionHandler(QWidget *parent = nullptr) : QWidget(parent) {}
-
+    QString savedFilePath;
+private:
+    codemaker *cm;
 public slots:
 
     /****************************** 文件菜单 **********************************/

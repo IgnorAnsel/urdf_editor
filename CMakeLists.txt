@@ -26,6 +26,7 @@ set(PROJECT_SOURCES
 #       property2.h property2.cpp property2.ui
         shape.h shape.cpp
         shape_relation.h shape_relation.cpp shape_relation.ui
+        codemaker.h codemaker.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

@@ -9,7 +9,6 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
     setGeometry(300, 300, 1600, 1000);
     ui->widget_2->resize(QSize(440, 1000));
-
     // 绑定动作
     connect(ui->actionNew, &QAction::triggered, actionHandler, &ActionHandler::newFile);
     connect(ui->actionOpen, &QAction::triggered, actionHandler, &ActionHandler::openFile);

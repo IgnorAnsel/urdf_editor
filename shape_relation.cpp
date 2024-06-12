@@ -176,6 +176,7 @@ void shape_relation::recursiveUpdateShapeIds(QTreeWidgetItem *node, int parentId
             // 确保 parentId 被正确传递和更新
             shape.joint.parent_id = parentId;
             shape.joint.child_id = childId;
+            shape.joint.type = "fix";
             shape.joint.parent_link = parentId != -1 ? shapeNameMap[parentId] : "";
             shape.joint.child_link = shapeNameMap[childId];
             shape.joint.id = joint_num++; // 设置 joint.id 并递增

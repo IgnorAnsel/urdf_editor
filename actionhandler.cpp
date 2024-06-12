@@ -11,6 +11,7 @@ void ActionHandler::newFile()
    {
       QMessageBox::warning(this, tr("Application"), tr("Create failed"));
    }
+   savedFilePath = fileName;
 }
 void ActionHandler::openFile()
 {
@@ -24,6 +25,7 @@ void ActionHandler::openFile()
    {
       QMessageBox::warning(this, tr("Application"), tr("Open failed"));
    }
+   savedFilePath = fileName;
 }
 void ActionHandler::saveFile()
 {
@@ -32,11 +34,12 @@ void ActionHandler::saveFile()
                                                    tr("Text Files (*.urdf)"));
    if (fileName.isEmpty())
       return;
-   QFile file(fileName);
-   if (!file.open(QFile::WriteOnly | QFile::Text))
-   {
-      QMessageBox::warning(this, tr("Application"), tr("Save failed"));
-   }
+   cm->CodeMake(fileName,shapes);
+//   QFile file(fileName);
+//   if (!file.open(QFile::WriteOnly | QFile::Text))
+//   {
+//      QMessageBox::warning(this, tr("Application"), tr("Save failed"));
+//   }
 }
 void ActionHandler::saveasFile()
 {
