@@ -20,17 +20,21 @@ void Property::createShape(const QString &shapeType)
     {
         newShape = Shape(Shape::Cube);
         newShape.link.visuals.geometry.box.size = QVector3D(1.0f, 1.0f, 1.0f);
+        newShape.link.collisions.geometry.box.size = QVector3D(1.0f, 1.0f, 1.0f);
     }
     else if (shapeType == "Sphere")
     {
         newShape = Shape(Shape::Sphere);
         newShape.link.visuals.geometry.sphere.radius = 1.0f;
+        newShape.link.collisions.geometry.sphere.radius = 1.0f;
     }
     else if (shapeType == "Cylinder")
     {
         newShape = Shape(Shape::Cylinder);
         newShape.link.visuals.geometry.cylinder.radius = 1.0f;
         newShape.link.visuals.geometry.cylinder.length = 2.0f;
+        newShape.link.collisions.geometry.cylinder.radius = 1.0f;
+        newShape.link.collisions.geometry.cylinder.length = 2.0f;
     }
     // 设置默认属性
     newShape.link.visuals.origin.xyz = QVector3D(0.0f, 0.0f, 0.0f);
@@ -39,6 +43,19 @@ void Property::createShape(const QString &shapeType)
     QString link_name = QString("base_").append(QString::number(num));
     newShape.link.name = link_name.toStdString();
     newShape.link.iscreated = false;
+    newShape.link.collisions.origin.xyz = QVector3D(0.0f, 0.0f, 0.0f);
+    newShape.link.collisions.origin.rpy = QVector3D(0.0f, 0.0f, 0.0f);
+    newShape.link.inertial.origin.xyz = QVector3D(0.0f, 0.0f, 0.0f);
+    newShape.link.inertial.origin.rpy = QVector3D(0.0f, 0.0f, 0.0f);
+    newShape.link.inertial.inertia_matrix.ixx = 0;
+    newShape.link.inertial.inertia_matrix.ixy = 0;
+    newShape.link.inertial.inertia_matrix.ixz = 0;
+    newShape.link.inertial.inertia_matrix.iyy = 0;
+    newShape.link.inertial.inertia_matrix.iyz = 0;
+    newShape.link.inertial.inertia_matrix.izz = 0;
+    newShape.link.inertial.mass = 0;
+    newShape.link.visuals.geometry.mesh.filename = "";
+    newShape.link.visuals.geometry.mesh.scale = QVector3D(0.0f, 0.0f, 0.0f);
     updateShapeProperties(newShape);
 }
 
@@ -60,6 +77,8 @@ void Property::updateShape(int index)
     shapes[index].link.visuals.geometry.sphere.radius = ui->visual_sphere_radius->text().toFloat();
     shapes[index].link.visuals.geometry.cylinder.radius = ui->visual_cylinder_radius->text().toFloat();
     shapes[index].link.visuals.geometry.cylinder.length = ui->visual_cylinder_length->text().toFloat();
+
+
     shapes[index].link.name = ui->link_name->text().toStdString();
     // shapes[index].link.iscreated = true;
     updateShapeProperties(shapes[index]);
@@ -114,6 +133,51 @@ void Property::updateShapeProperties(const Shape &shape)
 
     ui->visual_cylinder_radius->setText(QString::number(shape.link.visuals.geometry.cylinder.radius));
     ui->visual_cylinder_length->setText(QString::number(shape.link.visuals.geometry.cylinder.length));
+
+    ui->collisions_origin_x->setText(QString::number(shape.link.collisions.origin.xyz.x()));
+    ui->collisions_origin_y->setText(QString::number(shape.link.collisions.origin.xyz.y()));
+    ui->collisions_origin_z->setText(QString::number(shape.link.collisions.origin.xyz.z()));
+
+    ui->collisions_origin_r->setText(QString::number(shape.link.collisions.origin.rpy.x()));
+    ui->collisions_origin_p->setText(QString::number(shape.link.collisions.origin.rpy.y()));
+    ui->collisions_origin_y_2->setText(QString::number(shape.link.collisions.origin.rpy.z()));
+
+
+    ui->collisions_box_l->setText(QString::number(shape.link.collisions.geometry.box.size.x()));
+    ui->collisions_box_w->setText(QString::number(shape.link.collisions.geometry.box.size.y()));
+    ui->collisions_box_h->setText(QString::number(shape.link.collisions.geometry.box.size.z()));
+
+    ui->collisions_sphere_radius->setText(QString::number(shape.link.collisions.geometry.sphere.radius));
+
+    ui->collisions_cylinder_radius->setText(QString::number(shape.link.collisions.geometry.cylinder.radius));
+    ui->collisions_cylinder_length->setText(QString::number(shape.link.collisions.geometry.cylinder.length));
+
+    ui->inertial_origin_x->setText(QString::number(shape.link.inertial.origin.xyz.x()));
+    ui->inertial_origin_y->setText(QString::number(shape.link.inertial.origin.xyz.y()));
+    ui->inertial_origin_z->setText(QString::number(shape.link.inertial.origin.xyz.z()));
+
+    ui->inertial_origin_r->setText(QString::number(shape.link.inertial.origin.rpy.x()));
+    ui->inertial_origin_p->setText(QString::number(shape.link.inertial.origin.rpy.y()));
+    ui->inertial_origin_y_2->setText(QString::number(shape.link.inertial.origin.rpy.z()));
+
+    ui->mass->setText(QString::number(shape.link.inertial.mass));
+    ui->mesh_filename->setText(QString::fromStdString(shape.link.visuals.geometry.mesh.filename));
+    QVector3D scale = shape.link.visuals.geometry.mesh.scale;
+    QString scaleStr = QString("%1, %2, %3")
+                           .arg(QString::number(scale.x()))
+                           .arg(QString::number(scale.y()))
+                           .arg(QString::number(scale.z()));
+    ui->mesh_scale->setText(scaleStr);
+
+    ui->ixx->setText(QString::number(shape.link.inertial.inertia_matrix.ixx));
+    ui->ixy->setText(QString::number(shape.link.inertial.inertia_matrix.ixy));
+    ui->ixz->setText(QString::number(shape.link.inertial.inertia_matrix.ixz));
+    ui->iyy->setText(QString::number(shape.link.inertial.inertia_matrix.iyy));
+    ui->iyz->setText(QString::number(shape.link.inertial.inertia_matrix.iyz));
+    ui->izz->setText(QString::number(shape.link.inertial.inertia_matrix.izz));
+
+
+
     ui->link_name->setPlaceholderText(QString::fromStdString(QString("base_").append(QString::number(num)).toStdString()));
     if (shape.type == Shape::Cube)
     {

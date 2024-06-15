@@ -42,7 +42,7 @@
        <property name="geometry">
         <rect>
          <x>0</x>
-         <y>0</y>
+         <y>-1253</y>
          <width>421</width>
          <height>2881</height>
         </rect>
@@ -1138,7 +1138,7 @@
                                  </widget>
                                 </item>
                                 <item row="0" column="1">
-                                 <widget class="QLineEdit" name="lineEdit_48"/>
+                                 <widget class="QLineEdit" name="mesh_filename"/>
                                 </item>
                                 <item row="1" column="0">
                                  <widget class="QLabel" name="label_74">
@@ -1148,7 +1148,7 @@
                                  </widget>
                                 </item>
                                 <item row="1" column="1">
-                                 <widget class="QLineEdit" name="lineEdit_47"/>
+                                 <widget class="QLineEdit" name="mesh_scale"/>
                                 </item>
                                </layout>
                               </widget>
@@ -1217,7 +1217,7 @@
                            </widget>
                           </item>
                           <item>
-                           <widget class="QLineEdit" name="lineEdit_19"/>
+                           <widget class="QLineEdit" name="material_path"/>
                           </item>
                          </layout>
                         </widget>
@@ -1424,7 +1424,7 @@
                               </widget>
                              </item>
                              <item>
-                              <widget class="QLineEdit" name="visual_origin_x_4"/>
+                              <widget class="QLineEdit" name="collisions_origin_x"/>
                              </item>
                              <item>
                               <widget class="QLabel" name="label_116">
@@ -1434,7 +1434,7 @@
                               </widget>
                              </item>
                              <item>
-                              <widget class="QLineEdit" name="visual_origin_y_7"/>
+                              <widget class="QLineEdit" name="collisions_origin_y"/>
                              </item>
                              <item>
                               <widget class="QLabel" name="label_117">
@@ -1444,7 +1444,7 @@
                               </widget>
                              </item>
                              <item>
-                              <widget class="QLineEdit" name="visual_origin_z_4"/>
+                              <widget class="QLineEdit" name="collisions_origin_z"/>
                              </item>
                             </layout>
                            </widget>
@@ -1460,7 +1460,7 @@
                               </widget>
                              </item>
                              <item>
-                              <widget class="QLineEdit" name="visual_origin_r_4"/>
+                              <widget class="QLineEdit" name="collisions_origin_r"/>
                              </item>
                              <item>
                               <widget class="QLabel" name="label_119">
@@ -1470,7 +1470,7 @@
                               </widget>
                              </item>
                              <item>
-                              <widget class="QLineEdit" name="visual_origin_p_4"/>
+                              <widget class="QLineEdit" name="collisions_origin_p"/>
                              </item>
                              <item>
                               <widget class="QLabel" name="label_120">
@@ -1480,7 +1480,7 @@
                               </widget>
                              </item>
                              <item>
-                              <widget class="QLineEdit" name="visual_origin_y_8"/>
+                              <widget class="QLineEdit" name="collisions_origin_y_2"/>
                              </item>
                             </layout>
                            </widget>
@@ -1581,7 +1581,7 @@
                                  </widget>
                                 </item>
                                 <item>
-                                 <widget class="QLineEdit" name="visual_box_l_4"/>
+                                 <widget class="QLineEdit" name="collisions_box_l"/>
                                 </item>
                                 <item>
                                  <widget class="QLabel" name="label_124">
@@ -1591,7 +1591,7 @@
                                  </widget>
                                 </item>
                                 <item>
-                                 <widget class="QLineEdit" name="visual_box_w_4"/>
+                                 <widget class="QLineEdit" name="collisions_box_w"/>
                                 </item>
                                 <item>
                                  <widget class="QLabel" name="visual_box_label_4">
@@ -1601,7 +1601,7 @@
                                  </widget>
                                 </item>
                                 <item>
-                                 <widget class="QLineEdit" name="visual_box_h_4"/>
+                                 <widget class="QLineEdit" name="collisions_box_h"/>
                                 </item>
                                </layout>
                               </widget>
@@ -1623,7 +1623,7 @@
                               </widget>
                              </item>
                              <item>
-                              <widget class="QLineEdit" name="visual_cylinder_radius_4"/>
+                              <widget class="QLineEdit" name="collisions_cylinder_radius"/>
                              </item>
                              <item>
                               <widget class="QLabel" name="visual_cylinder_lenth_4">
@@ -1633,7 +1633,7 @@
                               </widget>
                              </item>
                              <item>
-                              <widget class="QLineEdit" name="visual_cylinder_length_4"/>
+                              <widget class="QLineEdit" name="collisions_cylinder_length"/>
                              </item>
                             </layout>
                            </widget>
@@ -1652,7 +1652,7 @@
                               </widget>
                              </item>
                              <item>
-                              <widget class="QLineEdit" name="visual_sphere_radius_4"/>
+                              <widget class="QLineEdit" name="collisions_sphere_radius"/>
                              </item>
                             </layout>
                            </widget>
@@ -1739,7 +1739,7 @@
                         </widget>
                        </item>
                        <item>
-                        <widget class="QLineEdit" name="lineEdit_62"/>
+                        <widget class="QLineEdit" name="mass"/>
                        </item>
                       </layout>
                      </widget>
@@ -1795,7 +1795,7 @@
                               </widget>
                              </item>
                              <item>
-                              <widget class="QLineEdit" name="lineEdit_56"/>
+                              <widget class="QLineEdit" name="inertial_origin_x"/>
                              </item>
                              <item>
                               <widget class="QLabel" name="label_108">
@@ -1805,7 +1805,7 @@
                               </widget>
                              </item>
                              <item>
-                              <widget class="QLineEdit" name="lineEdit_57"/>
+                              <widget class="QLineEdit" name="inertial_origin_y"/>
                              </item>
                              <item>
                               <widget class="QLabel" name="label_109">
@@ -1815,7 +1815,7 @@
                               </widget>
                              </item>
                              <item>
-                              <widget class="QLineEdit" name="lineEdit_58"/>
+                              <widget class="QLineEdit" name="inertial_origin_z"/>
                              </item>
                             </layout>
                            </widget>
@@ -1831,7 +1831,7 @@
                               </widget>
                              </item>
                              <item>
-                              <widget class="QLineEdit" name="lineEdit_59"/>
+                              <widget class="QLineEdit" name="inertial_origin_r"/>
                              </item>
                              <item>
                               <widget class="QLabel" name="label_111">
@@ -1841,7 +1841,7 @@
                               </widget>
                              </item>
                              <item>
-                              <widget class="QLineEdit" name="lineEdit_60"/>
+                              <widget class="QLineEdit" name="inertial_origin_p"/>
                              </item>
                              <item>
                               <widget class="QLabel" name="label_112">
@@ -1851,7 +1851,7 @@
                               </widget>
                              </item>
                              <item>
-                              <widget class="QLineEdit" name="lineEdit_61"/>
+                              <widget class="QLineEdit" name="inertial_origin_y_2"/>
                              </item>
                             </layout>
                            </widget>
@@ -1920,7 +1920,7 @@
                               </widget>
                              </item>
                              <item>
-                              <widget class="QLineEdit" name="lineEdit_35"/>
+                              <widget class="QLineEdit" name="ixx"/>
                              </item>
                              <item>
                               <widget class="QLabel" name="label_94">
@@ -1930,7 +1930,7 @@
                               </widget>
                              </item>
                              <item>
-                              <widget class="QLineEdit" name="lineEdit_36"/>
+                              <widget class="QLineEdit" name="ixy"/>
                              </item>
                              <item>
                               <widget class="QLabel" name="label_95">
@@ -1940,7 +1940,7 @@
                               </widget>
                              </item>
                              <item>
-                              <widget class="QLineEdit" name="lineEdit_49"/>
+                              <widget class="QLineEdit" name="ixz"/>
                              </item>
                             </layout>
                            </widget>
@@ -1956,7 +1956,7 @@
                               </widget>
                              </item>
                              <item>
-                              <widget class="QLineEdit" name="lineEdit_53"/>
+                              <widget class="QLineEdit" name="iyy"/>
                              </item>
                              <item>
                               <widget class="QLabel" name="label_105">
@@ -1966,7 +1966,7 @@
                               </widget>
                              </item>
                              <item>
-                              <widget class="QLineEdit" name="lineEdit_54"/>
+                              <widget class="QLineEdit" name="iyz"/>
                              </item>
                              <item>
                               <widget class="QLabel" name="label_106">
@@ -1976,7 +1976,7 @@
                               </widget>
                              </item>
                              <item>
-                              <widget class="QLineEdit" name="lineEdit_55"/>
+                              <widget class="QLineEdit" name="izz"/>
                              </item>
                             </layout>
                            </widget>
