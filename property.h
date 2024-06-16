@@ -37,7 +37,7 @@ signals:
 protected:
     //    void startDrag(Qt::DropActions supportedActions);
     void mousePressEvent(QMouseEvent *event) override;
-    bool eventFilter(QObject *obj, QEvent *event) override;
+    //bool eventFilter(QObject *obj, QEvent *event) override;
 
 private slots:
     void on_collision_geometry_type_currentTextChanged(const QString &arg1);

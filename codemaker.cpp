@@ -42,23 +42,33 @@ void codemaker::CodeMake(QString path, std::vector<Shape> shapes)
     {
         // 写入 link 信息
         out << "  <link name=\"" << QString::fromStdString(shape.link.name) << "\">\n";
-        out << "    <inertial>\n";
-        out << "      <origin xyz=\""
-            << shape.link.inertial.origin.xyz.x() << " "
-            << shape.link.inertial.origin.xyz.y() << " "
-            << shape.link.inertial.origin.xyz.z() << "\" rpy=\""
-            << shape.link.inertial.origin.rpy.x() << " "
-            << shape.link.inertial.origin.rpy.y() << " "
-            << shape.link.inertial.origin.rpy.z() << "\" />\n";
-        out << "      <mass value=\"" << shape.link.inertial.mass << "\" />\n";
-        out << "      <inertia ixx=\"" << shape.link.inertial.inertia_matrix.ixx << "\" ixy=\""
-            << shape.link.inertial.inertia_matrix.ixy << "\" ixz=\""
-            << shape.link.inertial.inertia_matrix.ixz << "\" iyy=\""
-            << shape.link.inertial.inertia_matrix.iyy << "\" iyz=\""
-            << shape.link.inertial.inertia_matrix.iyz << "\" izz=\""
-            << shape.link.inertial.inertia_matrix.izz << "\" />\n";
-        out << "    </inertial>\n";
+        if (shape.link.inertial.mass != 0 ||
+            isInertiaMatrixNonZero(shape.link.inertial.inertia_matrix) ||
+            isOriginNonZero(shape.link.inertial.origin.xyz, shape.link.inertial.origin.rpy)) {
 
+            out << "    <inertial>\n";
+            out << "      <origin xyz=\""
+                << shape.link.inertial.origin.xyz.x() << " "
+                << shape.link.inertial.origin.xyz.y() << " "
+                << shape.link.inertial.origin.xyz.z() << "\" rpy=\""
+                << shape.link.inertial.origin.rpy.x() << " "
+                << shape.link.inertial.origin.rpy.y() << " "
+                << shape.link.inertial.origin.rpy.z() << "\" />\n";
+
+            if (shape.link.inertial.mass != 0)
+                out << "      <mass value=\"" << shape.link.inertial.mass << "\" />\n";
+
+            if (isInertiaMatrixNonZero(shape.link.inertial.inertia_matrix)) {
+                out << "      <inertia ixx=\"" << shape.link.inertial.inertia_matrix.ixx << "\" ixy=\""
+                    << shape.link.inertial.inertia_matrix.ixy << "\" ixz=\""
+                    << shape.link.inertial.inertia_matrix.ixz << "\" iyy=\""
+                    << shape.link.inertial.inertia_matrix.iyy << "\" iyz=\""
+                    << shape.link.inertial.inertia_matrix.iyz << "\" izz=\""
+                    << shape.link.inertial.inertia_matrix.izz << "\" />\n";
+            }
+
+            out << "    </inertial>\n";
+        }
         out << "    <visual>\n";
         out << "      <origin xyz=\""
             << shape.link.visuals.origin.xyz.x() << " "
@@ -163,4 +173,12 @@ void codemaker::CodeMake(QString path, std::vector<Shape> shapes)
 
     file.close();
     qDebug() << "URDF 文件已生成，路径为:" << path;
+}
+bool codemaker::isOriginNonZero(const QVector3D& position, const QVector3D& rotation) {
+    return position.x() != 0 || position.y() != 0 || position.z() != 0 ||
+           rotation.x() != 0 || rotation.y() != 0 || rotation.z() != 0;
+}
+bool codemaker::isInertiaMatrixNonZero(const Inertia& matrix) {
+    return matrix.ixx != 0 || matrix.ixy != 0 || matrix.ixz != 0 ||
+           matrix.iyy != 0 || matrix.iyz != 0 || matrix.izz != 0;
 }
