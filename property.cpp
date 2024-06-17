@@ -7,9 +7,9 @@ Property::Property(QWidget *parent) : QWidget(parent),
     ui->setupUi(this);
     on_collision_geometry_type_currentTextChanged(ui->collision_geometry_type->currentText());
     on_visual_geometry_type_currentTextChanged(ui->visual_geometry_type->currentText());
-    //setMouseTracking(true);
-    //setAttribute(Qt::WA_Hover, true);
-    //ui->listWidget->installEventFilter(this);
+    // setMouseTracking(true);
+    // setAttribute(Qt::WA_Hover, true);
+    // ui->listWidget->installEventFilter(this);
     ui->widget->hide();
 }
 
@@ -61,17 +61,18 @@ void Property::createShape(const QString &shapeType)
 
 void Property::updateShape(int index)
 {
-    qDebug()<<"hou";
+    qDebug() << "hou";
     qDebug() << "111currentIndex:" << currentIndex;
 
-    if (index < 0 || index >= shapes.size()) {
+    if (index < 0 || index >= shapes.size())
+    {
         qDebug() << "Invalid index:" << index;
         return;
     }
-    if(index == currentIndex)
+    if (index == currentIndex)
     {
         shapes[index].link.visuals.origin.xyz.setX(ui->visual_origin_x->text().toFloat());
-        qDebug()<<ui->visual_origin_x->text().toFloat();
+        qDebug() << ui->visual_origin_x->text().toFloat();
 
         shapes[index].link.visuals.origin.xyz.setY(ui->visual_origin_y->text().toFloat());
         shapes[index].link.visuals.origin.xyz.setZ(ui->visual_origin_z->text().toFloat());
@@ -103,7 +104,8 @@ void Property::updateShape(int index)
         // 将字符串拆分成单个值
         QStringList scaleValues = scaleString.split(',');
         // 将这些值转换为浮点数并创建 QVector3D
-        if (scaleValues.size() == 3) {
+        if (scaleValues.size() == 3)
+        {
             float x = scaleValues[0].toFloat();
             float y = scaleValues[1].toFloat();
             float z = scaleValues[2].toFloat();
@@ -130,13 +132,12 @@ void Property::updateShape(int index)
         emit updateshapes();
         // emit createshape();
     }
-
 }
 
 void Property::updateJoint()
 {
     ui->lineEdit_joint_name->setText(QString::fromStdString(currentjoint.name));
-    //ui->comboBox_joint_type
+    // ui->comboBox_joint_type
     ui->comboBox_parent_link->setCurrentText(QString::fromStdString(currentjoint.parent_link));
     ui->lineEdit_ptco_r->setText(QString::number(currentjoint.parent_to_child_origin.rpy.x()));
     ui->lineEdit_ptco_p->setText(QString::number(currentjoint.parent_to_child_origin.rpy.y()));
@@ -189,7 +190,6 @@ void Property::updateShapeProperties(const Shape &shape)
     ui->collisions_origin_p->setText(QString::number(shape.link.collisions.origin.rpy.y()));
     ui->collisions_origin_y_2->setText(QString::number(shape.link.collisions.origin.rpy.z()));
 
-
     ui->collisions_box_l->setText(QString::number(shape.link.collisions.geometry.box.size.x()));
     ui->collisions_box_w->setText(QString::number(shape.link.collisions.geometry.box.size.y()));
     ui->collisions_box_h->setText(QString::number(shape.link.collisions.geometry.box.size.z()));
@@ -209,12 +209,12 @@ void Property::updateShapeProperties(const Shape &shape)
 
     ui->mass->setText(QString::number(shape.link.inertial.mass));
     ui->mesh_filename->setText(QString::fromStdString(shape.link.visuals.geometry.mesh.filename));
-//    QVector3D scale = shape.link.visuals.geometry.mesh.scale;
-//    QString scaleStr = QString("%1, %2, %3")
-//                           .arg(QString::number(scale.x()))
-//                           .arg(QString::number(scale.y()))
-//                           .arg(QString::number(scale.z()));
-//    ui->mesh_scale->setText(scaleStr);
+    //    QVector3D scale = shape.link.visuals.geometry.mesh.scale;
+    //    QString scaleStr = QString("%1, %2, %3")
+    //                           .arg(QString::number(scale.x()))
+    //                           .arg(QString::number(scale.y()))
+    //                           .arg(QString::number(scale.z()));
+    //    ui->mesh_scale->setText(scaleStr);
 
     ui->ixx->setText(QString::number(shape.link.inertial.inertia_matrix.ixx));
     ui->ixy->setText(QString::number(shape.link.inertial.inertia_matrix.ixy));
@@ -222,8 +222,6 @@ void Property::updateShapeProperties(const Shape &shape)
     ui->iyy->setText(QString::number(shape.link.inertial.inertia_matrix.iyy));
     ui->iyz->setText(QString::number(shape.link.inertial.inertia_matrix.iyz));
     ui->izz->setText(QString::number(shape.link.inertial.inertia_matrix.izz));
-
-
 
     ui->link_name->setPlaceholderText(QString::fromStdString(QString("base_").append(QString::number(num)).toStdString()));
     if (shape.type == Shape::Cube)
@@ -264,10 +262,10 @@ void Property::receivejointindex(int index)
     ui->pushButton->hide();
     QStringList strList;
     joint_index = index;
-    qDebug() << "index:" <<index;
-    for(const auto &shape:shapes)
+    qDebug() << "index:" << index;
+    for (const auto &shape : shapes)
     {
-        if(shape.joint.id == joint_index)
+        if (shape.joint.id == joint_index)
         {
             currentjoint = shape.joint;
         }
@@ -282,61 +280,61 @@ void Property::receivejointindex(int index)
 
 void Property::mousePressEvent(QMouseEvent *event)
 {
-//    qDebug() << "mousePressEvent in Property";
-//    if (event->button() == Qt::LeftButton)
-//    {
-//        QListWidgetItem *item = ui->listWidget->itemAt(event->pos());
-//        qDebug() << "Item found: " << (item != nullptr);
-//        if (item)
-//        {
-//            QDrag *drag = new QDrag(this);
-//            QMimeData *mimeData = new QMimeData;
-//            mimeData->setText(item->text());
-//            drag->setMimeData(mimeData);
-//            drag->exec(Qt::CopyAction | Qt::MoveAction);
-//            qDebug() << "Drag started";
-//        }
-//    }
-//    QWidget::mousePressEvent(event); // 调用基类的事件处理函数
+    //    qDebug() << "mousePressEvent in Property";
+    //    if (event->button() == Qt::LeftButton)
+    //    {
+    //        QListWidgetItem *item = ui->listWidget->itemAt(event->pos());
+    //        qDebug() << "Item found: " << (item != nullptr);
+    //        if (item)
+    //        {
+    //            QDrag *drag = new QDrag(this);
+    //            QMimeData *mimeData = new QMimeData;
+    //            mimeData->setText(item->text());
+    //            drag->setMimeData(mimeData);
+    //            drag->exec(Qt::CopyAction | Qt::MoveAction);
+    //            qDebug() << "Drag started";
+    //        }
+    //    }
+    //    QWidget::mousePressEvent(event); // 调用基类的事件处理函数
 }
-//bool Property::eventFilter(QObject *obj, QEvent *event)
+// bool Property::eventFilter(QObject *obj, QEvent *event)
 //{
-//    if (obj == ui->listWidget)
-//    {
-//        // qDebug() <<event->type();
-//        if (event->type() == QEvent::ChildRemoved)
-//        {
-//            QListWidgetItem *item_choose;
-//            for (int i = 0; i < ui->listWidget->count(); ++i)
-//            {
-//                QListWidgetItem *item = ui->listWidget->item(i);
-//                if (item->text() == currenttext)
-//                {
-//                    item_choose = item; // 找到的匹配项
-//                }
-//            }
-//            if (item_choose)
-//            {
-//                currentShape.link.name = ui->link_name->text().toStdString();
-//                currentShape.id = num;
-//                // 添加到形状列表
-//                if (currentShape.link.visuals.geometry.box.size == QVector3D(0.0f, 0.0f, 0.0f) && currentShape.type == Shape::Cube)
-//                    return 0;
-//                if (currentShape.link.name.empty())
-//                {
-//                    currentShape.link.name = QString("base_").append(QString::number(num)).toStdString();
-//                    ui->link_name->setPlaceholderText(QString::fromStdString(currentShape.link.name));
-//                    num++;
-//                }
-//                for (const auto &shape : shapes)
-//                {
-//                    if (shape.link.name == currentShape.link.name)
-//                    {
-//                        QMessageBox::information(NULL, "ERROR", "The name of the link is already used. Please choose a different name.", QMessageBox::Ok);
-//                        return 0;
-//                    }
-//                }
-//                updateShapeProperties(currentShape);
+//     if (obj == ui->listWidget)
+//     {
+//         // qDebug() <<event->type();
+//         if (event->type() == QEvent::ChildRemoved)
+//         {
+//             QListWidgetItem *item_choose;
+//             for (int i = 0; i < ui->listWidget->count(); ++i)
+//             {
+//                 QListWidgetItem *item = ui->listWidget->item(i);
+//                 if (item->text() == currenttext)
+//                 {
+//                     item_choose = item; // 找到的匹配项
+//                 }
+//             }
+//             if (item_choose)
+//             {
+//                 currentShape.link.name = ui->link_name->text().toStdString();
+//                 currentShape.id = num;
+//                 // 添加到形状列表
+//                 if (currentShape.link.visuals.geometry.box.size == QVector3D(0.0f, 0.0f, 0.0f) && currentShape.type == Shape::Cube)
+//                     return 0;
+//                 if (currentShape.link.name.empty())
+//                 {
+//                     currentShape.link.name = QString("base_").append(QString::number(num)).toStdString();
+//                     ui->link_name->setPlaceholderText(QString::fromStdString(currentShape.link.name));
+//                     num++;
+//                 }
+//                 for (const auto &shape : shapes)
+//                 {
+//                     if (shape.link.name == currentShape.link.name)
+//                     {
+//                         QMessageBox::information(NULL, "ERROR", "The name of the link is already used. Please choose a different name.", QMessageBox::Ok);
+//                         return 0;
+//                     }
+//                 }
+//                 updateShapeProperties(currentShape);
 
 //                emit drapcreate(currentShape);
 //                QDrag *drag = new QDrag(this);
@@ -442,7 +440,7 @@ void Property::on_pushButton_clicked()
     currentShape.link.visuals.geometry.sphere.radius = ui->visual_sphere_radius->text().toFloat();
     currentShape.link.visuals.geometry.cylinder.radius = ui->visual_cylinder_radius->text().toFloat();
     currentShape.link.visuals.geometry.cylinder.length = ui->visual_cylinder_length->text().toFloat();
-    
+
     // collisions的orgin、box、sphere、cylinder根据visuals的orgin、box、sphere、cylinder更新
     currentShape.link.collisions.origin.xyz = currentShape.link.visuals.origin.xyz;
     currentShape.link.collisions.origin.rpy = currentShape.link.visuals.origin.rpy;
@@ -453,18 +451,19 @@ void Property::on_pushButton_clicked()
 
     currentShape.link.visuals.material = ui->material_path->text().toStdString();
     currentShape.link.collisions.geometry.mesh.filename = ui->mesh_filename->text().toStdString();
-//    QString scaleString = ui->mesh_scale->text();
-//    // 将字符串拆分成单个值
-//    QStringList scaleValues = scaleString.split(',');
-//    // 将这些值转换为浮点数并创建 QVector3D
-//    if (scaleValues.size() == 3) {
-//        float x = scaleValues[0].toFloat();
-//        float y = scaleValues[1].toFloat();
-//        float z = scaleValues[2].toFloat();
-//        QVector3D scale(x, y, z);
-//        // 使用这个 QVector3D 设置网格的缩放
-//        currentShape.link.collisions.geometry.mesh.scale = scale;
-//    }
+    QString scaleString = ui->mesh_scale->text();
+    // 将字符串拆分成单个值
+    QStringList scaleValues = scaleString.split(',');
+    // 将这些值转换为浮点数并创建 QVector3D
+    if (scaleValues.size() == 3)
+    {
+        float x = scaleValues[0].toFloat();
+        float y = scaleValues[1].toFloat();
+        float z = scaleValues[2].toFloat();
+        QVector3D scale(x, y, z);
+        // 使用这个 QVector3D 设置网格的缩放
+        currentShape.link.collisions.geometry.mesh.scale = scale;
+    }
     currentShape.link.inertial.origin.xyz.setX(ui->inertial_origin_x->text().toFloat());
     currentShape.link.inertial.origin.xyz.setY(ui->inertial_origin_y->text().toFloat());
     currentShape.link.inertial.origin.xyz.setZ(ui->inertial_origin_z->text().toFloat());
@@ -498,7 +497,7 @@ void Property::on_pushButton_clicked()
         }
     }
     updateShapeProperties(currentShape);
-    qDebug()<<"xian";
+    qDebug() << "xian";
     shapes.push_back(currentShape);
     emit createshape();
     // createShape(currenttext);
@@ -508,27 +507,28 @@ void Property::on_pushButton_clicked()
 
 void Property::updateformp()
 {
-    for(auto &shape:shapes)
+    for (auto &shape : shapes)
     {
-        if(shape.joint.id == joint_index)
+        if (shape.joint.id == joint_index)
         {
-//            qDebug() << "id:" << joint_index
-//                     << "shape:"<< shape.joint.name;
+            //            qDebug() << "id:" << joint_index
+            //                     << "shape:"<< shape.joint.name;
             shape.joint = currentjoint;
             break;
         }
-        else;
+        else
+            ;
     }
     emit updateshapes();
 }
 
-//void Property::on_listWidget_currentTextChanged(const QString &currentText)
+// void Property::on_listWidget_currentTextChanged(const QString &currentText)
 //{
-//    ui->pushButton->show();
-//    currenttext = currentText;
-//    currentIndex = -1;
-//    createShape(currentText);
-//}
+//     ui->pushButton->show();
+//     currenttext = currentText;
+//     currentIndex = -1;
+//     createShape(currentText);
+// }
 void Property::on_listWidget_itemClicked(QListWidgetItem *item)
 {
     ui->pushButton->show();
@@ -540,7 +540,6 @@ void Property::on_listWidget_itemClicked(QListWidgetItem *item)
     currenttext = itemText;
     currentIndex = ui->listWidget->row(item);
     createShape(currenttext);
-
 }
 void Property::on_visual_origin_r_editingFinished()
 {
@@ -828,13 +827,11 @@ void Property::on_lineEdit_ptco_y_editingFinished()
     updateformp();
 }
 
-
 void Property::on_lineEdit_ptco_x_editingFinished()
 {
     currentjoint.parent_to_child_origin.xyz.setX(ui->lineEdit_ptco_x->text().toFloat());
     updateformp();
 }
-
 
 void Property::on_lineEdit_ptco_y_2_editingFinished()
 {
@@ -842,20 +839,17 @@ void Property::on_lineEdit_ptco_y_2_editingFinished()
     updateformp();
 }
 
-
 void Property::on_lineEdit_ptco_z_editingFinished()
 {
     currentjoint.parent_to_child_origin.xyz.setZ(ui->lineEdit_ptco_z->text().toFloat());
     updateformp();
 }
 
-
 void Property::on_comboBox_joint_type_currentTextChanged(const QString &arg1)
 {
     currentjoint.type = arg1.toStdString();
     updateformp();
 }
-
 
 void Property::on_lineEdit_joint_name_editingFinished()
 {
@@ -865,6 +859,84 @@ void Property::on_lineEdit_joint_name_editingFinished()
     emit update_items();
 }
 
+void Property::on_mass_editingFinished()
+{
+    currentShape.link.inertial.mass = ui->mass->text().toFloat();
+    if (currentIndex >= 0)
+        updateShape(currentIndex);
+}
 
+void Property::on_mesh_filename_editingFinished()
+{
+    currentShape.link.visuals.geometry.mesh.filename = ui->mesh_filename->text().toStdString();
+    if (currentIndex >= 0)
+        updateShape(currentIndex);
+}
 
+void Property::on_mesh_scale_editingFinished()
+{
+    QString scaleString = ui->mesh_scale->text();
+    // 将字符串拆分成单个值
+    QStringList scaleValues = scaleString.split(',');
+    // 将这些值转换为浮点数并创建 QVector3D
+    if (scaleValues.size() == 3)
+    {
+        float x = scaleValues[0].toFloat();
+        float y = scaleValues[1].toFloat();
+        float z = scaleValues[2].toFloat();
+        QVector3D scale(x, y, z);
+        // 使用这个 QVector3D 设置网格的缩放
+        currentShape.link.collisions.geometry.mesh.scale = scale;
+    }
+    if (currentIndex >= 0)
+        updateShape(currentIndex);
+}
 
+void Property::on_material_path_editingFinished()
+{
+    currentShape.link.visuals.material = ui->material_path->text().toStdString();
+    if (currentIndex >= 0)
+        updateShape(currentIndex);
+}
+
+void Property::on_ixx_editingFinished()
+{
+    currentShape.link.inertial.inertia_matrix.ixx = ui->ixx->text().toFloat();
+    if (currentIndex >= 0)
+        updateShape(currentIndex);
+}
+
+void Property::on_ixy_editingFinished()
+{
+    currentShape.link.inertial.inertia_matrix.ixy = ui->ixy->text().toFloat();
+    if (currentIndex >= 0)
+        updateShape(currentIndex);
+}
+
+void Property::on_ixz_editingFinished()
+{
+    currentShape.link.inertial.inertia_matrix.ixz = ui->ixz->text().toFloat();
+    if (currentIndex >= 0)
+        updateShape(currentIndex);
+}
+
+void Property::on_iyy_editingFinished()
+{
+    currentShape.link.inertial.inertia_matrix.iyy = ui->iyy->text().toFloat();
+    if (currentIndex >= 0)
+        updateShape(currentIndex);
+}
+
+void Property::on_iyz_editingFinished()
+{
+    currentShape.link.inertial.inertia_matrix.iyz = ui->iyz->text().toFloat();
+    if (currentIndex >= 0)
+        updateShape(currentIndex);
+}
+
+void Property::on_izz_editingFinished()
+{
+    currentShape.link.inertial.inertia_matrix.izz = ui->izz->text().toFloat();
+    if (currentIndex >= 0)
+        updateShape(currentIndex);
+}

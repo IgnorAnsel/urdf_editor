@@ -117,6 +117,26 @@ private slots:
 
     void on_listWidget_itemClicked(QListWidgetItem *item);
 
+    void on_mass_editingFinished();
+
+    void on_mesh_filename_editingFinished();
+
+    void on_mesh_scale_editingFinished();
+
+    void on_material_path_editingFinished();
+
+    void on_ixx_editingFinished();
+
+    void on_ixy_editingFinished();
+
+    void on_ixz_editingFinished();
+
+    void on_iyy_editingFinished();
+
+    void on_iyz_editingFinished();
+
+    void on_izz_editingFinished();
+
 private:
     URDFLink link;
     Ui::Property *ui;

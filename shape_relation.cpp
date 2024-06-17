@@ -176,11 +176,27 @@ void shape_relation::recursiveUpdateShapeIds(QTreeWidgetItem *node, int parentId
             // 确保 parentId 被正确传递和更新
             shape.joint.parent_id = parentId;
             shape.joint.child_id = childId;
-            shape.joint.type = "fix";
+            shape.joint.type = "fixed";
             shape.joint.parent_link = parentId != -1 ? shapeNameMap[parentId] : "";
             shape.joint.child_link = shapeNameMap[childId];
             shape.joint.id = joint_num++; // 设置 joint.id 并递增
             shape.isjointset = true;      // 设置标志位为 true
+            shape.joint.axis.xyz = QVector3D(0.0f,0.0f,0.0f);
+            shape.joint.limits.effort = 0;
+            shape.joint.limits.lower = 0;
+            shape.joint.limits.upper = 0;
+            shape.joint.limits.velocity = 0;
+            shape.joint.dynamics.damping = 0;
+            shape.joint.dynamics.friction = 0;
+            shape.joint.calibration.falling = 0;
+            shape.joint.calibration.rising = 0;
+            shape.joint.mimic.joint_name = "";
+            shape.joint.mimic.multiplier = 0;
+            shape.joint.mimic.offset = 0;
+            shape.joint.safety_controller.soft_lower_limit = "";
+            shape.joint.safety_controller.soft_upper_limit = "";
+            shape.joint.safety_controller.k_position = 0;
+            shape.joint.safety_controller.k_velocity = 0;
             qDebug() << "Updated shape ID " << shape.id
                      << " with parent_id: " << parentId
                      << " and child_id: " << childId

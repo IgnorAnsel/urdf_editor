@@ -44,7 +44,8 @@ void codemaker::CodeMake(QString path, std::vector<Shape> shapes)
         out << "  <link name=\"" << QString::fromStdString(shape.link.name) << "\">\n";
         if (shape.link.inertial.mass != 0 ||
             isInertiaMatrixNonZero(shape.link.inertial.inertia_matrix) ||
-            isOriginNonZero(shape.link.inertial.origin.xyz, shape.link.inertial.origin.rpy)) {
+            isOriginNonZero(shape.link.inertial.origin.xyz, shape.link.inertial.origin.rpy))
+        {
 
             out << "    <inertial>\n";
             out << "      <origin xyz=\""
@@ -58,7 +59,8 @@ void codemaker::CodeMake(QString path, std::vector<Shape> shapes)
             if (shape.link.inertial.mass != 0)
                 out << "      <mass value=\"" << shape.link.inertial.mass << "\" />\n";
 
-            if (isInertiaMatrixNonZero(shape.link.inertial.inertia_matrix)) {
+            if (isInertiaMatrixNonZero(shape.link.inertial.inertia_matrix))
+            {
                 out << "      <inertia ixx=\"" << shape.link.inertial.inertia_matrix.ixx << "\" ixy=\""
                     << shape.link.inertial.inertia_matrix.ixy << "\" ixz=\""
                     << shape.link.inertial.inertia_matrix.ixz << "\" iyy=\""
@@ -154,16 +156,34 @@ void codemaker::CodeMake(QString path, std::vector<Shape> shapes)
                 << shape.joint.axis.xyz.x() << " "
                 << shape.joint.axis.xyz.y() << " "
                 << shape.joint.axis.xyz.z() << "\" />\n";
-            out << "    <limit lower=\"" << shape.joint.limits.lower << "\" upper=\"" << shape.joint.limits.upper
-                << "\" effort=\"" << shape.joint.limits.effort << "\" velocity=\"" << shape.joint.limits.velocity << "\" />\n";
-            out << "    <dynamics damping=\"" << shape.joint.dynamics.damping << "\" friction=\"" << shape.joint.dynamics.friction << "\" />\n";
-            out << "    <calibration rising=\"" << shape.joint.calibration.rising << "\" falling=\"" << shape.joint.calibration.falling << "\" />\n";
-            out << "    <mimic joint=\"" << QString::fromStdString(shape.joint.mimic.joint_name)
-                << "\" multiplier=\"" << shape.joint.mimic.multiplier << "\" offset=\"" << shape.joint.mimic.offset << "\" />\n";
-            out << "    <safety_controller soft_lower_limit=\"" << QString::fromStdString(shape.joint.safety_controller.soft_lower_limit)
-                << "\" soft_upper_limit=\"" << QString::fromStdString(shape.joint.safety_controller.soft_upper_limit)
-                << "\" k_position=\"" << shape.joint.safety_controller.k_position
-                << "\" k_velocity=\"" << shape.joint.safety_controller.k_velocity << "\" />\n";
+            if (shape.joint.limits.lower != 0 || shape.joint.limits.upper != 0 || shape.joint.limits.effort != 0 || shape.joint.limits.velocity != 0)
+            {
+                out << "    <limit lower=\"" << shape.joint.limits.lower << "\" upper=\"" << shape.joint.limits.upper
+                    << "\" effort=\"" << shape.joint.limits.effort << "\" velocity=\"" << shape.joint.limits.velocity << "\" />\n";
+            }
+            if (shape.joint.dynamics.damping != 0 || shape.joint.dynamics.friction != 0)
+            {
+                out << "    <dynamics damping=\"" << shape.joint.dynamics.damping << "\" friction=\"" << shape.joint.dynamics.friction << "\" />\n";
+            }
+            if (shape.joint.calibration.rising != 0 || shape.joint.calibration.falling != 0)
+            {
+                out << "    <calibration rising=\"" << shape.joint.calibration.rising << "\" falling=\"" << shape.joint.calibration.falling << "\" />\n";
+            }
+
+            if (shape.joint.mimic.joint_name != "" || shape.joint.mimic.multiplier != 0 || shape.joint.mimic.offset != 0)
+            {
+                out << "    <mimic joint=\"" << QString::fromStdString(shape.joint.mimic.joint_name)
+                    << "\" multiplier=\"" << shape.joint.mimic.multiplier << "\" offset=\"" << shape.joint.mimic.offset << "\" />\n";
+            }
+
+            if (shape.joint.safety_controller.soft_lower_limit != "" || shape.joint.safety_controller.soft_upper_limit != "" || shape.joint.safety_controller.k_position != 0 || shape.joint.safety_controller.k_velocity != 0)
+            {
+                out << "    <safety_controller soft_lower_limit=\"" << QString::fromStdString(shape.joint.safety_controller.soft_lower_limit)
+                    << "\" soft_upper_limit=\"" << QString::fromStdString(shape.joint.safety_controller.soft_upper_limit)
+                    << "\" k_position=\"" << shape.joint.safety_controller.k_position
+                    << "\" k_velocity=\"" << shape.joint.safety_controller.k_velocity << "\" />\n";
+            }
+
             out << "  </joint>\n";
         }
     }
@@ -174,11 +194,13 @@ void codemaker::CodeMake(QString path, std::vector<Shape> shapes)
     file.close();
     qDebug() << "URDF 文件已生成，路径为:" << path;
 }
-bool codemaker::isOriginNonZero(const QVector3D& position, const QVector3D& rotation) {
+bool codemaker::isOriginNonZero(const QVector3D &position, const QVector3D &rotation)
+{
     return position.x() != 0 || position.y() != 0 || position.z() != 0 ||
            rotation.x() != 0 || rotation.y() != 0 || rotation.z() != 0;
 }
-bool codemaker::isInertiaMatrixNonZero(const Inertia& matrix) {
+bool codemaker::isInertiaMatrixNonZero(const Inertia &matrix)
+{
     return matrix.ixx != 0 || matrix.ixy != 0 || matrix.ixz != 0 ||
            matrix.iyy != 0 || matrix.iyz != 0 || matrix.izz != 0;
 }
