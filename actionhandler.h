@@ -12,8 +12,10 @@ class ActionHandler : public QWidget
 public:
     explicit ActionHandler(QWidget *parent = nullptr) : QWidget(parent) {}
     QString savedFilePath;
-private:
     codemaker *cm;
+signals:
+    void set_selectedShapeIndex();
+private:
 public slots:
 
     /****************************** 文件菜单 **********************************/

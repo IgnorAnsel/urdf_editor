@@ -39,6 +39,14 @@ void Urdf_editor::updateJoint()
         renderShape(shape);
     }
 }
+
+void Urdf_editor::set_set_selectedShapeIndex_f1()
+{
+    selectedShapeIndex = -1;
+    shapes[lastselectedShapeIndex].link.visuals.color = precolor;
+    qDebug()<<"pre:"<<precolor;
+    update();
+}
 void Urdf_editor::initializeGL()
 {
     initializeOpenGLFunctions();

@@ -14,11 +14,11 @@ class codemaker : public QObject
 public:
     explicit codemaker(QObject *parent = nullptr);
     void CodeMake(QString path,std::vector<Shape> shapes);
+
 private:
     QString path;
     bool isOriginNonZero(const QVector3D& position, const QVector3D& rotation);
     bool isInertiaMatrixNonZero(const Inertia& matrix);
-signals:
 
 };
 

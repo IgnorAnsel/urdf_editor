@@ -22,6 +22,8 @@ public slots:
     void receiveIndex(int index);
     void dropCreate(const Shape &shape);
     void updateJoint();
+    void set_set_selectedShapeIndex_f1();
+
 protected:
     void initializeGL() override;
     void resizeGL(int w, int h) override;

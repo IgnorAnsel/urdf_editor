@@ -74,6 +74,8 @@ void shape_relation::update_shape()
     removeInvalidNodes(ui->treeWidget->invisibleRootItem(), shapeIds, shapeNameMap);
 }
 
+
+
 // 递归查找和更新节点
 bool shape_relation::findAndUpdateNode(QTreeWidgetItem *parent, int id, const QString &name)
 {

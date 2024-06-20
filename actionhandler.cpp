@@ -29,6 +29,7 @@ void ActionHandler::openFile()
 }
 void ActionHandler::saveFile()
 {
+   emit set_selectedShapeIndex();
    QString fileName = QFileDialog::getSaveFileName(this, tr("Open File"),
                                                    "/home/",
                                                    tr("Text Files (*.urdf)"));
@@ -43,6 +44,7 @@ void ActionHandler::saveFile()
 }
 void ActionHandler::saveasFile()
 {
+   emit set_selectedShapeIndex();
    // 另存为文件
    QString fileName = QFileDialog::getSaveFileName(this, tr("Open File"),
                                                    "/home/",
