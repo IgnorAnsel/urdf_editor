@@ -226,27 +226,29 @@ void Urdf_editor::drawCylinder(const Shape &shape)
     double radius = shape.link.visuals.geometry.cylinder.radius;
     double height = shape.link.visuals.geometry.cylinder.length;
     const int slices = 30;
+    double halfHeight = height / 2.0;
 
-    // 绘制圆柱体的圆面
+    // 绘制圆柱体的底面
     glBegin(GL_TRIANGLE_FAN);
-    glVertex3f(0.0f, 0.0f, 0.0f);
+    glVertex3f(0.0f, 0.0f, -halfHeight);
     for (int i = 0; i <= slices; ++i)
     {
         double angle = 2.0 * M_PI * i / slices;
         double x = radius * cos(angle);
         double y = radius * sin(angle);
-        glVertex3f(x, y, 0.0f);
+        glVertex3f(x, y, -halfHeight);
     }
     glEnd();
 
+    // 绘制圆柱体的顶面
     glBegin(GL_TRIANGLE_FAN);
-    glVertex3f(0.0f, 0.0f, height);
+    glVertex3f(0.0f, 0.0f, halfHeight);
     for (int i = 0; i <= slices; ++i)
     {
         double angle = 2.0 * M_PI * i / slices;
         double x = radius * cos(angle);
         double y = radius * sin(angle);
-        glVertex3f(x, y, height);
+        glVertex3f(x, y, halfHeight);
     }
     glEnd();
 
@@ -258,11 +260,12 @@ void Urdf_editor::drawCylinder(const Shape &shape)
         double x = radius * cos(angle);
         double y = radius * sin(angle);
         glNormal3f(x, y, 0.0f);
-        glVertex3f(x, y, 0.0f);
-        glVertex3f(x, y, height);
+        glVertex3f(x, y, -halfHeight);
+        glVertex3f(x, y, halfHeight);
     }
     glEnd();
 }
+
 
 void Urdf_editor::drawPlane(float width, float height, float gridSize)
 {
@@ -287,6 +290,9 @@ void Urdf_editor::drawPlane(float width, float height, float gridSize)
     }
     glEnd();
 }
+inline double radiansToDegrees(double radians) {
+    return radians * (180.0 / M_PI);
+}
 
 void Urdf_editor::renderShape(const Shape &shape)
 {
@@ -295,23 +301,23 @@ void Urdf_editor::renderShape(const Shape &shape)
 
     // 如果有父节点，通过关节变换计算子节点的变换矩阵
     if (shape.joint.parent_id >= 0) {
-        //qDebug()<<"shape_parent_id:" << shape.joint.parent_id;
         for (const auto &s : shapes) {
             if (s.id == shape.joint.parent_id) {
                 // 获取父节点的位置和旋转信息
                 QMatrix4x4 parentMatrix;
                 parentMatrix.translate(s.link.visuals.origin.xyz);
-                parentMatrix.rotate(s.link.visuals.origin.rpy.x(), 1.0f, 0.0f, 0.0f);
-                parentMatrix.rotate(s.link.visuals.origin.rpy.y(), 0.0f, 1.0f, 0.0f);
-                parentMatrix.rotate(s.link.visuals.origin.rpy.z(), 0.0f, 0.0f, 1.0f);
+
+                // 按照 rviz2 的顺序，先 Z 轴，后 Y 轴，再 X 轴
+                parentMatrix.rotate(qRadiansToDegrees(s.link.visuals.origin.rpy.z()), 0.0f, 0.0f, 1.0f);
+                parentMatrix.rotate(qRadiansToDegrees(s.link.visuals.origin.rpy.y()), 0.0f, 1.0f, 0.0f);
+                parentMatrix.rotate(qRadiansToDegrees(s.link.visuals.origin.rpy.x()), 1.0f, 0.0f, 0.0f);
 
                 // 创建关节的变换矩阵
                 QMatrix4x4 jointMatrix;
-                //qDebug()<<"joint x:" << shape.joint.parent_to_child_origin.xyz.x();
                 jointMatrix.translate(shape.joint.parent_to_child_origin.xyz);
-                jointMatrix.rotate(shape.joint.parent_to_child_origin.rpy.x(), 1.0f, 0.0f, 0.0f);
-                jointMatrix.rotate(shape.joint.parent_to_child_origin.rpy.y(), 0.0f, 1.0f, 0.0f);
-                jointMatrix.rotate(shape.joint.parent_to_child_origin.rpy.z(), 0.0f, 0.0f, 1.0f);
+                jointMatrix.rotate(qRadiansToDegrees(shape.joint.parent_to_child_origin.rpy.z()), 0.0f, 0.0f, 1.0f);
+                jointMatrix.rotate(qRadiansToDegrees(shape.joint.parent_to_child_origin.rpy.y()), 0.0f, 1.0f, 0.0f);
+                jointMatrix.rotate(qRadiansToDegrees(shape.joint.parent_to_child_origin.rpy.x()), 1.0f, 0.0f, 0.0f);
 
                 // 计算子节点的变换矩阵
                 modelMatrix = parentMatrix * jointMatrix;
@@ -323,9 +329,11 @@ void Urdf_editor::renderShape(const Shape &shape)
     // 应用几何变换
     modelMatrix.translate(shape.link.visuals.origin.xyz);
     modelMatrix.scale(QVector3D(1.0f, 1.0f, 1.0f));
-    modelMatrix.rotate(shape.link.visuals.origin.rpy.x(), 1.0f, 0.0f, 0.0f);
-    modelMatrix.rotate(shape.link.visuals.origin.rpy.y(), 0.0f, 1.0f, 0.0f);
-    modelMatrix.rotate(shape.link.visuals.origin.rpy.z(), 0.0f, 0.0f, 1.0f);
+
+    // 按照 rviz2 的顺序，先 Z 轴，后 Y 轴，再 X 轴
+    modelMatrix.rotate(qRadiansToDegrees(shape.link.visuals.origin.rpy.z()), 0.0f, 0.0f, 1.0f);
+    modelMatrix.rotate(qRadiansToDegrees(shape.link.visuals.origin.rpy.y()), 0.0f, 1.0f, 0.0f);
+    modelMatrix.rotate(qRadiansToDegrees(shape.link.visuals.origin.rpy.x()), 1.0f, 0.0f, 0.0f);
 
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
@@ -347,6 +355,8 @@ void Urdf_editor::renderShape(const Shape &shape)
 
     glPopMatrix();
 }
+
+
 
 
 
