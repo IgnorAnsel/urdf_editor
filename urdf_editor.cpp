@@ -294,6 +294,14 @@ inline double radiansToDegrees(double radians) {
     return radians * (180.0 / M_PI);
 }
 
+void Urdf_editor::applyTransform(QMatrix4x4 &matrix, const QVector3D &translation, const QVector3D &rotation)
+{
+    matrix.translate(translation);
+    matrix.rotate(qRadiansToDegrees(rotation.z()), 0.0f, 0.0f, 1.0f);
+    matrix.rotate(qRadiansToDegrees(rotation.y()), 0.0f, 1.0f, 0.0f);
+    matrix.rotate(qRadiansToDegrees(rotation.x()), 1.0f, 0.0f, 0.0f);
+}
+
 void Urdf_editor::renderShape(const Shape &shape)
 {
     // 初始化变换矩阵为单位矩阵
@@ -303,37 +311,20 @@ void Urdf_editor::renderShape(const Shape &shape)
     if (shape.joint.parent_id >= 0) {
         for (const auto &s : shapes) {
             if (s.id == shape.joint.parent_id) {
-                // 获取父节点的位置和旋转信息
-                QMatrix4x4 parentMatrix;
-                parentMatrix.translate(s.link.visuals.origin.xyz);
-
-                // 按照 rviz2 的顺序，先 Z 轴，后 Y 轴，再 X 轴
-                parentMatrix.rotate(qRadiansToDegrees(s.link.visuals.origin.rpy.z()), 0.0f, 0.0f, 1.0f);
-                parentMatrix.rotate(qRadiansToDegrees(s.link.visuals.origin.rpy.y()), 0.0f, 1.0f, 0.0f);
-                parentMatrix.rotate(qRadiansToDegrees(s.link.visuals.origin.rpy.x()), 1.0f, 0.0f, 0.0f);
-
                 // 创建关节的变换矩阵
                 QMatrix4x4 jointMatrix;
-                jointMatrix.translate(shape.joint.parent_to_child_origin.xyz);
-                jointMatrix.rotate(qRadiansToDegrees(shape.joint.parent_to_child_origin.rpy.z()), 0.0f, 0.0f, 1.0f);
-                jointMatrix.rotate(qRadiansToDegrees(shape.joint.parent_to_child_origin.rpy.y()), 0.0f, 1.0f, 0.0f);
-                jointMatrix.rotate(qRadiansToDegrees(shape.joint.parent_to_child_origin.rpy.x()), 1.0f, 0.0f, 0.0f);
+                applyTransform(jointMatrix, shape.joint.parent_to_child_origin.xyz, shape.joint.parent_to_child_origin.rpy);
 
                 // 计算子节点的变换矩阵
-                modelMatrix = parentMatrix * jointMatrix;
+                modelMatrix = jointMatrix;
                 break;
             }
         }
     }
 
     // 应用几何变换
-    modelMatrix.translate(shape.link.visuals.origin.xyz);
-    modelMatrix.scale(QVector3D(1.0f, 1.0f, 1.0f));
-
-    // 按照 rviz2 的顺序，先 Z 轴，后 Y 轴，再 X 轴
-    modelMatrix.rotate(qRadiansToDegrees(shape.link.visuals.origin.rpy.z()), 0.0f, 0.0f, 1.0f);
-    modelMatrix.rotate(qRadiansToDegrees(shape.link.visuals.origin.rpy.y()), 0.0f, 1.0f, 0.0f);
-    modelMatrix.rotate(qRadiansToDegrees(shape.link.visuals.origin.rpy.x()), 1.0f, 0.0f, 0.0f);
+    applyTransform(modelMatrix, shape.link.visuals.origin.xyz, shape.link.visuals.origin.rpy);
+    modelMatrix.scale(QVector3D(1.0f, 1.0f, 1.0f)); // 如果需要缩放，可以调整这里的参数
 
     glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
@@ -355,6 +346,7 @@ void Urdf_editor::renderShape(const Shape &shape)
 
     glPopMatrix();
 }
+
 
 
 

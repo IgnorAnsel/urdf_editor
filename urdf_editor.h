@@ -43,6 +43,7 @@ private:
     int lastselectedShapeIndex = -1;
     void renderShape(const Shape &shape);
     void drawPlane(float width, float height, float gridSize);
+    void applyTransform(QMatrix4x4 &matrix, const QVector3D &translation, const QVector3D &rotation);
     QMatrix4x4 viewMatrix;
     QPoint lastMousePos;
     float zoomFactor;
