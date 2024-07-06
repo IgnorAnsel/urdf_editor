@@ -5,6 +5,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QApplication>
+#include <QInputDialog>
 #include "codemaker.h"
 class ActionHandler : public QWidget
 {
@@ -15,9 +16,10 @@ public:
     codemaker *cm;
 signals:
     void set_selectedShapeIndex();
+    void changestatus(QString path);
+    void clear();
 private:
 public slots:
-
     /****************************** 文件菜单 **********************************/
     void newFile();    // 新建文件
     void openFile();   // 打开文件

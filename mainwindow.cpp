@@ -8,7 +8,12 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     setGeometry(300, 300, 1600, 1000);
+    this->setStatusBar(status);
+    status->showMessage("请新建或打开文件");
+    status->addPermanentWidget(statusLabel);//添加右侧标签(永久性)
     ui->widget_2->resize(QSize(440, 1000));
+    connect(actionHandler,&ActionHandler::changestatus,this,&MainWindow::changeMainstatus);
+    connect(actionHandler,&ActionHandler::clear,this,&MainWindow::clear);
     // 绑定动作
     connect(ui->actionNew, &QAction::triggered, actionHandler, &ActionHandler::newFile);
     connect(ui->actionOpen, &QAction::triggered, actionHandler, &ActionHandler::openFile);
@@ -48,10 +53,25 @@ MainWindow::MainWindow(QWidget *parent)
     connect(tree,&shape_relation::updateJoint,urdf_editor,&Urdf_editor::updateJoint);
     connect(pro,&Property::update_items,tree,&shape_relation::update_item);
     connect(actionHandler,&ActionHandler::set_selectedShapeIndex,urdf_editor,&Urdf_editor::set_set_selectedShapeIndex_f1);
-
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::changeMainstatus(QString path)
+{
+    status->showMessage(path);
+    statusLabel->clear();
+    statusLabel->setText(path);
+    status->addPermanentWidget(statusLabel);//添加右侧标签(永久性)
+}
+
+void MainWindow::clear()
+{
+    pro->reset();
+    tree->reset();
+    urdf_editor->reset();
+    update();
 }

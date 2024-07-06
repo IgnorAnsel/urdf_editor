@@ -13,6 +13,14 @@ Property::Property(QWidget *parent) : QWidget(parent),
     ui->widget->hide();
 }
 
+void Property::reset()
+{
+    joint_index = -1;
+    currentIndex = -1;
+    currenttext = "";
+    num = 0;
+}
+
 void Property::createShape(const QString &shapeType)
 {
     Shape newShape;

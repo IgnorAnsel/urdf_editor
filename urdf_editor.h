@@ -17,6 +17,7 @@ class Urdf_editor : public QOpenGLWidget, protected QOpenGLFunctions
     Q_OBJECT
 public:
     explicit Urdf_editor(QWidget *parent = nullptr);
+    void reset();
 public slots:
     void updateShape(); // 定义槽
     void receiveIndex(int index);

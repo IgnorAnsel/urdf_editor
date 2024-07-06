@@ -13,8 +13,8 @@ class codemaker : public QObject
     Q_OBJECT
 public:
     explicit codemaker(QObject *parent = nullptr);
+    void CodeBegin(QString path,QString name);
     void CodeMake(QString path,std::vector<Shape> shapes);
-
 private:
     QString path;
     bool isOriginNonZero(const QVector3D& position, const QVector3D& rotation);

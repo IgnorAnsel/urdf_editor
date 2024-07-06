@@ -40,6 +40,13 @@ void shape_relation::addShapesToTreeWidget(const std::vector<Shape> &shapes, QTr
     }
 }
 
+void shape_relation::reset()
+{
+    num = 0;
+    joint_num = 0;
+    ui->treeWidget->clear();
+}
+
 void shape_relation::update_shape()
 {
     // 创建一个用于快速查找形状标识符的集合

@@ -15,6 +15,14 @@ Urdf_editor::Urdf_editor(QWidget *parent) : QOpenGLWidget(parent), cube(Shape::C
     setAcceptDrops(true); // 启用拖放功能
 }
 
+void Urdf_editor::reset()
+{
+    shapes.clear();
+    joints.clear();
+    selectedShapeIndex = -1;
+    lastselectedShapeIndex = -1;
+}
+
 void Urdf_editor::updateShape()
 {
     // selectedShapeIndex = shapes.size()-1;

@@ -18,6 +18,7 @@ class Property : public QWidget /*,public QOpenGLWidget*/
 
 public:
     explicit Property(QWidget *parent = nullptr);
+    void reset();
     void createShape(const QString &shapeType);
     void updateShape(int index);
     void updateJoint();

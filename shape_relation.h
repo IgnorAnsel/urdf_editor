@@ -17,6 +17,7 @@ class shape_relation : public QWidget
 public:
     explicit shape_relation(QWidget *parent = nullptr);
     void addShapesToTreeWidget(const std::vector<Shape> &shapes, QTreeWidget *treeWidget);
+    void reset();
     ~shape_relation();
 public slots:
     void update_item();

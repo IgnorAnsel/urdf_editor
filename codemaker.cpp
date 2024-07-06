@@ -16,6 +16,30 @@ codemaker::codemaker(QObject *parent)
     }
 }
 
+void codemaker::CodeBegin(QString path, QString name)
+{
+    // 检查路径是否存在，如果不存在则退出
+    QDir dir(path);
+    if (!dir.exists())
+    {
+        dir.mkpath(".");
+    }
+    QFile file(path);
+    if (!file.open(QFile::WriteOnly | QFile::Text))
+    {
+        QMessageBox::warning(nullptr, tr("ERROR"), tr("Open failed"));
+        return;
+    }
+    QTextStream out(&file);
+    out << "<?xml version=\"1.0\"?>\n";
+    out << "<robot name=\"";
+    out << name;
+    out << "\">\n";
+    // 写入 URDF 尾信息
+    out << "</robot>\n";
+    file.close();
+}
+
 void codemaker::CodeMake(QString path, std::vector<Shape> shapes)
 {
     // 检查路径是否存在，如果不存在则创建
