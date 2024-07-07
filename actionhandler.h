@@ -18,6 +18,7 @@ signals:
     void set_selectedShapeIndex();
     void changestatus(QString path);
     void clear();
+    void update(std::vector<Shape> shapes);
 private:
 public slots:
     /****************************** 文件菜单 **********************************/

@@ -15,6 +15,7 @@ public:
     explicit codemaker(QObject *parent = nullptr);
     void CodeBegin(QString path,QString name);
     void CodeMake(QString path,std::vector<Shape> shapes);
+    std::vector<Shape> Loader(QString path);
 private:
     QString path;
     bool isOriginNonZero(const QVector3D& position, const QVector3D& rotation);

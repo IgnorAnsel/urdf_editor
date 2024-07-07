@@ -53,6 +53,8 @@ MainWindow::MainWindow(QWidget *parent)
     connect(tree,&shape_relation::updateJoint,urdf_editor,&Urdf_editor::updateJoint);
     connect(pro,&Property::update_items,tree,&shape_relation::update_item);
     connect(actionHandler,&ActionHandler::set_selectedShapeIndex,urdf_editor,&Urdf_editor::set_set_selectedShapeIndex_f1);
+    connect(actionHandler,&ActionHandler::update,pro,&Property::formfileupdate);
+    //connect(actionHandler,&ActionHandler::update,urdf_editor,&Urdf_editor::updateShape);
 }
 
 MainWindow::~MainWindow()

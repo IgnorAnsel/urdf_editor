@@ -286,6 +286,22 @@ void Property::receivejointindex(int index)
     updateJoint();
 }
 
+void Property::formfileupdate(std::vector<Shape> shapes)
+{
+    for (const auto &shape : shapes)
+    {
+        qDebug() << "das" << shape.link.visuals.geometry.box.size;
+        if (shape.link.visuals.geometry.box.size == QVector3D(0.0f, 0.0f, 0.0f) && shape.type == Shape::Cube)
+            return;
+        num++;
+        updateShapeProperties(shape);
+        qDebug() << "xian";
+        shapes.push_back(shape);
+        emit createshape();
+
+    }
+}
+
 void Property::mousePressEvent(QMouseEvent *event)
 {
     //    qDebug() << "mousePressEvent in Property";

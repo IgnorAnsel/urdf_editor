@@ -1,5 +1,5 @@
 #include "codemaker.h"
-
+#include <QXmlStreamReader>
 codemaker::codemaker(QObject *parent)
     : QObject{parent}
 {
@@ -218,6 +218,242 @@ void codemaker::CodeMake(QString path, std::vector<Shape> shapes)
     file.close();
     qDebug() << "URDF 文件已生成，路径为:" << path;
 }
+
+std::vector<Shape> codemaker::Loader(QString path)
+{
+    // 打开文件进行读取
+    std::vector<Shape> shapes;
+    QFile file(path);
+    if (!file.open(QFile::ReadOnly | QFile::Text))
+    {
+        qDebug() << "无法打开文件: " << file.errorString();
+            return shapes;
+    }
+
+    QTextStream in(&file);
+    QString content = in.readAll();
+    file.close();
+
+    // 使用 QXmlStreamReader 解析 URDF 文件
+    QXmlStreamReader xml(content);
+    Shape currentShape;
+    while (!xml.atEnd())
+    {
+        xml.readNext();
+
+        if (xml.isStartElement())
+        {
+            if (xml.name().toString() == "link")
+            {
+                currentShape.link.name = xml.attributes().value("name").toString().toStdString();
+            }
+            else if (xml.name().toString() == "inertial")
+            {
+                // 处理惯性属性
+                while (!(xml.isEndElement() && xml.name().toString() == "inertial"))
+                {
+                    xml.readNext();
+                    if (xml.isStartElement())
+                    {
+                        if (xml.name().toString() == "origin")
+                        {
+                            QStringList xyz = xml.attributes().value("xyz").toString().split(" ");
+                            QStringList rpy = xml.attributes().value("rpy").toString().split(" ");
+                            currentShape.link.inertial.origin.xyz = QVector3D(xyz[0].toDouble(), xyz[1].toDouble(), xyz[2].toDouble());
+                            currentShape.link.inertial.origin.rpy = QVector3D(rpy[0].toDouble(), rpy[1].toDouble(), rpy[2].toDouble());
+                        }
+                        else if (xml.name().toString() == "mass")
+                        {
+                            currentShape.link.inertial.mass = xml.attributes().value("value").toDouble();
+                        }
+                        else if (xml.name().toString() == "inertia")
+                        {
+                            currentShape.link.inertial.inertia_matrix = {
+                                                                         xml.attributes().value("ixx").toDouble(), xml.attributes().value("ixy").toDouble(),
+                                                                         xml.attributes().value("ixz").toDouble(), xml.attributes().value("iyy").toDouble(),
+                                                                         xml.attributes().value("iyz").toDouble(), xml.attributes().value("izz").toDouble()};
+                        }
+                    }
+                }
+            }
+            else if (xml.name().toString() == "visual")
+            {
+                // 处理视觉属性
+                qDebug() << "test1";
+
+                while (!(xml.isEndElement() && xml.name().toString() == "visual"))
+                {
+                    xml.readNext();
+                    if (xml.isStartElement())
+                    {
+                        if (xml.name().toString() == "origin")
+                        {
+                            qDebug() << "test2";
+
+                            QStringList xyz = xml.attributes().value("xyz").toString().split(" ");
+                            QStringList rpy = xml.attributes().value("rpy").toString().split(" ");
+                            currentShape.link.visuals.origin.xyz = QVector3D(xyz[0].toDouble(), xyz[1].toDouble(), xyz[2].toDouble());
+                            currentShape.link.visuals.origin.rpy = QVector3D(rpy[0].toDouble(), rpy[1].toDouble(), rpy[2].toDouble());
+                        }
+                        else if (xml.name().toString() == "geometry")
+                        {
+                            qDebug() << "test3";
+                            // 处理几何属性
+                            xml.readNext();
+                            qDebug() << xml.name().toString();
+
+                            if (xml.isStartElement())
+                            {
+                                if (xml.name().toString() == "box")
+                                {
+                                    qDebug() << "test4";
+
+                                    QStringList size = xml.attributes().value("size").toString().split(" ");
+                                    currentShape.type = Shape::Cube;
+                                    currentShape.link.visuals.geometry.box.size = QVector3D(size[0].toDouble(), size[1].toDouble(), size[2].toDouble());
+                                }
+                                else if (xml.name().toString() == "sphere")
+                                {
+                                    currentShape.type = Shape::Sphere;
+                                    currentShape.link.visuals.geometry.sphere.radius = xml.attributes().value("radius").toDouble();
+                                }
+                                else if (xml.name().toString() == "cylinder")
+                                {
+                                    currentShape.type = Shape::Cylinder;
+                                    currentShape.link.visuals.geometry.cylinder.radius = xml.attributes().value("radius").toDouble();
+                                    currentShape.link.visuals.geometry.cylinder.length = xml.attributes().value("length").toDouble();
+                                }
+                            }
+                        }
+                        else if (xml.name().toString() == "material")
+                        {
+                            currentShape.link.visuals.material = xml.attributes().value("name").toString().toStdString();
+                            // 处理颜色属性
+                            xml.readNext();
+                            if (xml.isStartElement() && xml.name().toString() == "color")
+                            {
+                                QStringList rgba = xml.attributes().value("rgba").toString().split(" ");
+                                currentShape.link.visuals.color = QColor(rgba[0].toDouble() * 255, rgba[1].toDouble() * 255,
+                                                                         rgba[2].toDouble() * 255, rgba[3].toDouble() * 255);
+                            }
+                        }
+                    }
+                }
+            }
+            else if (xml.name().toString() == "collision")
+            {
+                // 处理碰撞属性
+                qDebug() << "test5";
+                while (!(xml.isEndElement() && xml.name().toString() == "collision"))
+                {
+
+                    xml.readNext();
+                    if (xml.isStartElement())
+                    {
+                        if (xml.name().toString() == "origin")
+                        {
+                            QStringList xyz = xml.attributes().value("xyz").toString().split(" ");
+                            QStringList rpy = xml.attributes().value("rpy").toString().split(" ");
+                            currentShape.link.collisions.origin.xyz = QVector3D(xyz[0].toDouble(), xyz[1].toDouble(), xyz[2].toDouble());
+                            currentShape.link.collisions.origin.rpy = QVector3D(rpy[0].toDouble(), rpy[1].toDouble(), rpy[2].toDouble());
+                        }
+                        else if (xml.name().toString() == "geometry")
+                        {
+                            // 处理几何属性
+                            xml.readNext();
+                            if (xml.isStartElement())
+                            {
+                                if (xml.name().toString() == "box")
+                                {
+                                    QStringList size = xml.attributes().value("size").toString().split(" ");
+                                    currentShape.link.collisions.geometry.box.size = QVector3D(size[0].toDouble(), size[1].toDouble(), size[2].toDouble());
+                                }
+                                else if (xml.name().toString() == "sphere")
+                                {
+                                    currentShape.link.collisions.geometry.sphere.radius = xml.attributes().value("radius").toDouble();
+                                }
+                                else if (xml.name().toString() == "cylinder")
+                                {
+                                    currentShape.link.collisions.geometry.cylinder.radius = xml.attributes().value("radius").toDouble();
+                                    currentShape.link.collisions.geometry.cylinder.length = xml.attributes().value("length").toDouble();
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            else if (xml.name().toString() == "joint")
+            {
+                // 处理关节属性
+                currentShape.joint.name = xml.attributes().value("name").toString().toStdString();
+                currentShape.joint.type = xml.attributes().value("type").toString().toStdString();
+            }
+            else if (xml.name().toString() == "parent")
+            {
+                currentShape.joint.parent_link = xml.attributes().value("link").toString().toStdString();
+            }
+            else if (xml.name().toString() == "child")
+            {
+                currentShape.joint.child_link = xml.attributes().value("link").toString().toStdString();
+            }
+            else if (xml.name().toString() == "origin")
+            {
+                QStringList xyz = xml.attributes().value("xyz").toString().split(" ");
+                QStringList rpy = xml.attributes().value("rpy").toString().split(" ");
+                currentShape.joint.parent_to_child_origin.xyz = QVector3D(xyz[0].toDouble(), xyz[1].toDouble(), xyz[2].toDouble());
+                currentShape.joint.parent_to_child_origin.rpy = QVector3D(rpy[0].toDouble(), rpy[1].toDouble(), rpy[2].toDouble());
+            }
+            else if (xml.name().toString() == "axis")
+            {
+                QStringList xyz = xml.attributes().value("xyz").toString().split(" ");
+                currentShape.joint.axis.xyz = QVector3D(xyz[0].toDouble(), xyz[1].toDouble(), xyz[2].toDouble());
+            }
+            else if (xml.name().toString() == "limit")
+            {
+                currentShape.joint.limits = {xml.attributes().value("lower").toDouble(), xml.attributes().value("upper").toDouble(),
+                                             xml.attributes().value("effort").toDouble(), xml.attributes().value("velocity").toDouble()};
+            }
+            else if (xml.name().toString() == "dynamics")
+            {
+                currentShape.joint.dynamics = {xml.attributes().value("damping").toDouble(), xml.attributes().value("friction").toDouble()};
+            }
+            else if (xml.name().toString() == "calibration")
+            {
+                currentShape.joint.calibration = {xml.attributes().value("rising").toDouble(), xml.attributes().value("falling").toDouble()};
+            }
+            else if (xml.name().toString() == "mimic")
+            {
+                currentShape.joint.mimic = {xml.attributes().value("joint").toString().toStdString(), xml.attributes().value("multiplier").toDouble(),
+                                            xml.attributes().value("offset").toDouble()};
+            }
+            else if (xml.name().toString() == "safety_controller")
+            {
+                currentShape.joint.safety_controller = {xml.attributes().value("soft_lower_limit").toString().toStdString(),
+                                                        xml.attributes().value("soft_upper_limit").toString().toStdString(),
+                                                        xml.attributes().value("k_position").toDouble(), xml.attributes().value("k_velocity").toDouble()};
+            }
+        }
+        else if (xml.isEndElement())
+        {
+            if (xml.name().toString() == "link")
+            {
+                shapes.push_back(currentShape);
+                currentShape = Shape(); // 重置 currentShape
+            }
+        }
+    }
+
+    if (xml.hasError())
+    {
+        qDebug() << "XML 解析错误: " << xml.errorString();
+                                            return shapes;
+    }
+
+    // 解析后的形状数据可以在此处进行进一步处理
+    qDebug() << "URDF 文件已加载，包含 " << shapes.size() << " 个形状";
+    return shapes;
+}
+
 bool codemaker::isOriginNonZero(const QVector3D &position, const QVector3D &rotation)
 {
     return position.x() != 0 || position.y() != 0 || position.z() != 0 ||
