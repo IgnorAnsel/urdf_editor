@@ -1,5 +1,6 @@
 #include "codemaker.h"
 #include <QXmlStreamReader>
+#include "shape.h"
 codemaker::codemaker(QObject *parent)
     : QObject{parent}
 {
@@ -222,12 +223,14 @@ void codemaker::CodeMake(QString path, std::vector<Shape> shapes)
 std::vector<Shape> codemaker::Loader(QString path)
 {
     // 打开文件进行读取
+    int link_id = 0;
+    int joint_id = 0;
     std::vector<Shape> shapes;
     QFile file(path);
     if (!file.open(QFile::ReadOnly | QFile::Text))
     {
         qDebug() << "无法打开文件: " << file.errorString();
-            return shapes;
+        return shapes;
     }
 
     QTextStream in(&file);
@@ -269,9 +272,9 @@ std::vector<Shape> codemaker::Loader(QString path)
                         else if (xml.name().toString() == "inertia")
                         {
                             currentShape.link.inertial.inertia_matrix = {
-                                                                         xml.attributes().value("ixx").toDouble(), xml.attributes().value("ixy").toDouble(),
-                                                                         xml.attributes().value("ixz").toDouble(), xml.attributes().value("iyy").toDouble(),
-                                                                         xml.attributes().value("iyz").toDouble(), xml.attributes().value("izz").toDouble()};
+                                xml.attributes().value("ixx").toDouble(), xml.attributes().value("ixy").toDouble(),
+                                xml.attributes().value("ixz").toDouble(), xml.attributes().value("iyy").toDouble(),
+                                xml.attributes().value("iyz").toDouble(), xml.attributes().value("izz").toDouble()};
                         }
                     }
                 }
@@ -279,8 +282,6 @@ std::vector<Shape> codemaker::Loader(QString path)
             else if (xml.name().toString() == "visual")
             {
                 // 处理视觉属性
-                qDebug() << "test1";
-
                 while (!(xml.isEndElement() && xml.name().toString() == "visual"))
                 {
                     xml.readNext();
@@ -288,8 +289,6 @@ std::vector<Shape> codemaker::Loader(QString path)
                     {
                         if (xml.name().toString() == "origin")
                         {
-                            qDebug() << "test2";
-
                             QStringList xyz = xml.attributes().value("xyz").toString().split(" ");
                             QStringList rpy = xml.attributes().value("rpy").toString().split(" ");
                             currentShape.link.visuals.origin.xyz = QVector3D(xyz[0].toDouble(), xyz[1].toDouble(), xyz[2].toDouble());
@@ -297,17 +296,13 @@ std::vector<Shape> codemaker::Loader(QString path)
                         }
                         else if (xml.name().toString() == "geometry")
                         {
-                            qDebug() << "test3";
                             // 处理几何属性
                             xml.readNext();
-                            qDebug() << xml.name().toString();
-
+                            xml.readNext();
                             if (xml.isStartElement())
                             {
                                 if (xml.name().toString() == "box")
                                 {
-                                    qDebug() << "test4";
-
                                     QStringList size = xml.attributes().value("size").toString().split(" ");
                                     currentShape.type = Shape::Cube;
                                     currentShape.link.visuals.geometry.box.size = QVector3D(size[0].toDouble(), size[1].toDouble(), size[2].toDouble());
@@ -330,8 +325,10 @@ std::vector<Shape> codemaker::Loader(QString path)
                             currentShape.link.visuals.material = xml.attributes().value("name").toString().toStdString();
                             // 处理颜色属性
                             xml.readNext();
+                            xml.readNext();
                             if (xml.isStartElement() && xml.name().toString() == "color")
                             {
+                                qDebug() << "c";
                                 QStringList rgba = xml.attributes().value("rgba").toString().split(" ");
                                 currentShape.link.visuals.color = QColor(rgba[0].toDouble() * 255, rgba[1].toDouble() * 255,
                                                                          rgba[2].toDouble() * 255, rgba[3].toDouble() * 255);
@@ -343,10 +340,8 @@ std::vector<Shape> codemaker::Loader(QString path)
             else if (xml.name().toString() == "collision")
             {
                 // 处理碰撞属性
-                qDebug() << "test5";
                 while (!(xml.isEndElement() && xml.name().toString() == "collision"))
                 {
-
                     xml.readNext();
                     if (xml.isStartElement())
                     {
@@ -360,6 +355,7 @@ std::vector<Shape> codemaker::Loader(QString path)
                         else if (xml.name().toString() == "geometry")
                         {
                             // 处理几何属性
+                            xml.readNext();
                             xml.readNext();
                             if (xml.isStartElement())
                             {
@@ -382,63 +378,33 @@ std::vector<Shape> codemaker::Loader(QString path)
                     }
                 }
             }
-            else if (xml.name().toString() == "joint")
-            {
-                // 处理关节属性
-                currentShape.joint.name = xml.attributes().value("name").toString().toStdString();
-                currentShape.joint.type = xml.attributes().value("type").toString().toStdString();
-            }
-            else if (xml.name().toString() == "parent")
-            {
-                currentShape.joint.parent_link = xml.attributes().value("link").toString().toStdString();
-            }
-            else if (xml.name().toString() == "child")
-            {
-                currentShape.joint.child_link = xml.attributes().value("link").toString().toStdString();
-            }
-            else if (xml.name().toString() == "origin")
-            {
-                QStringList xyz = xml.attributes().value("xyz").toString().split(" ");
-                QStringList rpy = xml.attributes().value("rpy").toString().split(" ");
-                currentShape.joint.parent_to_child_origin.xyz = QVector3D(xyz[0].toDouble(), xyz[1].toDouble(), xyz[2].toDouble());
-                currentShape.joint.parent_to_child_origin.rpy = QVector3D(rpy[0].toDouble(), rpy[1].toDouble(), rpy[2].toDouble());
-            }
-            else if (xml.name().toString() == "axis")
-            {
-                QStringList xyz = xml.attributes().value("xyz").toString().split(" ");
-                currentShape.joint.axis.xyz = QVector3D(xyz[0].toDouble(), xyz[1].toDouble(), xyz[2].toDouble());
-            }
-            else if (xml.name().toString() == "limit")
-            {
-                currentShape.joint.limits = {xml.attributes().value("lower").toDouble(), xml.attributes().value("upper").toDouble(),
-                                             xml.attributes().value("effort").toDouble(), xml.attributes().value("velocity").toDouble()};
-            }
-            else if (xml.name().toString() == "dynamics")
-            {
-                currentShape.joint.dynamics = {xml.attributes().value("damping").toDouble(), xml.attributes().value("friction").toDouble()};
-            }
-            else if (xml.name().toString() == "calibration")
-            {
-                currentShape.joint.calibration = {xml.attributes().value("rising").toDouble(), xml.attributes().value("falling").toDouble()};
-            }
-            else if (xml.name().toString() == "mimic")
-            {
-                currentShape.joint.mimic = {xml.attributes().value("joint").toString().toStdString(), xml.attributes().value("multiplier").toDouble(),
-                                            xml.attributes().value("offset").toDouble()};
-            }
-            else if (xml.name().toString() == "safety_controller")
-            {
-                currentShape.joint.safety_controller = {xml.attributes().value("soft_lower_limit").toString().toStdString(),
-                                                        xml.attributes().value("soft_upper_limit").toString().toStdString(),
-                                                        xml.attributes().value("k_position").toDouble(), xml.attributes().value("k_velocity").toDouble()};
-            }
         }
         else if (xml.isEndElement())
         {
             if (xml.name().toString() == "link")
             {
+                currentShape.id = link_id;
+                link_id++;
                 shapes.push_back(currentShape);
                 currentShape = Shape(); // 重置 currentShape
+            }
+            else if (xml.name().toString() == "joint")
+            {
+                // 为 joint 赋值 parent_id
+                for (auto &shape : shapes)
+                {
+                    qDebug() << "name" << currentShape.joint.parent_link;
+                    if (shape.link.name == currentShape.joint.parent_link)
+                    {
+                        currentShape.joint.parent_id = shape.id;
+                        break;
+                    }
+                    else if (shape.link.name == currentShape.joint.child_link)
+                    {
+                        currentShape.joint.child_id = shape.id;
+                        break;
+                    }
+                }
             }
         }
     }
@@ -446,11 +412,147 @@ std::vector<Shape> codemaker::Loader(QString path)
     if (xml.hasError())
     {
         qDebug() << "XML 解析错误: " << xml.errorString();
-                                            return shapes;
+        return shapes;
     }
 
     // 解析后的形状数据可以在此处进行进一步处理
+    shapes = Loader_joint(shapes, path);
     qDebug() << "URDF 文件已加载，包含 " << shapes.size() << " 个形状";
+    return shapes;
+}
+
+std::vector<Shape> codemaker::Loader_joint(std::vector<Shape> shapes, QString path)
+{
+    QFile file(path);
+    if (!file.open(QFile::ReadOnly | QFile::Text))
+    {
+        qDebug() << "无法打开文件: " << file.errorString();
+        return shapes; // 如果文件无法打开，则返回未修改的向量
+    }
+
+    QXmlStreamReader xml(&file);
+
+    while (!xml.atEnd() && !xml.hasError())
+    {
+        xml.readNext();
+        if (xml.isStartElement() && xml.name().toString() == "joint")
+        {
+            QString jointName = xml.attributes().value("name").toString();
+            QString type = xml.attributes().value("type").toString();
+            QString parentLink, childLink;
+            QVector3D origin_xyz;
+            QVector3D origin_rpy;
+            Axis axis;
+            // 默认设置
+            Limits limits = {};
+            Dynamics dynamics = {};
+            Calibration calibration = {};
+            Mimic mimic = {};
+            SafetyController safety;
+
+            while (!(xml.isEndElement() && xml.name().toString() == "joint")) {
+                xml.readNext();
+                if (xml.isStartElement()) {
+                    if (xml.name().toString() == "parent")
+                        parentLink = xml.attributes().value("link").toString();
+                    else if (xml.name().toString() == "child")
+                        childLink = xml.attributes().value("link").toString();
+                    else if (xml.name().toString() == "origin") {
+                        QStringList xyz = xml.attributes().value("xyz").toString().split(" ");
+                        QStringList rpy = xml.attributes().value("rpy").toString().split(" ");
+                        origin_xyz = QVector3D(xyz[0].toDouble(), xyz[1].toDouble(), xyz[2].toDouble());
+                        origin_rpy = QVector3D(rpy[0].toDouble(), rpy[1].toDouble(), rpy[2].toDouble());
+                    } else if (xml.name().toString() == "axis") {
+                        QStringList xyz = xml.attributes().value("xyz").toString().split(" ");
+                        axis.xyz = QVector3D(xyz[0].toDouble(), xyz[1].toDouble(), xyz[2].toDouble());
+                    } else if (xml.name().toString() == "limit") {
+                        limits.lower = xml.attributes().value("lower").toDouble();
+                        limits.upper = xml.attributes().value("upper").toDouble();
+                        limits.effort = xml.attributes().value("effort").toDouble();
+                        limits.velocity = xml.attributes().value("velocity").toDouble();
+                    } else if (xml.name().toString() == "dynamics") {
+                        dynamics.damping = xml.attributes().value("damping").toDouble();
+                        dynamics.friction = xml.attributes().value("friction").toDouble();
+                    } else if (xml.name().toString() == "calibration") {
+                        calibration.rising = xml.attributes().value("rising").toDouble();
+                        calibration.falling = xml.attributes().value("falling").toDouble();
+                    } else if (xml.name().toString() == "mimic") {
+                        mimic.joint_name = xml.attributes().value("joint").toString().toStdString();
+                        mimic.multiplier = xml.attributes().value("multiplier").toDouble();
+                        mimic.offset = xml.attributes().value("offset").toDouble();
+                    } else if (xml.name().toString() == "safety_controller") {
+                        safety.soft_lower_limit = xml.attributes().value("soft_lower_limit").toDouble();
+                        safety.soft_upper_limit = xml.attributes().value("soft_upper_limit").toDouble();
+                        safety.k_position = xml.attributes().value("k_position").toDouble();
+                        safety.k_velocity = xml.attributes().value("k_velocity").toDouble();
+                    }
+                }
+            }
+            auto findShapeByName = [&](const std::string &name) -> Shape *
+            {
+                for (auto &shape : shapes)
+                {
+                    if (shape.link.name == name)
+                        return &shape;
+                }
+                return nullptr;
+            };
+
+            Shape *parentShape = findShapeByName(parentLink.toStdString());
+            Shape *childShape = findShapeByName(childLink.toStdString());
+
+            if (childShape)
+            {
+                URDFJoint joint;
+                joint.name = jointName.toStdString();
+                joint.type = type.toStdString();
+                joint.parent_link = parentLink.toStdString();
+                joint.child_link = childLink.toStdString();
+                joint.child_id = childShape->id;
+                joint.parent_to_child_origin.xyz = origin_xyz;
+                qDebug() << joint.parent_to_child_origin.xyz;
+                joint.parent_to_child_origin.rpy = origin_rpy;
+                joint.axis = axis;
+                joint.limits = limits;
+                joint.dynamics = dynamics;
+                joint.calibration = calibration;
+                joint.mimic = mimic;
+                joint.safety_controller = safety;
+                joint.id = childShape->id;
+                qDebug() << "child_id:" << joint.child_id;
+                if (parentShape)
+                {
+                    joint.parent_id = parentShape->id;
+                }
+                else
+                {
+                    joint.parent_id = -1; // 无父节点时设为-1
+                }
+                childShape->joint = joint; // 将关节信息添加到对应的shape中
+                childShape->isjointset = true;
+            }
+        }
+    }
+    // 遍历所有shapes，检查是否每个shape都已经设置了joint
+    for (auto &shape : shapes)
+    {
+        if (!shape.isjointset)
+        {
+            URDFJoint defaultJoint;
+            defaultJoint.name = shape.link.name; // 使用shape的link名称作为关节名称
+            defaultJoint.type = "fixed"; // 默认类型为fixed
+            defaultJoint.child_id = shape.id;
+            defaultJoint.parent_id = -1; // 没有父节点
+            shape.joint = defaultJoint;
+            qDebug() << "为" << QString::fromStdString(shape.link.name) << "设置默认关节";
+        }
+    }
+    if (xml.hasError())
+    {
+        qDebug() << "XML解析错误: " << xml.errorString();
+    }
+
+    file.close();
     return shapes;
 }
 

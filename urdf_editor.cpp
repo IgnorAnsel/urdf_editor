@@ -36,7 +36,6 @@ void Urdf_editor::receiveIndex(int index)
 
 void Urdf_editor::dropCreate(const Shape &shape)
 {
-    qDebug() << "2";
     currentShape = shape;
 }
 
@@ -119,7 +118,6 @@ void Urdf_editor::paintGL()
     drawPlane(10, 10, 1);
 
     glEnd();
-
     // 渲染列表中的所有形状对象
     for (size_t i = 0; i < shapes.size(); ++i)
     {

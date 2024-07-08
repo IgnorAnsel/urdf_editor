@@ -270,7 +270,6 @@ void Property::receivejointindex(int index)
     ui->pushButton->hide();
     QStringList strList;
     joint_index = index;
-    qDebug() << "index:" << index;
     for (const auto &shape : shapes)
     {
         if (shape.joint.id == joint_index)
@@ -286,19 +285,16 @@ void Property::receivejointindex(int index)
     updateJoint();
 }
 
-void Property::formfileupdate(std::vector<Shape> shapes)
+void Property::formfileupdate(std::vector<Shape> shapes_r)
 {
-    for (const auto &shape : shapes)
+    for (const auto &shape : shapes_r)
     {
-        qDebug() << "das" << shape.link.visuals.geometry.box.size;
         if (shape.link.visuals.geometry.box.size == QVector3D(0.0f, 0.0f, 0.0f) && shape.type == Shape::Cube)
             return;
         num++;
         updateShapeProperties(shape);
-        qDebug() << "xian";
         shapes.push_back(shape);
         emit createshape();
-
     }
 }
 

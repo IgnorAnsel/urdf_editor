@@ -46,6 +46,7 @@ void ActionHandler::openFile()
    savedFilePath = fileName;
    //emit clear();
    changestatus(savedFilePath);
+   qDebug() << "1";
    emit update(cm->Loader(savedFilePath));
 }
 void ActionHandler::saveasFile()

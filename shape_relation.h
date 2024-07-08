@@ -22,9 +22,9 @@ public:
 public slots:
     void update_item();
     void update_shape();
+    void updateItemSecondColumn();
 private slots:
     void on_treeWidget_itemClicked(QTreeWidgetItem *item, int column);
-
     void on_treeWidget_itemChanged(QTreeWidgetItem *item, int column);
 
 signals:

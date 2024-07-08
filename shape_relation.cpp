@@ -19,6 +19,10 @@ shape_relation::~shape_relation()
 
 void shape_relation::update_item()
 {
+    for (const auto &shape : shapes)
+    {
+        qDebug()<<"joint_name" << shape.joint.name;
+    }
     for (int i = 0; i < ui->treeWidget->topLevelItemCount(); ++i)
     {
         QTreeWidgetItem *topLevelItem = ui->treeWidget->topLevelItem(i);
@@ -51,13 +55,13 @@ void shape_relation::update_shape()
 {
     // 创建一个用于快速查找形状标识符的集合
     std::set<int> shapeIds;
-
     for (const auto &shape : shapes)
     {
+        qDebug() << "shapeid:" << shape.id;
+        qDebug() << "111" << shape.joint.parent_id<<shape.joint.child_id;
         shapeIds.insert(shape.id);
         shapeNameMap[shape.id] = shape.link.name;
     }
-
     // 更新或添加树形控件中的节点
     for (const auto &shape : shapes)
     {
@@ -77,12 +81,27 @@ void shape_relation::update_shape()
     }
 
     // 删除不在 shapes 中的节点
-    qDebug() << "yes";
     removeInvalidNodes(ui->treeWidget->invisibleRootItem(), shapeIds, shapeNameMap);
 }
 
+void shape_relation::updateItemSecondColumn()
+{
+    for (int i = 0; i < ui->treeWidget->topLevelItemCount(); ++i)
+    {
+        QTreeWidgetItem *topLevelItem = ui->treeWidget->topLevelItem(i);
+        int shapeId = topLevelItem->data(0, Qt::UserRole).toInt();
+        for (const auto &shape : shapes)
+        {
+            if(shapeId == shape.id)
+            {
+                topLevelItem->setText(1,QString::fromStdString(shape.joint.name));
+                topLevelItem->setData(1, Qt::UserRole, shape.joint.id);
+                qDebug() << "sdnaisndonasodas: " << shape.id;
+            }
+        }
+    }
 
-
+}
 // 递归查找和更新节点
 bool shape_relation::findAndUpdateNode(QTreeWidgetItem *parent, int id, const QString &name)
 {
@@ -260,6 +279,7 @@ void shape_relation::pasteItem()
 void shape_relation::on_treeWidget_itemClicked(QTreeWidgetItem *item, int column)
 {
     // 获取点击项的文本信息
+    qDebug() << item;
     QString text = item->text(column);
     qDebug() << "Clicked item text:" << text;
     // 获取点击项的唯一标识符（id）
@@ -267,6 +287,7 @@ void shape_relation::on_treeWidget_itemClicked(QTreeWidgetItem *item, int column
     if (column == 0)
     {
         id = item->data(0, Qt::UserRole).toInt();
+        qDebug() << "id:" << id;
         copiedId = id;
         emit updateInde(id);
     }

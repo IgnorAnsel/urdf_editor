@@ -27,7 +27,7 @@ public slots:
     void updateShapeProperties(const Shape &shape); // 定义槽
     void receiveindex(int index);
     void receivejointindex(int index);
-    void formfileupdate(std::vector<Shape> shapes);
+    void formfileupdate(std::vector<Shape> shapes_r);
 signals:
     void shapeCreated(const Shape &newShape); // 定义信号
     void createshape();                       // 定义create信号
