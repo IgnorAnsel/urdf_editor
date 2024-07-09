@@ -84,24 +84,7 @@ void shape_relation::update_shape()
     removeInvalidNodes(ui->treeWidget->invisibleRootItem(), shapeIds, shapeNameMap);
 }
 
-void shape_relation::updateItemSecondColumn()
-{
-    for (int i = 0; i < ui->treeWidget->topLevelItemCount(); ++i)
-    {
-        QTreeWidgetItem *topLevelItem = ui->treeWidget->topLevelItem(i);
-        int shapeId = topLevelItem->data(0, Qt::UserRole).toInt();
-        for (const auto &shape : shapes)
-        {
-            if(shapeId == shape.id)
-            {
-                topLevelItem->setText(1,QString::fromStdString(shape.joint.name));
-                topLevelItem->setData(1, Qt::UserRole, shape.joint.id);
-                qDebug() << "sdnaisndonasodas: " << shape.id;
-            }
-        }
-    }
 
-}
 // 递归查找和更新节点
 bool shape_relation::findAndUpdateNode(QTreeWidgetItem *parent, int id, const QString &name)
 {
@@ -241,6 +224,23 @@ void shape_relation::recursiveUpdateShapeIds(QTreeWidgetItem *node, int parentId
         recursiveUpdateShapeIds(node->child(i), childId); // 将当前节点的 ID 作为下一个调用的 parentId
     }
 }
+void shape_relation::updateItemSecondColumn()
+{
+    for (int i = 0; i < ui->treeWidget->topLevelItemCount(); ++i)
+    {
+        QTreeWidgetItem *topLevelItem = ui->treeWidget->topLevelItem(i);
+        int shapeId = topLevelItem->data(0, Qt::UserRole).toInt();
+        for (const auto &shape : shapes)
+        {
+            if(shapeId == shape.id)
+            {
+                topLevelItem->setText(1, QString::fromStdString(shape.joint.name));
+                topLevelItem->setData(1, Qt::UserRole, shape.joint.id);
+                qDebug() << "Updated shape ID: " << shape.id << " with joint name: " << QString::fromStdString(shape.joint.name) << shape.joint.id;
+            }
+        }
+    }
+}
 
 void shape_relation::copyItem()
 {
@@ -298,19 +298,19 @@ void shape_relation::on_treeWidget_itemClicked(QTreeWidgetItem *item, int column
         // 查找对应的 shape
         for (const auto &shape : shapes)
         {
-            if (joint_id == -1)
-            {
-                id = item->data(0, Qt::UserRole).toInt();
-                emit updateInde(id);
-                break;
-            }
             if (shape.joint.id == joint_id)
             {
                 qDebug() << "Found shape with joint id:" << joint_id
                          << ", parent_id:" << shape.joint.parent_id
                          << ", child_id:" << shape.joint.child_id
-                <<", joint_name:" << shape.joint.name;
+                         <<", joint_name:" << shape.joint.name;
                 id = shape.joint.child_id;
+                if(shape.joint.parent_id == -1)
+                {
+                    id = item->data(0, Qt::UserRole).toInt();
+                    emit updateInde(id);
+                    break;
+                }
                 emit updateInde(id);
                 emit updateJointIndex(joint_id);
                 break;

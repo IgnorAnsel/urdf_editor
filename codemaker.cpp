@@ -543,6 +543,7 @@ std::vector<Shape> codemaker::Loader_joint(std::vector<Shape> shapes, QString pa
             defaultJoint.type = "fixed"; // 默认类型为fixed
             defaultJoint.child_id = shape.id;
             defaultJoint.parent_id = -1; // 没有父节点
+            defaultJoint.id = shape.id;
             shape.joint = defaultJoint;
             qDebug() << "为" << QString::fromStdString(shape.link.name) << "设置默认关节";
         }
