@@ -27,6 +27,7 @@ set(PROJECT_SOURCES
         shape.h shape.cpp
         shape_relation.h shape_relation.cpp shape_relation.ui
         codemaker.h codemaker.cpp
+        #enoperational.h enoperational.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

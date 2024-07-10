@@ -12,6 +12,7 @@ Urdf_editor::Urdf_editor(QWidget *parent) : QOpenGLWidget(parent), cube(Shape::C
     zoomFactor = 1.0f;
     rotationAngleX = 0.0f;
     rotationAngleY = 0.0f;
+    setFocusPolicy(Qt::StrongFocus);
     setAcceptDrops(true); // 启用拖放功能
 }
 
@@ -273,6 +274,8 @@ void Urdf_editor::drawCylinder(const Shape &shape)
 }
 
 
+
+
 void Urdf_editor::drawPlane(float width, float height, float gridSize)
 {
     // 设置平面颜色
@@ -352,12 +355,40 @@ void Urdf_editor::renderShape(const Shape &shape)
 
     glPopMatrix();
 }
+void Urdf_editor::keyPressEvent(QKeyEvent *event)
+{
+    if(selectedShapeIndex != -1)
+    {
+        switch (event->key())
+        {
+        case Qt::Key_W:
+        {
+            shapes[selectedShapeIndex].link.visuals.origin.xyz.setX(shapes[selectedShapeIndex].link.visuals.origin.xyz.x()+step);
+            break;
+        }
+        case Qt::Key_S:
+        {
+            shapes[selectedShapeIndex].link.visuals.origin.xyz.setX(shapes[selectedShapeIndex].link.visuals.origin.xyz.x()-step);
+            break;
+        }
+        case Qt::Key_A:
+        {
+            shapes[selectedShapeIndex].link.visuals.origin.xyz.setY(shapes[selectedShapeIndex].link.visuals.origin.xyz.y()-step);
+            break;
+        }
+        case Qt::Key_D:
+        {
+            shapes[selectedShapeIndex].link.visuals.origin.xyz.setY(shapes[selectedShapeIndex].link.visuals.origin.xyz.y()+step);
+            break;
+        }
 
+        }
+        emit
+    }
 
+    update();
 
-
-
-
+}
 // 在鼠标点击事件中检测是否点击了某个形状
 void Urdf_editor::mousePressEvent(QMouseEvent *event)
 {
@@ -501,8 +532,6 @@ void Urdf_editor::dragEnterEvent(QDragEnterEvent *event)
 
 void Urdf_editor::dropEvent(QDropEvent *event)
 {
-
-    qDebug() << "3";
     if (event->mimeData()->hasText())
     {
         // 获取拖放数据

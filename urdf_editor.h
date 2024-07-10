@@ -38,6 +38,7 @@ protected:
     void drawCube(const Shape &shape);
     void drawSphere(const Shape &shape);
     void drawCylinder(const Shape &shape);
+    void keyPressEvent(QKeyEvent *event) override;
 
 private:
     int selectedShapeIndex = -1; // -1 表示没有选中任何形状
@@ -58,6 +59,7 @@ private:
     GLdouble modelviewMatrix[16];
     GLint viewport[4];
     QColor precolor;
+    float step = 0.5;
 };
 
 #endif // URDF_EDITOR_H
