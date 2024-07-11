@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/">
+        <file>pic/3D旋转.png</file>
+        <file>pic/3D移动.png</file>
+    </qresource>
+</RCC>

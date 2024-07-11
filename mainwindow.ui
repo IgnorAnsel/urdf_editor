@@ -235,7 +235,25 @@
     <string>About</string>
    </property>
   </action>
+  <action name="actionMoveRotate">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="res.qrc">
+     <normaloff>:/pic/3D移动.png</normaloff>
+     <normalon>:/pic/3D旋转.png</normalon>:/pic/3D移动.png</iconset>
+   </property>
+   <property name="text">
+    <string>MoveRotate</string>
+   </property>
+   <property name="toolTip">
+    <string>Tap to switch between movement or rotation modes</string>
+   </property>
+  </action>
  </widget>
- <resources/>
+ <resources>
+  <include location="res.qrc"/>
+ </resources>
  <connections/>
 </ui>

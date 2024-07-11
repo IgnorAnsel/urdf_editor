@@ -19,12 +19,14 @@ public:
     explicit Urdf_editor(QWidget *parent = nullptr);
     void reset();
 public slots:
+    void ChangeMoveRotate(bool mode);
     void updateShape(); // 定义槽
     void receiveIndex(int index);
     void dropCreate(const Shape &shape);
     void updateJoint();
     void set_set_selectedShapeIndex_f1();
-
+signals:
+    void updateIndex(int index);
 protected:
     void initializeGL() override;
     void resizeGL(int w, int h) override;
@@ -41,11 +43,14 @@ protected:
     void keyPressEvent(QKeyEvent *event) override;
 
 private:
+    bool MoveRotateMode = 0;
     int selectedShapeIndex = -1; // -1 表示没有选中任何形状
     int lastselectedShapeIndex = -1;
     void renderShape(const Shape &shape);
     void drawPlane(float width, float height, float gridSize);
     void applyTransform(QMatrix4x4 &matrix, const QVector3D &translation, const QVector3D &rotation);
+    void handleKey_Move(int key);
+    void handleKey_Rotate(int key);
     QMatrix4x4 viewMatrix;
     QPoint lastMousePos;
     float zoomFactor;
@@ -59,7 +64,8 @@ private:
     GLdouble modelviewMatrix[16];
     GLint viewport[4];
     QColor precolor;
-    float step = 0.5;
+    float Movestep = 0.5;
+    float Rotatesetp = 0.1;
 };
 
 #endif // URDF_EDITOR_H

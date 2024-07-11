@@ -1,7 +1,6 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 #include <QVBoxLayout>
-// #include "collapsiblewidget.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
@@ -11,6 +10,8 @@ MainWindow::MainWindow(QWidget *parent)
     this->setStatusBar(status);
     status->showMessage("请新建或打开文件");
     status->addPermanentWidget(statusLabel);//添加右侧标签(永久性)
+    ui->toolBar->addAction(ui->actionMoveRotate);
+
     ui->widget_2->resize(QSize(440, 1000));
     connect(actionHandler,&ActionHandler::changestatus,this,&MainWindow::changeMainstatus);
     connect(actionHandler,&ActionHandler::clear,this,&MainWindow::clear);
@@ -20,6 +21,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->actionSave, &QAction::triggered, actionHandler, &ActionHandler::saveFile);
     connect(ui->actionSave_As, &QAction::triggered, actionHandler, &ActionHandler::saveasFile);
     connect(ui->actionExit, &QAction::triggered, actionHandler, &ActionHandler::Exit);
+
     // 创建垂直布局
     QVBoxLayout *verticalLayout = new QVBoxLayout();
     QVBoxLayout *Layout = new QVBoxLayout();
@@ -48,6 +50,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(pro, &Property::drapcreate, urdf_editor, &Urdf_editor::dropCreate);
     connect(tree, &shape_relation::updateInde, urdf_editor, &Urdf_editor::receiveIndex);
     connect(tree, &shape_relation::updateInde, pro, &Property::receiveindex);
+    connect(urdf_editor,&Urdf_editor::updateIndex,pro, &Property::receiveindex);
     connect(tree, &shape_relation::uptatepaste, urdf_editor, &Urdf_editor::updateShape);
     connect(tree, &shape_relation::updateJointIndex, pro, &Property::receivejointindex);
     connect(tree,&shape_relation::updateJoint,urdf_editor,&Urdf_editor::updateJoint);
@@ -55,6 +58,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(actionHandler,&ActionHandler::set_selectedShapeIndex,urdf_editor,&Urdf_editor::set_set_selectedShapeIndex_f1);
     connect(actionHandler,&ActionHandler::update,pro,&Property::formfileupdate);
     connect(actionHandler,&ActionHandler::update,tree,&shape_relation::updateItemSecondColumn);
+    connect(this,&MainWindow::MoveRotate,urdf_editor,&Urdf_editor::ChangeMoveRotate);
 }
 
 MainWindow::~MainWindow()
@@ -77,3 +81,16 @@ void MainWindow::clear()
     urdf_editor->reset();
     update();
 }
+
+void MainWindow::setToolBar()
+{
+
+}
+
+void MainWindow::on_actionMoveRotate_toggled(bool arg1)
+{
+    //0 Move
+    //1 Rotate
+    emit MoveRotate(arg1);
+}
+

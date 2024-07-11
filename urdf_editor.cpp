@@ -24,6 +24,11 @@ void Urdf_editor::reset()
     lastselectedShapeIndex = -1;
 }
 
+void Urdf_editor::ChangeMoveRotate(bool mode)
+{
+    MoveRotateMode = mode;
+}
+
 void Urdf_editor::updateShape()
 {
     // selectedShapeIndex = shapes.size()-1;
@@ -273,9 +278,6 @@ void Urdf_editor::drawCylinder(const Shape &shape)
     glEnd();
 }
 
-
-
-
 void Urdf_editor::drawPlane(float width, float height, float gridSize)
 {
     // 设置平面颜色
@@ -311,6 +313,91 @@ void Urdf_editor::applyTransform(QMatrix4x4 &matrix, const QVector3D &translatio
     matrix.rotate(qRadiansToDegrees(rotation.x()), 1.0f, 0.0f, 0.0f);
 }
 
+void Urdf_editor::handleKey_Move(int key)
+{
+    switch (key)
+    {
+    case Qt::Key_W:
+    {
+        shapes[selectedShapeIndex].link.visuals.origin.xyz.setX(shapes[selectedShapeIndex].link.visuals.origin.xyz.x()-Movestep);
+        emit updateIndex(selectedShapeIndex);
+        break;
+    }
+    case Qt::Key_S:
+    {
+        shapes[selectedShapeIndex].link.visuals.origin.xyz.setX(shapes[selectedShapeIndex].link.visuals.origin.xyz.x()+Movestep);
+        emit updateIndex(selectedShapeIndex);
+        break;
+    }
+    case Qt::Key_A:
+    {
+        shapes[selectedShapeIndex].link.visuals.origin.xyz.setY(shapes[selectedShapeIndex].link.visuals.origin.xyz.y()-Movestep);
+        emit updateIndex(selectedShapeIndex);
+        break;
+    }
+    case Qt::Key_D:
+    {
+        shapes[selectedShapeIndex].link.visuals.origin.xyz.setY(shapes[selectedShapeIndex].link.visuals.origin.xyz.y()+Movestep);
+        emit updateIndex(selectedShapeIndex);
+        break;
+    }
+    case Qt::Key_Up:
+    {
+        shapes[selectedShapeIndex].link.visuals.origin.xyz.setZ(shapes[selectedShapeIndex].link.visuals.origin.xyz.z()+Movestep);
+        emit updateIndex(selectedShapeIndex);
+        break;
+    }
+    case Qt::Key_Down:
+    {
+        shapes[selectedShapeIndex].link.visuals.origin.xyz.setZ(shapes[selectedShapeIndex].link.visuals.origin.xyz.z()-Movestep);
+        emit updateIndex(selectedShapeIndex);
+        break;
+    }
+    }
+}
+
+void Urdf_editor::handleKey_Rotate(int key)
+{
+    switch (key)
+    {
+    case Qt::Key_W:
+    {
+        shapes[selectedShapeIndex].link.visuals.origin.rpy.setY(shapes[selectedShapeIndex].link.visuals.origin.rpy.y()-Rotatesetp);
+        emit updateIndex(selectedShapeIndex);
+        break;
+    }
+    case Qt::Key_S:
+    {
+        shapes[selectedShapeIndex].link.visuals.origin.rpy.setY(shapes[selectedShapeIndex].link.visuals.origin.rpy.y()+Rotatesetp);
+        emit updateIndex(selectedShapeIndex);
+        break;
+    }
+    case Qt::Key_A:
+    {
+        shapes[selectedShapeIndex].link.visuals.origin.rpy.setX(shapes[selectedShapeIndex].link.visuals.origin.rpy.x()+Movestep);
+        emit updateIndex(selectedShapeIndex);
+        break;
+    }
+    case Qt::Key_D:
+    {
+        shapes[selectedShapeIndex].link.visuals.origin.rpy.setX(shapes[selectedShapeIndex].link.visuals.origin.rpy.x()-Movestep);
+        emit updateIndex(selectedShapeIndex);
+        break;
+    }
+    case Qt::Key_Up:
+    {
+        shapes[selectedShapeIndex].link.visuals.origin.rpy.setZ(shapes[selectedShapeIndex].link.visuals.origin.rpy.z()+Movestep);
+        emit updateIndex(selectedShapeIndex);
+        break;
+    }
+    case Qt::Key_Down:
+    {
+        shapes[selectedShapeIndex].link.visuals.origin.rpy.setZ(shapes[selectedShapeIndex].link.visuals.origin.rpy.z()-Movestep);
+        emit updateIndex(selectedShapeIndex);
+        break;
+    }
+}
+}
 void Urdf_editor::renderShape(const Shape &shape)
 {
     // 初始化变换矩阵为单位矩阵
@@ -359,33 +446,11 @@ void Urdf_editor::keyPressEvent(QKeyEvent *event)
 {
     if(selectedShapeIndex != -1)
     {
-        switch (event->key())
-        {
-        case Qt::Key_W:
-        {
-            shapes[selectedShapeIndex].link.visuals.origin.xyz.setX(shapes[selectedShapeIndex].link.visuals.origin.xyz.x()+step);
-            break;
-        }
-        case Qt::Key_S:
-        {
-            shapes[selectedShapeIndex].link.visuals.origin.xyz.setX(shapes[selectedShapeIndex].link.visuals.origin.xyz.x()-step);
-            break;
-        }
-        case Qt::Key_A:
-        {
-            shapes[selectedShapeIndex].link.visuals.origin.xyz.setY(shapes[selectedShapeIndex].link.visuals.origin.xyz.y()-step);
-            break;
-        }
-        case Qt::Key_D:
-        {
-            shapes[selectedShapeIndex].link.visuals.origin.xyz.setY(shapes[selectedShapeIndex].link.visuals.origin.xyz.y()+step);
-            break;
-        }
-
-        }
-        emit
+        if(MoveRotateMode==0)
+            handleKey_Move(event->key());
+        else
+            handleKey_Rotate(event->key());
     }
-
     update();
 
 }

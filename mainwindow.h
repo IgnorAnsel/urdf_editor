@@ -26,6 +26,8 @@ public:
 public slots:
     void changeMainstatus(QString path);
     void clear();
+private slots:
+    void on_actionMoveRotate_toggled(bool arg1);
 private:
     QLabel *statusLabel = new QLabel("请新建或打开文件", this);
     QStatusBar *status = new QStatusBar(this);
@@ -35,5 +37,9 @@ private:
     Property *pro;
     // property2 *pro2;
     shape_relation *tree;
+    QAction *setMode = new QAction("mode",this);
+    void setToolBar();
+signals:
+    void MoveRotate(bool mode);
 };
 #endif // MAINWINDOW_H
