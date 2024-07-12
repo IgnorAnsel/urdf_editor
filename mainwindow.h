@@ -28,7 +28,12 @@ public slots:
     void clear();
 private slots:
     void on_actionMoveRotate_toggled(bool arg1);
+    void on_actionMoveRotateStep_triggered();
+    void changeStep(int value);
 private:
+    float RStep = 0.1;
+    float MStep = 0.5;
+    bool setmode = 0;
     QLabel *statusLabel = new QLabel("请新建或打开文件", this);
     QStatusBar *status = new QStatusBar(this);
     Ui::MainWindow *ui;

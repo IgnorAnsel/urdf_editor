@@ -1,17 +1,16 @@
 #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 #include <QVBoxLayout>
-
+#include <QSlider>
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
+    ui->actionMoveRotateStep->setText("MStep\n"+QString::number(MStep));
     setGeometry(300, 300, 1600, 1000);
     this->setStatusBar(status);
     status->showMessage("请新建或打开文件");
     status->addPermanentWidget(statusLabel);//添加右侧标签(永久性)
-    ui->toolBar->addAction(ui->actionMoveRotate);
-
     ui->widget_2->resize(QSize(440, 1000));
     connect(actionHandler,&ActionHandler::changestatus,this,&MainWindow::changeMainstatus);
     connect(actionHandler,&ActionHandler::clear,this,&MainWindow::clear);
@@ -63,6 +62,7 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
+    QApplication::closeAllWindows();
     delete ui;
 }
 
@@ -91,6 +91,67 @@ void MainWindow::on_actionMoveRotate_toggled(bool arg1)
 {
     //0 Move
     //1 Rotate
+    setmode = arg1;
     emit MoveRotate(arg1);
+    if(arg1)
+        ui->actionMoveRotateStep->setText("RStep\n"+QString::number(RStep));
+    else
+        ui->actionMoveRotateStep->setText("MStep\n"+QString::number(MStep));
+
+}
+
+
+void MainWindow::on_actionMoveRotateStep_triggered()
+{
+    QWidget *set = new QWidget();
+    QGridLayout *layout = new QGridLayout(set);
+    QSlider *slider = new QSlider(set);
+    QLabel *text = new QLabel(set);
+    QLineEdit *edit = new QLineEdit(set);
+    set->setMaximumSize(400,400);
+    set->setGeometry(500, 500, 200,50);
+    slider->setOrientation(Qt::Horizontal);
+    layout->addWidget(slider,0,0,1,2);
+    layout->addWidget(text,1,0,1,1);
+    layout->addWidget(edit,1,1,1,1);
+    connect(slider, &QSlider::valueChanged, [=](int value){
+        text->setText(QString::number(value / 200.0));
+        MainWindow::changeStep(value);
+    });
+    //connect(slider, &QSlider::valueChanged,this,&MainWindow::changeStep);
+    connect(edit,&QLineEdit::textChanged,[=](QString s ){
+        text->setText(QString::number(s.toFloat()));
+        slider->setValue(s.toFloat()*200);
+        MainWindow::changeStep(s.toFloat()*200);
+    });
+    if(setmode)
+    {
+        slider->setMaximum(800);
+        slider->setValue(RStep*200);
+        set->setWindowTitle("RotateSTEP");
+    }
+    else
+    {
+        slider->setMaximum(1000);
+        slider->setValue(MStep*200);
+        set->setWindowTitle("MoveSTEP");
+    }
+    text->setText(QString::number(slider->value()/200.0));
+    edit->setText(QString::number(slider->value()/200.0));
+    set->show();
+}
+
+void MainWindow::changeStep(int value)
+{
+    if(setmode)
+    {
+        RStep = value/200.0;
+        ui->actionMoveRotateStep->setText("RStep\n"+QString::number(RStep));
+    }
+    else
+    {
+        MStep = value/200.0;
+        ui->actionMoveRotateStep->setText("MStep\n"+QString::number(MStep));
+    }
 }
 

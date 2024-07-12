@@ -130,6 +130,12 @@
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QToolBar" name="toolBar">
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
    <property name="windowTitle">
     <string>toolBar</string>
    </property>
@@ -139,6 +145,9 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="actionMoveRotate"/>
+   <addaction name="actionMoveRotateStep"/>
+   <addaction name="separator"/>
   </widget>
   <action name="actionNew">
    <property name="text">
@@ -249,6 +258,11 @@
    </property>
    <property name="toolTip">
     <string>Tap to switch between movement or rotation modes</string>
+   </property>
+  </action>
+  <action name="actionMoveRotateStep">
+   <property name="text">
+    <string>MoveRotateStep</string>
    </property>
   </action>
  </widget>

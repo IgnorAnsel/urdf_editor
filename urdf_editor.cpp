@@ -374,25 +374,25 @@ void Urdf_editor::handleKey_Rotate(int key)
     }
     case Qt::Key_A:
     {
-        shapes[selectedShapeIndex].link.visuals.origin.rpy.setX(shapes[selectedShapeIndex].link.visuals.origin.rpy.x()+Movestep);
+        shapes[selectedShapeIndex].link.visuals.origin.rpy.setX(shapes[selectedShapeIndex].link.visuals.origin.rpy.x()+Rotatesetp);
         emit updateIndex(selectedShapeIndex);
         break;
     }
     case Qt::Key_D:
     {
-        shapes[selectedShapeIndex].link.visuals.origin.rpy.setX(shapes[selectedShapeIndex].link.visuals.origin.rpy.x()-Movestep);
+        shapes[selectedShapeIndex].link.visuals.origin.rpy.setX(shapes[selectedShapeIndex].link.visuals.origin.rpy.x()-Rotatesetp);
         emit updateIndex(selectedShapeIndex);
         break;
     }
     case Qt::Key_Up:
     {
-        shapes[selectedShapeIndex].link.visuals.origin.rpy.setZ(shapes[selectedShapeIndex].link.visuals.origin.rpy.z()+Movestep);
+        shapes[selectedShapeIndex].link.visuals.origin.rpy.setZ(shapes[selectedShapeIndex].link.visuals.origin.rpy.z()+Rotatesetp);
         emit updateIndex(selectedShapeIndex);
         break;
     }
     case Qt::Key_Down:
     {
-        shapes[selectedShapeIndex].link.visuals.origin.rpy.setZ(shapes[selectedShapeIndex].link.visuals.origin.rpy.z()-Movestep);
+        shapes[selectedShapeIndex].link.visuals.origin.rpy.setZ(shapes[selectedShapeIndex].link.visuals.origin.rpy.z()-Rotatesetp);
         emit updateIndex(selectedShapeIndex);
         break;
     }

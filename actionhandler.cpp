@@ -30,7 +30,6 @@ void ActionHandler::newFile()
     changestatus(savedFilePath);
 }
 
-
 void ActionHandler::openFile()
 {
    QString fileName = QFileDialog::getOpenFileName(this, tr("Open File"),
