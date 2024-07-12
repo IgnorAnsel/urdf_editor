@@ -19,6 +19,7 @@ public:
     explicit Urdf_editor(QWidget *parent = nullptr);
     void reset();
 public slots:
+    void changeStep(int value);
     void ChangeMoveRotate(bool mode);
     void updateShape(); // 定义槽
     void receiveIndex(int index);
@@ -65,7 +66,7 @@ private:
     GLint viewport[4];
     QColor precolor;
     float Movestep = 0.5;
-    float Rotatesetp = 0.1;
+    float Rotatestep = 0.1;
 };
 
 #endif // URDF_EDITOR_H

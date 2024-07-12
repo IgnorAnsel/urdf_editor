@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 10.0.2, 2024-07-11T20:52:27. -->
+<!-- Written by QtCreator 10.0.2, 2024-07-12T23:15:50. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -714,7 +714,6 @@
     <value type="bool" key="RunConfiguration.UseLibrarySearchPath">true</value>
     <value type="bool" key="RunConfiguration.UseQmlDebugger">false</value>
     <value type="bool" key="RunConfiguration.UseQmlDebuggerAuto">true</value>
-    <value type="QString" key="RunConfiguration.WorkingDirectory.default">/home/ansel/qt_space/build-urdf_editor-Desktop_Qt_5_15_2_GCC_64bit-Debug</value>
    </valuemap>
    <value type="qlonglong" key="ProjectExplorer.Target.RunConfigurationCount">1</value>
   </valuemap>

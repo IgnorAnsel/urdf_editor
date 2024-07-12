@@ -2,6 +2,7 @@
 #include "./ui_mainwindow.h"
 #include <QVBoxLayout>
 #include <QSlider>
+#include <QPushButton>
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent), ui(new Ui::MainWindow)
 {
@@ -103,27 +104,41 @@ void MainWindow::on_actionMoveRotate_toggled(bool arg1)
 
 void MainWindow::on_actionMoveRotateStep_triggered()
 {
-    QWidget *set = new QWidget();
+    QDialog *set = new QDialog();
+
     QGridLayout *layout = new QGridLayout(set);
     QSlider *slider = new QSlider(set);
     QLabel *text = new QLabel(set);
     QLineEdit *edit = new QLineEdit(set);
+    QPushButton *okButton = new QPushButton("OK", this);
+    QPushButton *cancelButton = new QPushButton("Cancel", this);
     set->setMaximumSize(400,400);
     set->setGeometry(500, 500, 200,50);
     slider->setOrientation(Qt::Horizontal);
     layout->addWidget(slider,0,0,1,2);
     layout->addWidget(text,1,0,1,1);
     layout->addWidget(edit,1,1,1,1);
+    layout->addWidget(okButton,2,0,1,1);
+    layout->addWidget(cancelButton,2,1,1,1);
+
     connect(slider, &QSlider::valueChanged, [=](int value){
         text->setText(QString::number(value / 200.0));
-        MainWindow::changeStep(value);
+        edit->setText(QString::number(value / 200.0));
+        //MainWindow::changeStep(value);
     });
     //connect(slider, &QSlider::valueChanged,this,&MainWindow::changeStep);
-    connect(edit,&QLineEdit::textChanged,[=](QString s ){
+    connect(edit,&QLineEdit::textChanged,[=](QString s){
         text->setText(QString::number(s.toFloat()));
         slider->setValue(s.toFloat()*200);
-        MainWindow::changeStep(s.toFloat()*200);
+        //MainWindow::changeStep(s.toFloat()*200);
     });
+    connect(okButton,&QPushButton::pressed,[=](){
+        int step = text->text().toFloat() * 200;
+        urdf_editor->changeStep(step);
+        MainWindow::changeStep(step);
+        set->accept();
+    });
+    connect(cancelButton,&QPushButton::pressed,set,&QDialog::reject);
     if(setmode)
     {
         slider->setMaximum(800);
@@ -138,7 +153,7 @@ void MainWindow::on_actionMoveRotateStep_triggered()
     }
     text->setText(QString::number(slider->value()/200.0));
     edit->setText(QString::number(slider->value()/200.0));
-    set->show();
+    set->exec();
 }
 
 void MainWindow::changeStep(int value)
