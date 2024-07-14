@@ -2,5 +2,8 @@
     <qresource prefix="/">
         <file>pic/3D旋转.png</file>
         <file>pic/3D移动.png</file>
+        <file>pic/视角-球形.png</file>
+        <file>pic/-_圆柱.png</file>
+        <file>pic/正方体.png</file>
     </qresource>
 </RCC>

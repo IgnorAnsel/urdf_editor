@@ -143,8 +143,53 @@ void Urdf_editor::paintGL()
             precolor = shapes[selectedShapeIndex].link.visuals.color;           // 保存当前选中形状的原始颜色
             shapes[selectedShapeIndex].link.visuals.color = QColor(Qt::yellow); // 高亮显示新选中的形状
             lastselectedShapeIndex = selectedShapeIndex;
+            glPushMatrix();
+            float localX = shapes[selectedShapeIndex].link.visuals.origin.xyz.x();
+            float localY = shapes[selectedShapeIndex].link.visuals.origin.xyz.y();
+            float localZ = shapes[selectedShapeIndex].link.visuals.origin.xyz.z();
+            // 检查局部坐标轴方向向量是否有效（长度大于零）
+            if (localX != 0.0 || localY != 0.0 || localZ != 0.0) {
+                // 绘制局部坐标轴
+                glPushMatrix();
+                glTranslatef(localX, localY, localZ);
+                glBegin(GL_LINES);
+                // X 轴红色
+                if (localX != 0.0) {
+                    glColor3f(1.0, 0.0, 0.0);
+                    glVertex3f(0.0, 0.0, 0.0);
+                    if(localX<0)
+                        localX = -localX;
+                    glVertex3f(localX * 20.0, 0.0, 0.0);
+
+                }
+
+                // Y 轴绿色
+                if (localY != 0.0) {
+                    glColor3f(0.0, 1.0, 0.0);
+                    glVertex3f(0.0, 0.0, 0.0);
+                    if(localY<0)
+                        localY = -localY;
+                    glVertex3f(0.0, localY * 10.0, 0.0);
+                }
+
+                // Z 轴蓝色
+                if (localZ != 0.0) {
+                    glColor3f(0.0, 0.0, 1.0);
+                    glVertex3f(0.0, 0.0, 0.0);
+                    if(localZ<0)
+                        localZ = -localZ;
+                    glVertex3f(0.0, 0.0, localZ * 10.0);
+                }
+                else
+                {
+                    glColor3f(0.0, 0.0, 1.0);
+                    glVertex3f(0.0, 0.0, 0.0);
+                    glVertex3f(0.0, 0.0, 1 * 10.0);
+                }
+                glEnd();
+                glPopMatrix();
+            }
         }
-        // glColor3f(shapes[i].link.visuals.color.redF(), shapes[i].link.visuals.color.greenF(), shapes[i].link.visuals.color.blueF()); // 设置OpenGL颜色
         renderShape(shapes[i]); // 渲染每个形状
     }
 
