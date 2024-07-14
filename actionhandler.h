@@ -6,6 +6,7 @@
 #include <QMessageBox>
 #include <QApplication>
 #include <QInputDialog>
+#include "base_setting.h"
 #include "codemaker.h"
 class ActionHandler : public QWidget
 {
@@ -13,6 +14,7 @@ class ActionHandler : public QWidget
 public:
     explicit ActionHandler(QWidget *parent = nullptr) : QWidget(parent) {}
     QString savedFilePath;
+    base_setting *bs = new base_setting();
     codemaker *cm;
 signals:
     void set_selectedShapeIndex();
@@ -52,6 +54,6 @@ public slots:
     //    void document();// 帮助文档
     //    void about();// 关于
 
-
+    void b_setting();
     };
 #endif // ACTIONHANDLER_H

@@ -1,0 +1,17 @@
+QWidget {
+    background-color: #e0f7fa;
+    color: #0277bd;
+}
+
+QMenuBar {
+    background-color: #0277bd;
+    color: #ffffff;
+}
+
+QMenu {
+    background-color: #0277bd;
+    color: #ffffff;
+}
+
+/* 其他控件的样式设置 */
+

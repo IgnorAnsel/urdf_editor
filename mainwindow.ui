@@ -121,12 +121,19 @@
     <addaction name="actionDocumentation"/>
     <addaction name="actionAbout"/>
    </widget>
+   <widget class="QMenu" name="menuSetting">
+    <property name="title">
+     <string>Setting</string>
+    </property>
+    <addaction name="actionBase_Setting"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
    <addaction name="menuView"/>
    <addaction name="menuInsert"/>
    <addaction name="menuTools"/>
    <addaction name="menuHelp"/>
+   <addaction name="menuSetting"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QToolBar" name="toolBar">
@@ -147,6 +154,9 @@
    </attribute>
    <addaction name="actionMoveRotate"/>
    <addaction name="actionMoveRotateStep"/>
+   <addaction name="separator"/>
+   <addaction name="actionshape"/>
+   <addaction name="actionWHLRStep"/>
    <addaction name="separator"/>
   </widget>
   <action name="actionNew">
@@ -263,6 +273,21 @@
   <action name="actionMoveRotateStep">
    <property name="text">
     <string>MoveRotateStep</string>
+   </property>
+  </action>
+  <action name="actionshape">
+   <property name="text">
+    <string>shape</string>
+   </property>
+  </action>
+  <action name="actionBase_Setting">
+   <property name="text">
+    <string>Base_Setting</string>
+   </property>
+  </action>
+  <action name="actionWHLRStep">
+   <property name="text">
+    <string>WHLRStep</string>
    </property>
   </action>
  </widget>

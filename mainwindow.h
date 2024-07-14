@@ -25,15 +25,29 @@ public:
     ~MainWindow();
 public slots:
     void changeMainstatus(QString path);
+    void revicev_index(int index);
+    void choose_drak_light(int dl);
     void clear();
 private slots:
+    void update_zhuti();
     void on_actionMoveRotate_toggled(bool arg1);
     void on_actionMoveRotateStep_triggered();
     void changeStep(int value);
+    void on_actionWHLRStep_triggered();
+
 private:
     float RStep = 0.1;
     float MStep = 0.5;
+    float Cube_W = 0.1;
+    float Cube_H = 0.1;
+    float Cube_L = 0.1;
+    float Cyliner_L = 0.1;
+    float Cyliner_R = 0.1;
+    float Sphere_R = 0.1;
+    int WHLRMode = 0; //
     bool setmode = 0;
+    int dark_light_mode = 1 ;
+    int lastpic;
     QLabel *statusLabel = new QLabel("请新建或打开文件", this);
     QStatusBar *status = new QStatusBar(this);
     Ui::MainWindow *ui;
@@ -42,7 +56,6 @@ private:
     Property *pro;
     // property2 *pro2;
     shape_relation *tree;
-    QAction *setMode = new QAction("mode",this);
     void setToolBar();
 signals:
     void MoveRotate(bool mode);

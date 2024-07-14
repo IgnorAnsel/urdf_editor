@@ -78,3 +78,8 @@ void ActionHandler::Exit()
    // 退出
    QApplication::quit();
 }
+
+void ActionHandler::b_setting()
+{
+   bs->exec();
+}

@@ -2,8 +2,21 @@
     <qresource prefix="/">
         <file>pic/3D旋转.png</file>
         <file>pic/3D移动.png</file>
-        <file>pic/视角-球形.png</file>
-        <file>pic/-_圆柱.png</file>
-        <file>pic/正方体.png</file>
+        <file>pic/Sphere.png</file>
+        <file>pic/Cylinder.png</file>
+        <file>pic/Cube.png</file>
+        <file>pic/dark/Cyliner.png</file>
+        <file>pic/dark/M.png</file>
+        <file>pic/dark/R.png</file>
+        <file>pic/dark/Sphere.png</file>
+        <file>pic/light/Cube.png</file>
+        <file>pic/light/Cyliner.png</file>
+        <file>pic/light/M.png</file>
+        <file>pic/light/R.png</file>
+        <file>pic/light/Sphere.png</file>
+        <file>qss/dark.qss</file>
+        <file>qss/light.qss</file>
+        <file>qss/blue.qss</file>
+        <file>pic/dark/Cube.png</file>
     </qresource>
 </RCC>

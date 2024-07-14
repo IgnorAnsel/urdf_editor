@@ -28,6 +28,7 @@ set(PROJECT_SOURCES
         shape_relation.h shape_relation.cpp shape_relation.ui
         codemaker.h codemaker.cpp
         #enoperational.h enoperational.cpp
+        base_setting.h base_setting.cpp base_setting.ui
         res.qrc
 )
 
