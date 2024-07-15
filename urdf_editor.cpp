@@ -24,6 +24,16 @@ void Urdf_editor::reset()
     lastselectedShapeIndex = -1;
 }
 
+void Urdf_editor::updateWHLRStep(float cube_W, float cube_H, float cube_L, float cyliner_H, float cyliner_R, float sphere_R)
+{
+    Cube_W = cube_W;
+    Cube_H = cube_H;
+    Cube_L = cube_L;
+    Cyliner_H = cyliner_H;
+    Cyliner_R = cyliner_R;
+    Sphere_R = sphere_R;
+}
+
 void Urdf_editor::changeStep(int value)
 {
     if(MoveRotateMode)

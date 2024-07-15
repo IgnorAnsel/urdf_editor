@@ -34,14 +34,13 @@ private slots:
     void on_actionMoveRotateStep_triggered();
     void changeStep(int value);
     void on_actionWHLRStep_triggered();
-
 private:
     float RStep = 0.1;
     float MStep = 0.5;
     float Cube_W = 0.1;
     float Cube_H = 0.1;
     float Cube_L = 0.1;
-    float Cyliner_L = 0.1;
+    float Cyliner_H = 0.1;
     float Cyliner_R = 0.1;
     float Sphere_R = 0.1;
     int WHLRMode = 0; //
@@ -59,5 +58,11 @@ private:
     void setToolBar();
 signals:
     void MoveRotate(bool mode);
+    void updateWHLRStep(float Cube_W ,
+                        float Cube_H ,
+                        float Cube_L ,
+                        float Cyliner_H ,
+                        float Cyliner_R ,
+                        float Sphere_R );
 };
 #endif // MAINWINDOW_H

@@ -8,6 +8,8 @@ MainWindow::MainWindow(QWidget *parent)
 {
     ui->setupUi(this);
     ui->actionMoveRotateStep->setText("MStep\n"+QString::number(MStep));
+    ui->actionWHLRStep->setText("WHLRStep\n");
+    ui->actionshape->setText("Choose Shape");
     setGeometry(300, 300, 1600, 1000);
     this->setStatusBar(status);
     status->showMessage("请新建或打开文件");
@@ -62,6 +64,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(actionHandler,&ActionHandler::update,tree,&shape_relation::updateItemSecondColumn);
     connect(this,&MainWindow::MoveRotate,urdf_editor,&Urdf_editor::ChangeMoveRotate);
     connect(actionHandler->bs,&base_setting::choose_drak_light,this,&MainWindow::choose_drak_light);
+    connect(this,&MainWindow::updateWHLRStep,urdf_editor,&Urdf_editor::updateWHLRStep);
 }
 
 MainWindow::~MainWindow()
@@ -118,16 +121,19 @@ void MainWindow::revicev_index(int index)
         if(shapes[index].type == Shape::Cube)
         {
             ui->actionshape->setIcon(QIcon(path+"/Cube.png"));
+            WHLRMode = 0;
             lastpic = 0;
         }
         if(shapes[index].type == Shape::Cylinder)
         {
             ui->actionshape->setIcon(QIcon(path+"/Cyliner.png"));
+            WHLRMode = 1;
             lastpic = 1;
         }
         if(shapes[index].type == Shape::Sphere)
         {
             ui->actionshape->setIcon(QIcon(path+"/Sphere.png"));
+            WHLRMode = 2;
             lastpic = 2;
         }
     }
@@ -260,69 +266,62 @@ void MainWindow::on_actionWHLRStep_triggered()
         QSlider *lengthSlider = new QSlider(set);
         QSlider *widthSlider = new QSlider(set);
         QSlider *heightSlider = new QSlider(set);
-        QLabel *lengthLabel = new QLabel(set);
-        QLabel *widthLabel = new QLabel(set);
-        QLabel *heightLabel = new QLabel(set);
         QLineEdit *lengthEdit = new QLineEdit(set);
         QLineEdit *widthEdit = new QLineEdit(set);
         QLineEdit *heightEdit = new QLineEdit(set);
-
+        lengthSlider->setValue(Cube_L*200);
+        widthSlider->setValue(Cube_W*200);
+        heightSlider->setValue(Cube_H*200);
+        lengthEdit->setText(QString::number(Cube_L));
+        widthEdit->setText(QString::number(Cube_W));
+        heightEdit->setText(QString::number(Cube_H));
         lengthSlider->setOrientation(Qt::Horizontal);
         widthSlider->setOrientation(Qt::Horizontal);
         heightSlider->setOrientation(Qt::Horizontal);
 
         layout->addWidget(new QLabel("Length"), 0, 0, 1, 1);
         layout->addWidget(lengthSlider, 0, 1, 1, 2);
-        layout->addWidget(lengthLabel, 0, 3, 1, 1);
         layout->addWidget(lengthEdit, 0, 4, 1, 1);
 
         layout->addWidget(new QLabel("Width"), 1, 0, 1, 1);
         layout->addWidget(widthSlider, 1, 1, 1, 2);
-        layout->addWidget(widthLabel, 1, 3, 1, 1);
         layout->addWidget(widthEdit, 1, 4, 1, 1);
 
         layout->addWidget(new QLabel("Height"), 2, 0, 1, 1);
         layout->addWidget(heightSlider, 2, 1, 1, 2);
-        layout->addWidget(heightLabel, 2, 3, 1, 1);
         layout->addWidget(heightEdit, 2, 4, 1, 1);
 
         connect(lengthSlider, &QSlider::valueChanged, [=](int value){
             QString val = QString::number(value / 200.0);
-            lengthLabel->setText(val);
             lengthEdit->setText(val);
         });
         connect(widthSlider, &QSlider::valueChanged, [=](int value){
             QString val = QString::number(value / 200.0);
-            widthLabel->setText(val);
             widthEdit->setText(val);
         });
         connect(heightSlider, &QSlider::valueChanged, [=](int value){
             QString val = QString::number(value / 200.0);
-            heightLabel->setText(val);
             heightEdit->setText(val);
         });
 
         connect(lengthEdit, &QLineEdit::textChanged, [=](const QString &s){
             float val = s.toFloat();
-            lengthLabel->setText(QString::number(val));
             lengthSlider->setValue(val * 200);
         });
         connect(widthEdit, &QLineEdit::textChanged, [=](const QString &s){
             float val = s.toFloat();
-            widthLabel->setText(QString::number(val));
             widthSlider->setValue(val * 200);
         });
         connect(heightEdit, &QLineEdit::textChanged, [=](const QString &s){
             float val = s.toFloat();
-            heightLabel->setText(QString::number(val));
             heightSlider->setValue(val * 200);
         });
 
         connect(okButton, &QPushButton::pressed, [=](){
-            float length = lengthLabel->text().toFloat();
-            float width = widthLabel->text().toFloat();
-            float height = heightLabel->text().toFloat();
             // 使用长度、宽度、高度进行必要的操作
+            this->Cube_H = heightEdit->text().toDouble();
+            this->Cube_W = widthEdit->text().toDouble();
+            this->Cube_L = lengthEdit->text().toDouble();
             set->accept();
         });
 
@@ -332,49 +331,44 @@ void MainWindow::on_actionWHLRStep_triggered()
     {
         QSlider *radiusSlider = new QSlider(set);
         QSlider *heightSlider = new QSlider(set);
-        QLabel *radiusLabel = new QLabel(set);
-        QLabel *heightLabel = new QLabel(set);
         QLineEdit *radiusEdit = new QLineEdit(set);
         QLineEdit *heightEdit = new QLineEdit(set);
-
+        radiusSlider->setValue(Cyliner_R*200);
+        heightSlider->setValue(Cyliner_H*200);
+        radiusEdit->setText(QString::number(Cyliner_R));
+        heightEdit->setText(QString::number(Cyliner_H));
         radiusSlider->setOrientation(Qt::Horizontal);
         heightSlider->setOrientation(Qt::Horizontal);
 
         layout->addWidget(new QLabel("Radius"), 0, 0, 1, 1);
         layout->addWidget(radiusSlider, 0, 1, 1, 2);
-        layout->addWidget(radiusLabel, 0, 3, 1, 1);
         layout->addWidget(radiusEdit, 0, 4, 1, 1);
 
         layout->addWidget(new QLabel("Height"), 1, 0, 1, 1);
         layout->addWidget(heightSlider, 1, 1, 1, 2);
-        layout->addWidget(heightLabel, 1, 3, 1, 1);
         layout->addWidget(heightEdit, 1, 4, 1, 1);
 
         connect(radiusSlider, &QSlider::valueChanged, [=](int value){
             QString val = QString::number(value / 200.0);
-            radiusLabel->setText(val);
             radiusEdit->setText(val);
         });
         connect(heightSlider, &QSlider::valueChanged, [=](int value){
             QString val = QString::number(value / 200.0);
-            heightLabel->setText(val);
             heightEdit->setText(val);
         });
 
         connect(radiusEdit, &QLineEdit::textChanged, [=](const QString &s){
             float val = s.toFloat();
-            radiusLabel->setText(QString::number(val));
             radiusSlider->setValue(val * 200);
         });
         connect(heightEdit, &QLineEdit::textChanged, [=](const QString &s){
             float val = s.toFloat();
-            heightLabel->setText(QString::number(val));
             heightSlider->setValue(val * 200);
         });
 
         connect(okButton, &QPushButton::pressed, [=](){
-            float radius = radiusLabel->text().toFloat();
-            float height = heightLabel->text().toFloat();
+            this->Cyliner_H = heightEdit->text().toDouble();
+            this->Cyliner_R = radiusEdit->text().toDouble();
             // 使用半径和高度进行必要的操作
             set->accept();
         });
@@ -384,31 +378,26 @@ void MainWindow::on_actionWHLRStep_triggered()
     else if (WHLRMode == 2) // Sphere
     {
         QSlider *radiusSlider = new QSlider(set);
-        QLabel *radiusLabel = new QLabel(set);
         QLineEdit *radiusEdit = new QLineEdit(set);
 
         radiusSlider->setOrientation(Qt::Horizontal);
-
         layout->addWidget(new QLabel("Radius"), 0, 0, 1, 1);
         layout->addWidget(radiusSlider, 0, 1, 1, 2);
-        layout->addWidget(radiusLabel, 0, 3, 1, 1);
         layout->addWidget(radiusEdit, 0, 4, 1, 1);
-
+        radiusSlider->setValue(Sphere_R*200);
         connect(radiusSlider, &QSlider::valueChanged, [=](int value){
             QString val = QString::number(value / 200.0);
-            radiusLabel->setText(val);
             radiusEdit->setText(val);
         });
 
         connect(radiusEdit, &QLineEdit::textChanged, [=](const QString &s){
             float val = s.toFloat();
-            radiusLabel->setText(QString::number(val));
             radiusSlider->setValue(val * 200);
         });
 
         connect(okButton, &QPushButton::pressed, [=](){
-            float radius = radiusLabel->text().toFloat();
             // 使用半径进行必要的操作
+            this->Sphere_R = radiusEdit->text().toDouble();
             set->accept();
         });
 

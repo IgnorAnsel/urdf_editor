@@ -19,6 +19,12 @@ public:
     explicit Urdf_editor(QWidget *parent = nullptr);
     void reset();
 public slots:
+    void updateWHLRStep(float cube_W ,
+                        float cube_H ,
+                        float cube_L ,
+                        float cyliner_H ,
+                        float cyliner_R ,
+                        float sphere_R );
     void changeStep(int value);
     void ChangeMoveRotate(bool mode);
     void updateShape(); // 定义槽
@@ -67,6 +73,12 @@ private:
     QColor precolor;
     float Movestep = 0.5;
     float Rotatestep = 0.1;
+    float Cube_W = 0.1;
+    float Cube_H = 0.1;
+    float Cube_L = 0.1;
+    float Cyliner_H = 0.1;
+    float Cyliner_R = 0.1;
+    float Sphere_R = 0.1;
 };
 
 #endif // URDF_EDITOR_H
