@@ -148,54 +148,84 @@ void Urdf_editor::paintGL()
         // 如果选中的形状发生变化，更新颜色
         if (selectedShapeIndex >= 0)
         {
-            // qDebug() << "lastselectedShapeIndex:" << lastselectedShapeIndex << "selectedShapeIndex:" << selectedShapeIndex;
-            shapes[lastselectedShapeIndex].link.visuals.color = precolor;       // 恢复之前选中的形状的颜色
-            precolor = shapes[selectedShapeIndex].link.visuals.color;           // 保存当前选中形状的原始颜色
-            shapes[selectedShapeIndex].link.visuals.color = QColor(Qt::yellow); // 高亮显示新选中的形状
+            // 恢复之前选中的形状的颜色
+            shapes[lastselectedShapeIndex].link.visuals.color = precolor;
+            // 保存当前选中形状的原始颜色
+            precolor = shapes[selectedShapeIndex].link.visuals.color;
+            // 高亮显示新选中的形状
+            shapes[selectedShapeIndex].link.visuals.color = QColor(Qt::yellow);
             lastselectedShapeIndex = selectedShapeIndex;
             glPushMatrix();
             float localX = shapes[selectedShapeIndex].link.visuals.origin.xyz.x();
             float localY = shapes[selectedShapeIndex].link.visuals.origin.xyz.y();
             float localZ = shapes[selectedShapeIndex].link.visuals.origin.xyz.z();
-            // 检查局部坐标轴方向向量是否有效（长度大于零）
-            if (localX != 0.0 || localY != 0.0 || localZ != 0.0) {
-                // 绘制局部坐标轴
-                glPushMatrix();
-                glTranslatef(localX, localY, localZ);
-                glBegin(GL_LINES);
-                // X 轴红色
-                if (localX != 0.0) {
+            float RotateR = shapes[selectedShapeIndex].link.visuals.origin.rpy.x();
+            float RotateP = shapes[selectedShapeIndex].link.visuals.origin.rpy.y();
+            float RotateY = shapes[selectedShapeIndex].link.visuals.origin.rpy.z();
+
+            if(MoveRotateMode == 0)
+            {
+                if (localX != 0.0 || localY != 0.0 || localZ != 0.0) {
+                    glPushMatrix();
+                    glTranslatef(localX, localY, localZ);
+                    glBegin(GL_LINES);
+
+                    // X 轴红色
                     glColor3f(1.0, 0.0, 0.0);
                     glVertex3f(0.0, 0.0, 0.0);
-                    if(localX<0)
-                        localX = -localX;
-                    glVertex3f(localX * 20.0, 0.0, 0.0);
+                    glVertex3f(20.0, 0.0, 0.0);
 
-                }
-
-                // Y 轴绿色
-                if (localY != 0.0) {
+                    // Y 轴绿色
                     glColor3f(0.0, 1.0, 0.0);
                     glVertex3f(0.0, 0.0, 0.0);
-                    if(localY<0)
-                        localY = -localY;
-                    glVertex3f(0.0, localY * 10.0, 0.0);
+                    glVertex3f(0.0, 20.0, 0.0);
+
+                    // Z 轴蓝色
+                    glColor3f(0.0, 0.0, 1.0);
+                    glVertex3f(0.0, 0.0, 0.0);
+                    glVertex3f(0.0, 0.0, 20.0);
+
+                    glEnd();
+                    glPopMatrix();
                 }
+            }
+            else if(MoveRotateMode==1)
+            {
+                glPushMatrix();
+                glTranslatef(localX, localY, localZ);
+
+                // 创建旋转四元数
+                glm::quat quaternionX = glm::angleAxis(RotateR, glm::vec3(1.0f, 0.0f, 0.0f));
+                glm::quat quaternionY = glm::angleAxis(RotateP, glm::vec3(0.0f, 1.0f, 0.0f));
+                glm::quat quaternionZ = glm::angleAxis(RotateY, glm::vec3(0.0f, 0.0f, 1.0f));
+
+                // 合并旋转四元数
+                glm::quat combinedQuaternion = quaternionZ * quaternionY * quaternionX;
+
+                // 将四元数转换为旋转矩阵
+                glm::mat4 rotationMatrix = glm::toMat4(combinedQuaternion);
+
+                // 将旋转矩阵应用到当前矩阵堆栈
+                glMultMatrixf(glm::value_ptr(rotationMatrix));
+
+                // 绘制坐标轴
+                glBegin(GL_LINES);
+
+                // X 轴红色
+                glColor3f(1.0, 0.0, 0.0);
+                glVertex3f(0.0f, 0.0f, 0.0f);
+                glVertex3f(20.0f, 0.0f, 0.0f); // 加长坐标轴
+
+                // Y 轴绿色
+                glColor3f(0.0, 1.0, 0.0);
+                glVertex3f(0.0f, 0.0f, 0.0f);
+                glVertex3f(0.0f, 20.0f, 0.0f); // 加长坐标轴
 
                 // Z 轴蓝色
-                if (localZ != 0.0) {
-                    glColor3f(0.0, 0.0, 1.0);
-                    glVertex3f(0.0, 0.0, 0.0);
-                    if(localZ<0)
-                        localZ = -localZ;
-                    glVertex3f(0.0, 0.0, localZ * 10.0);
-                }
-                else
-                {
-                    glColor3f(0.0, 0.0, 1.0);
-                    glVertex3f(0.0, 0.0, 0.0);
-                    glVertex3f(0.0, 0.0, 1 * 10.0);
-                }
+                glColor3f(0.0, 0.0, 1.0);
+                glVertex3f(0.0f, 0.0f, 0.0f);
+                glVertex3f(0.0f, 0.0f, 20.0f); // 加长坐标轴
+
                 glEnd();
                 glPopMatrix();
             }
@@ -256,7 +286,9 @@ void Urdf_editor::drawCube(const Shape &shape)
 
     glEnd();
 }
-
+inline double Urdf_editor::radiansToDegrees(double radians) {
+    return radians * (180.0 / M_PI);
+}
 void Urdf_editor::drawSphere(const Shape &shape)
 {
     // 设置颜色
@@ -364,9 +396,7 @@ void Urdf_editor::drawPlane(float width, float height, float gridSize)
     }
     glEnd();
 }
-inline double radiansToDegrees(double radians) {
-    return radians * (180.0 / M_PI);
-}
+
 
 void Urdf_editor::applyTransform(QMatrix4x4 &matrix, const QVector3D &translation, const QVector3D &rotation)
 {
@@ -534,88 +564,8 @@ void Urdf_editor::mousePressEvent(QMouseEvent *event)
     GLdouble worldX, worldY, worldZ;
     gluUnProject(winX, winY, winZ, modelviewMatrix, projectionMatrix, viewport, &worldX, &worldY, &worldZ);
     QVector3D clickPos(worldX, worldY, worldZ);
-
-    //    for (size_t i = 0; i < shapes.size(); ++i)
-    //    {
-    //        QVector3D shapePos = shapes[i].link.visuals.origin.xyz;
-    //        float distance = (shapePos - clickPos).length();
-    //        if (distance < minDistance)
-    //        {
-    //            //minDistance = distance;
-    //            closestShapeIndex = i;
-    //        }
-    //    }
-
-    //    if (closestShapeIndex != -1)
-    //    {
-    //        selectedShapeIndex = closestShapeIndex;
-    //        qDebug() << "Shape selected:" << closestShapeIndex << "at distance:" << minDistance;
-    //    }
-    //    else
-    //    {
-    //        selectedShapeIndex = -1;
-    //    }
-
     update();
 }
-
-// void Urdf_editor::mousePressEvent(QMouseEvent *event)
-//{
-//     // 获取鼠标点击位置
-//     float mouseX = event->pos().x();
-//     float mouseY = event->pos().y();
-
-//    // 转换鼠标位置到 OpenGL 坐标系
-//    GLint viewport[4];
-//    glGetIntegerv(GL_VIEWPORT, viewport);
-//    mouseY = viewport[3] - mouseY;
-
-//    // 设置选择半径（可以根据需要调整）
-//    float selectionRadius = 0.05f; // 假设选择半径为 0.05（在 -1 到 1 的范围内）
-
-//    // 将鼠标位置转换为屏幕空间坐标
-//    QVector2D mousePos((mouseX / viewport[2]) * 2 - 1, (mouseY / viewport[3]) * 2 - 1);
-
-//    // 遍历所有顶点，检查是否在选中范围内
-//    for (int i = 0; i < vertices.size() / 6; i++)
-//    {
-//        QVector4D screen = mvp.map(QVector4D(QVector3D(vertices[i * 6 + 0], vertices[i * 6 + 1], vertices[i * 6 + 2]), 1.0f));
-
-//        // 将齐次坐标转换为笛卡尔坐标
-//        if (screen.w() != 0.0f)
-//        {
-//            screen.setX(screen.x() / screen.w());
-//            screen.setY(screen.y() / screen.w());
-//            screen.setZ(screen.z() / screen.w());
-//        }
-
-//        // 检查顶点是否在中心矩形内
-//        if (screen.x() > -0.5 && screen.x() < 0.5 && screen.y() > -0.5 && screen.y() < 0.5)
-//        {
-//            // 计算顶点在屏幕空间中的位置
-//            QVector2D vertexPos(screen.x(), screen.y());
-
-//            // 计算顶点与鼠标位置的距离
-//            float distance = (vertexPos - mousePos).length();
-
-//            // 如果顶点在选择半径内，则认为选中了形状
-//            if (distance < selectionRadius)
-//            {
-//                selectedShapeIndex = i / (vertices.size() / 6 / shapes.size()); // 计算选中的形状索引
-//                qDebug() << "Shape selected at index:" << selectedShapeIndex << "Distance:" << distance;
-//                break; // 找到一个选中的形状后跳出循环
-//            }
-//        }
-//    }
-
-//    if (selectedShapeIndex == -1)
-//    {
-//        qDebug() << "No shape selected";
-//    }
-
-//    // 更新窗口
-//    update();
-//}
 
 void Urdf_editor::mouseMoveEvent(QMouseEvent *event)
 {

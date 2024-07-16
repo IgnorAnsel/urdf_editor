@@ -10,6 +10,12 @@
 #include "shape.h"
 #include "param_struct.h"
 #include <QMimeData>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 extern std::vector<Shape> shapes;
 extern std::vector<URDFJoint> joints;
 class Urdf_editor : public QOpenGLWidget, protected QOpenGLFunctions
@@ -53,6 +59,7 @@ private:
     bool MoveRotateMode = 0;
     int selectedShapeIndex = -1; // -1 表示没有选中任何形状
     int lastselectedShapeIndex = -1;
+    inline double radiansToDegrees(double radians);
     void renderShape(const Shape &shape);
     void drawPlane(float width, float height, float gridSize);
     void applyTransform(QMatrix4x4 &matrix, const QVector3D &translation, const QVector3D &rotation);

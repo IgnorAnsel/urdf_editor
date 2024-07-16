@@ -11,7 +11,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets 3DCore 3DExtras 3DRender OpenGL OpenGLWidgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets 3DCore 3DExtras 3DRender OpenGL OpenGLWidgets)
-
+find_package(glm CONFIG REQUIRED)
 set(PROJECT_SOURCES
         main.cpp
         mainwindow.cpp
@@ -57,7 +57,7 @@ endif()
 
 target_link_libraries(urdf_editor PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::3DCore
     Qt${QT_VERSION_MAJOR}::3DExtras Qt${QT_VERSION_MAJOR}::3DRender  Qt${QT_VERSION_MAJOR}::OpenGLWidgets Qt${QT_VERSION_MAJOR}::OpenGL
-    GLU
+    glm::glm GLU
 )
 
 set_target_properties(urdf_editor PROPERTIES
