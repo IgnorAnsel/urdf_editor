@@ -25,6 +25,7 @@ public:
     explicit Urdf_editor(QWidget *parent = nullptr);
     void reset();
 public slots:
+    void receiveShapeKind(int kind);
     void updateWHLRStep(float cube_W ,
                         float cube_H ,
                         float cube_L ,
@@ -54,6 +55,7 @@ protected:
     void drawSphere(const Shape &shape);
     void drawCylinder(const Shape &shape);
     void keyPressEvent(QKeyEvent *event) override;
+    void keyReleaseEvent(QKeyEvent *event) override;
 
 private:
     bool MoveRotateMode = 0;
@@ -65,11 +67,14 @@ private:
     void applyTransform(QMatrix4x4 &matrix, const QVector3D &translation, const QVector3D &rotation);
     void handleKey_Move(int key);
     void handleKey_Rotate(int key);
+    void handleKey_WHLR_Plus(int key);
+    void handleKey_WHLR_Minus(int key);
     QMatrix4x4 viewMatrix;
     QPoint lastMousePos;
     float zoomFactor;
     float rotationAngleX;
     float rotationAngleY;
+    int shapekind;
     Shape cube; // 将cube定义为类的成员变量
     Shape sphere;
     Shape cylinder;
@@ -86,6 +91,12 @@ private:
     float Cyliner_H = 0.1;
     float Cyliner_R = 0.1;
     float Sphere_R = 0.1;
+
+
+
+    //
+    bool PressKey_Plus = false;
+    bool PressKey_Minus = false;
 };
 
 #endif // URDF_EDITOR_H

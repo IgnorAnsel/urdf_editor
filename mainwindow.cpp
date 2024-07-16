@@ -65,6 +65,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(this,&MainWindow::MoveRotate,urdf_editor,&Urdf_editor::ChangeMoveRotate);
     connect(actionHandler->bs,&base_setting::choose_drak_light,this,&MainWindow::choose_drak_light);
     connect(this,&MainWindow::updateWHLRStep,urdf_editor,&Urdf_editor::updateWHLRStep);
+    connect(this,&MainWindow::ShapeKind,urdf_editor,&Urdf_editor::receiveShapeKind);
 }
 
 MainWindow::~MainWindow()
@@ -136,6 +137,7 @@ void MainWindow::revicev_index(int index)
             WHLRMode = 2;
             lastpic = 2;
         }
+        emit ShapeKind(WHLRMode);
     }
 }
 void MainWindow::choose_drak_light(int dl)
@@ -322,6 +324,12 @@ void MainWindow::on_actionWHLRStep_triggered()
             this->Cube_H = heightEdit->text().toDouble();
             this->Cube_W = widthEdit->text().toDouble();
             this->Cube_L = lengthEdit->text().toDouble();
+            emit updateWHLRStep(this-> Cube_W ,
+                                this-> Cube_H ,
+                                this-> Cube_L ,
+                                this-> Cyliner_H ,
+                                this-> Cyliner_R ,
+                                this-> Sphere_R );
             set->accept();
         });
 
@@ -369,6 +377,12 @@ void MainWindow::on_actionWHLRStep_triggered()
         connect(okButton, &QPushButton::pressed, [=](){
             this->Cyliner_H = heightEdit->text().toDouble();
             this->Cyliner_R = radiusEdit->text().toDouble();
+            emit updateWHLRStep(this-> Cube_W ,
+                                this-> Cube_H ,
+                                this-> Cube_L ,
+                                this-> Cyliner_H ,
+                                this-> Cyliner_R ,
+                                this-> Sphere_R );
             // 使用半径和高度进行必要的操作
             set->accept();
         });
@@ -398,6 +412,12 @@ void MainWindow::on_actionWHLRStep_triggered()
         connect(okButton, &QPushButton::pressed, [=](){
             // 使用半径进行必要的操作
             this->Sphere_R = radiusEdit->text().toDouble();
+            emit updateWHLRStep(this-> Cube_W ,
+                                this-> Cube_H ,
+                                this-> Cube_L ,
+                                this-> Cyliner_H ,
+                                this-> Cyliner_R ,
+                                this-> Sphere_R );
             set->accept();
         });
 

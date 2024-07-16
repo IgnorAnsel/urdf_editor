@@ -24,8 +24,14 @@ void Urdf_editor::reset()
     lastselectedShapeIndex = -1;
 }
 
+void Urdf_editor::receiveShapeKind(int kind)
+{
+    shapekind = kind;
+}
+
 void Urdf_editor::updateWHLRStep(float cube_W, float cube_H, float cube_L, float cyliner_H, float cyliner_R, float sphere_R)
 {
+    qDebug()<<"dasds";
     Cube_W = cube_W;
     Cube_H = cube_H;
     Cube_L = cube_L;
@@ -405,7 +411,6 @@ void Urdf_editor::applyTransform(QMatrix4x4 &matrix, const QVector3D &translatio
     matrix.rotate(qRadiansToDegrees(rotation.y()), 0.0f, 1.0f, 0.0f);
     matrix.rotate(qRadiansToDegrees(rotation.x()), 1.0f, 0.0f, 0.0f);
 }
-
 void Urdf_editor::handleKey_Move(int key)
 {
     switch (key)
@@ -489,7 +494,159 @@ void Urdf_editor::handleKey_Rotate(int key)
         emit updateIndex(selectedShapeIndex);
         break;
     }
+    }
 }
+
+void Urdf_editor::handleKey_WHLR_Plus(int key)
+{
+    if(shapekind==0)
+    {
+        switch (key)
+        {
+        case Qt::Key_X:
+        {
+            shapes[selectedShapeIndex].link.visuals.geometry.box.size.setX(shapes[selectedShapeIndex].link.visuals.geometry.box.size.x()+Cube_L);
+            emit updateIndex(selectedShapeIndex);
+            break;
+        }
+        case Qt::Key_Y:
+        {
+            shapes[selectedShapeIndex].link.visuals.geometry.box.size.setY(shapes[selectedShapeIndex].link.visuals.geometry.box.size.y()+Cube_W);
+            emit updateIndex(selectedShapeIndex);
+            break;
+        }
+        case Qt::Key_Z:
+        {
+            shapes[selectedShapeIndex].link.visuals.geometry.box.size.setZ(shapes[selectedShapeIndex].link.visuals.geometry.box.size.z()+Cube_H);
+            emit updateIndex(selectedShapeIndex);
+            break;
+        }
+        }
+    }
+    else if(shapekind==1)
+    {
+        switch (key)
+        {
+        case Qt::Key_X:
+        {
+            shapes[selectedShapeIndex].link.visuals.geometry.cylinder.radius = shapes[selectedShapeIndex].link.visuals.geometry.cylinder.radius + Cyliner_R;
+            emit updateIndex(selectedShapeIndex);
+            break;
+        }
+        case Qt::Key_Y:
+        {
+            shapes[selectedShapeIndex].link.visuals.geometry.cylinder.radius = shapes[selectedShapeIndex].link.visuals.geometry.cylinder.radius + Cyliner_R;
+            emit updateIndex(selectedShapeIndex);
+            break;
+        }
+        case Qt::Key_Z:
+        {
+            shapes[selectedShapeIndex].link.visuals.geometry.cylinder.length = shapes[selectedShapeIndex].link.visuals.geometry.cylinder.length + Cyliner_H;
+            emit updateIndex(selectedShapeIndex);
+            break;
+        }
+        }
+    }
+    else if(shapekind==2)
+    {
+        switch (key)
+        {
+        case Qt::Key_X:
+        {
+            shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius = shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius + Sphere_R;
+            emit updateIndex(selectedShapeIndex);
+            break;
+        }
+        case Qt::Key_Y:
+        {
+            shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius = shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius + Sphere_R;
+            emit updateIndex(selectedShapeIndex);
+            break;
+        }
+        case Qt::Key_Z:
+        {
+            shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius = shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius + Sphere_R;
+            emit updateIndex(selectedShapeIndex);
+            break;
+        }
+        }
+    }
+}
+
+void Urdf_editor::handleKey_WHLR_Minus(int key)
+{
+    if(shapekind==0)
+    {
+        switch (key)
+        {
+        case Qt::Key_X:
+        {
+            shapes[selectedShapeIndex].link.visuals.geometry.box.size.setX(shapes[selectedShapeIndex].link.visuals.geometry.box.size.x()-Cube_L);
+            emit updateIndex(selectedShapeIndex);
+            break;
+        }
+        case Qt::Key_Y:
+        {
+            shapes[selectedShapeIndex].link.visuals.geometry.box.size.setY(shapes[selectedShapeIndex].link.visuals.geometry.box.size.y()-Cube_W);
+            emit updateIndex(selectedShapeIndex);
+            break;
+        }
+        case Qt::Key_Z:
+        {
+            shapes[selectedShapeIndex].link.visuals.geometry.box.size.setZ(shapes[selectedShapeIndex].link.visuals.geometry.box.size.z()-Cube_H);
+            emit updateIndex(selectedShapeIndex);
+            break;
+        }
+        }
+    }
+    else if(shapekind==1)
+    {
+        switch (key)
+        {
+        case Qt::Key_X:
+        {
+            shapes[selectedShapeIndex].link.visuals.geometry.cylinder.radius = shapes[selectedShapeIndex].link.visuals.geometry.cylinder.radius - Cyliner_R;
+            emit updateIndex(selectedShapeIndex);
+            break;
+        }
+        case Qt::Key_Y:
+        {
+            shapes[selectedShapeIndex].link.visuals.geometry.cylinder.radius = shapes[selectedShapeIndex].link.visuals.geometry.cylinder.radius - Cyliner_R;
+            emit updateIndex(selectedShapeIndex);
+            break;
+        }
+        case Qt::Key_Z:
+        {
+            shapes[selectedShapeIndex].link.visuals.geometry.cylinder.length = shapes[selectedShapeIndex].link.visuals.geometry.cylinder.length - Cyliner_H;
+            emit updateIndex(selectedShapeIndex);
+            break;
+        }
+        }
+    }
+    else if(shapekind==2)
+    {
+        switch (key)
+        {
+        case Qt::Key_X:
+        {
+            shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius = shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius - Sphere_R;
+            emit updateIndex(selectedShapeIndex);
+            break;
+        }
+        case Qt::Key_Y:
+        {
+            shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius = shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius - Sphere_R;
+            emit updateIndex(selectedShapeIndex);
+            break;
+        }
+        case Qt::Key_Z:
+        {
+            shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius = shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius - Sphere_R;
+            emit updateIndex(selectedShapeIndex);
+            break;
+        }
+        }
+    }
 }
 void Urdf_editor::renderShape(const Shape &shape)
 {
@@ -544,8 +701,29 @@ void Urdf_editor::keyPressEvent(QKeyEvent *event)
         else
             handleKey_Rotate(event->key());
     }
+    if(event->key()==Qt::Key_Plus)
+        PressKey_Plus = true;
+    else if(event->key()==Qt::Key_Minus)
+        PressKey_Minus = true;
+    if(PressKey_Plus)
+    {
+        handleKey_WHLR_Plus(event->key());
+    }
+    else if(PressKey_Minus)
+    {
+        handleKey_WHLR_Minus(event->key());
+    }
     update();
+    QWidget::keyPressEvent(event);
+}
 
+void Urdf_editor::keyReleaseEvent(QKeyEvent *event)
+{
+    if(event->key()==Qt::Key_Plus)
+        PressKey_Plus = false;
+    if(event->key()==Qt::Key_Minus)
+        PressKey_Minus = false;
+    QWidget::keyReleaseEvent(event);
 }
 // 在鼠标点击事件中检测是否点击了某个形状
 void Urdf_editor::mousePressEvent(QMouseEvent *event)

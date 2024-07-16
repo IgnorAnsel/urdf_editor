@@ -64,5 +64,6 @@ signals:
                         float Cyliner_H ,
                         float Cyliner_R ,
                         float Sphere_R );
+    void ShapeKind(int kind);
 };
 #endif // MAINWINDOW_H
