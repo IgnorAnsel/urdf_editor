@@ -118,7 +118,7 @@ void Urdf_editor::paintGL()
     //    QVector3D center(0.0f, 0.0f, 0.0f); // 看向的中心点
     //    QVector3D up(0.0f, 1.0f, 0.0f); // 上方向
 
-    QVector3D eye(0.0f, 0.0f, zoomFactor * 10.0f); // 相机位置
+    eye = QVector3D(0.0f, 0.0f, zoomFactor * 10.0f); // 相机位置
     QVector3D center(0.0f, 0.0f, 0.0f);            // 看向的中心点，使相机朝向 y 轴正方向
     QVector3D up(-1.0f, 0.0f, 0.0f);               // 上方向，使 x 轴朝向相机
 
@@ -143,7 +143,6 @@ void Urdf_editor::paintGL()
     glColor3f(0.0, 0.0, 1.0);
     glVertex3f(0.0, 0.0, 0.0);
     glVertex3f(0.0, 0.0, 100.0); // Z 轴
-
     // 绘制平面
     drawPlane(10, 10, 1);
 
@@ -168,28 +167,29 @@ void Urdf_editor::paintGL()
             float RotateR = shapes[selectedShapeIndex].link.visuals.origin.rpy.x();
             float RotateP = shapes[selectedShapeIndex].link.visuals.origin.rpy.y();
             float RotateY = shapes[selectedShapeIndex].link.visuals.origin.rpy.z();
-
             if(MoveRotateMode == 0)
             {
                 if (localX != 0.0 || localY != 0.0 || localZ != 0.0) {
                     glPushMatrix();
                     glTranslatef(localX, localY, localZ);
                     glBegin(GL_LINES);
-
                     // X 轴红色
                     glColor3f(1.0, 0.0, 0.0);
                     glVertex3f(0.0, 0.0, 0.0);
                     glVertex3f(20.0, 0.0, 0.0);
+                    //drawArrow(0,0,0,2,0,0,Qt::red);
 
                     // Y 轴绿色
                     glColor3f(0.0, 1.0, 0.0);
                     glVertex3f(0.0, 0.0, 0.0);
                     glVertex3f(0.0, 20.0, 0.0);
+                    //drawArrow(0,0,0,0,2,0,Qt::green);
 
                     // Z 轴蓝色
                     glColor3f(0.0, 0.0, 1.0);
                     glVertex3f(0.0, 0.0, 0.0);
                     glVertex3f(0.0, 0.0, 20.0);
+                    //drawArrow(0,0,0,0,0,2,Qt::blue);
 
                     glEnd();
                     glPopMatrix();
@@ -375,6 +375,72 @@ void Urdf_editor::drawCylinder(const Shape &shape)
         glNormal3f(x, y, 0.0f);
         glVertex3f(x, y, -halfHeight);
         glVertex3f(x, y, halfHeight);
+    }
+    glEnd();
+}
+
+void Urdf_editor::drawArrow(float x, float y, float z, float dx, float dy, float dz, QColor color)
+{
+    // 设置箭头颜色
+    glColor3f(color.redF(), color.greenF(), color.blueF());
+    glLineWidth(6.0f);
+
+    // 计算箭头末端位置
+    float length = sqrt(dx * dx + dy * dy + dz * dz);
+
+    // 计算单位方向向量
+    float nx = dx / length;
+    float ny = dy / length;
+    float nz = dz / length;
+
+    // 绘制箭头线段
+    glBegin(GL_LINES);
+    glVertex3f(x, y, z);
+    glVertex3f(x + dx, y + dy, z + dz);
+    glEnd();
+    // 设置圆锥的变换
+    glPushMatrix();
+    glTranslatef(x + dx, y + dy, z + dz); // 移动到箭头末端
+    // 使圆锥朝向箭头方向
+    // 需要找到旋转轴和旋转角度
+    float angle = acos(nz) * 180.0 / M_PI; // 计算与z轴的角度
+    glRotatef(angle, -ny, nx, 0.0f); // 绕旋转轴旋转
+    drawCone(coneHeight, coneRadius, color); // 绘制圆锥
+    glPopMatrix();
+}
+
+
+
+
+void Urdf_editor::drawCone(float height, float radius, QColor color)
+{
+    // 设置颜色
+    glColor3f(color.redF(), color.greenF(), color.blueF());
+
+    const int slices = 30;
+    double halfHeight = height / 2.0;
+
+    // 绘制圆锥体的底面
+    glBegin(GL_TRIANGLE_FAN);
+    glVertex3f(0.0f, 0.0f, -halfHeight);
+    for (int i = 0; i <= slices; ++i)
+    {
+        double angle = 2.0 * M_PI * i / slices;
+        double x = radius * cos(angle);
+        double y = radius * sin(angle);
+        glVertex3f(x, y, -halfHeight);
+    }
+    glEnd();
+
+    // 绘制圆锥体的侧面
+    glBegin(GL_TRIANGLE_FAN);
+    glVertex3f(0.0f, 0.0f, halfHeight);
+    for (int i = 0; i <= slices; ++i)
+    {
+        double angle = 2.0 * M_PI * i / slices;
+        double x = radius * cos(angle);
+        double y = radius * sin(angle);
+        glVertex3f(x, y, -halfHeight);
     }
     glEnd();
 }
@@ -694,6 +760,7 @@ void Urdf_editor::renderShape(const Shape &shape)
 }
 void Urdf_editor::keyPressEvent(QKeyEvent *event)
 {
+    emit KeyPress(event->key());
     if(selectedShapeIndex != -1)
     {
         if(MoveRotateMode==0)
@@ -743,6 +810,7 @@ void Urdf_editor::mousePressEvent(QMouseEvent *event)
     gluUnProject(winX, winY, winZ, modelviewMatrix, projectionMatrix, viewport, &worldX, &worldY, &worldZ);
     QVector3D clickPos(worldX, worldY, worldZ);
     update();
+
 }
 
 void Urdf_editor::mouseMoveEvent(QMouseEvent *event)

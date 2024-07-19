@@ -40,6 +40,7 @@ public slots:
     void updateJoint();
     void set_set_selectedShapeIndex_f1();
 signals:
+    void KeyPress(int keyvalue);
     void updateIndex(int index);
 protected:
     void initializeGL() override;
@@ -54,9 +55,10 @@ protected:
     void drawCube(const Shape &shape);
     void drawSphere(const Shape &shape);
     void drawCylinder(const Shape &shape);
+    void drawArrow(float x, float y, float z, float dx, float dy, float dz, QColor color);
+    void drawCone(float height, float radius, QColor color);
     void keyPressEvent(QKeyEvent *event) override;
     void keyReleaseEvent(QKeyEvent *event) override;
-
 private:
     bool MoveRotateMode = 0;
     int selectedShapeIndex = -1; // -1 表示没有选中任何形状
@@ -91,12 +93,15 @@ private:
     float Cyliner_H = 0.1;
     float Cyliner_R = 0.1;
     float Sphere_R = 0.1;
-
+    QVector3D eye;
 
 
     //
     bool PressKey_Plus = false;
     bool PressKey_Minus = false;
+
+    float coneHeight = 0.5f;
+    float coneRadius = 0.1f;
 };
 
 #endif // URDF_EDITOR_H

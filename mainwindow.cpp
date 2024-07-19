@@ -1,4 +1,4 @@
-#include "mainwindow.h"
+    #include "mainwindow.h"
 #include "./ui_mainwindow.h"
 #include <QVBoxLayout>
 #include <QSlider>
@@ -12,7 +12,6 @@ MainWindow::MainWindow(QWidget *parent)
     ui->actionshape->setText("Choose Shape");
     setGeometry(300, 300, 1600, 1000);
     this->setStatusBar(status);
-    status->showMessage("请新建或打开文件");
     status->addPermanentWidget(statusLabel);//添加右侧标签(永久性)
     ui->widget_2->resize(QSize(440, 1000));
     connect(actionHandler,&ActionHandler::changestatus,this,&MainWindow::changeMainstatus);
@@ -44,6 +43,8 @@ MainWindow::MainWindow(QWidget *parent)
     verticalLayout->addWidget(urdf_editor);
     // 最后，设置 ui->widget 的布局
     ui->widget->setLayout(verticalLayout);
+    timer->setSingleShot(true); // 单次触发
+    connect(timer, &QTimer::timeout, this, &MainWindow::PopKey);
     //
     connect(pro, &Property::createshape, urdf_editor, &Urdf_editor::updateShape);
     connect(pro, &Property::createshape, tree, &shape_relation::update_shape);
@@ -66,6 +67,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(actionHandler->bs,&base_setting::choose_drak_light,this,&MainWindow::choose_drak_light);
     connect(this,&MainWindow::updateWHLRStep,urdf_editor,&Urdf_editor::updateWHLRStep);
     connect(this,&MainWindow::ShapeKind,urdf_editor,&Urdf_editor::receiveShapeKind);
+    connect(urdf_editor,&Urdf_editor::KeyPress,this,&MainWindow::R_KeyPress);
 }
 
 MainWindow::~MainWindow()
@@ -88,6 +90,20 @@ void MainWindow::clear()
     tree->reset();
     urdf_editor->reset();
     update();
+}
+
+void MainWindow::R_KeyPress(int keyvalue)
+{
+    QString keyName = QKeySequence(keyvalue).toString();
+
+    // 将按键名称添加到堆栈顶部
+    queue.enqueue(keyName);
+
+    // 在状态栏上显示堆栈中的所有按键名称，用竖线分隔
+    status->showMessage(queue.join(" | "));
+
+    // 启动定时器以在timeout秒后执行清除消息的操作
+    timer->start(timeout); // 清除消息
 }
 
 void MainWindow::update_zhuti()
@@ -426,6 +442,18 @@ void MainWindow::on_actionWHLRStep_triggered()
 
     connect(cancelButton, &QPushButton::pressed, set, &QDialog::reject);
     set->exec();
+}
+
+void MainWindow::PopKey()
+{
+    if (!queue.empty()) {
+        queue.dequeue(); // 移除消息
+        status->showMessage(queue.join(" | "));
+    }
+    if(!queue.empty())
+    {
+        timer->start(timeout);
+    }
 }
 
 
