@@ -17,6 +17,7 @@ namespace Ui
     class MainWindow;
 }
 QT_END_NAMESPACE
+enum Mode { Camera_MODE, Object_Mode, MODE_3 };
 
 class MainWindow : public QMainWindow
 {
@@ -39,6 +40,7 @@ private slots:
     void changeStep(int value);
     void on_actionWHLRStep_triggered();
     void PopKey();
+    void Change_Mode();
 private:
     QQueue<QString> queue;
     float RStep = 0.1;
@@ -62,6 +64,7 @@ private:
     Property *pro;
     // property2 *pro2;
     shape_relation *tree;
+    Mode currentMode = Camera_MODE;
     void setToolBar();
 signals:
     void MoveRotate(bool mode);

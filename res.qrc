@@ -18,5 +18,9 @@
         <file>qss/light.qss</file>
         <file>qss/blue.qss</file>
         <file>pic/dark/Cube.png</file>
+        <file>pic/dark/Camera.png</file>
+        <file>pic/dark/Object.png</file>
+        <file>pic/light/Camera.png</file>
+        <file>pic/light/Object.png</file>
     </qresource>
 </RCC>

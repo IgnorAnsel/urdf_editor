@@ -152,6 +152,8 @@
    <attribute name="toolBarBreak">
     <bool>false</bool>
    </attribute>
+   <addaction name="actionMode"/>
+   <addaction name="separator"/>
    <addaction name="actionMoveRotate"/>
    <addaction name="actionMoveRotateStep"/>
    <addaction name="separator"/>
@@ -288,6 +290,11 @@
   <action name="actionWHLRStep">
    <property name="text">
     <string>WHLRStep</string>
+   </property>
+  </action>
+  <action name="actionMode">
+   <property name="text">
+    <string>Mode</string>
    </property>
   </action>
  </widget>

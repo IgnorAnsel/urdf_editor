@@ -60,6 +60,8 @@ protected:
     void keyPressEvent(QKeyEvent *event) override;
     void keyReleaseEvent(QKeyEvent *event) override;
 private:
+    QVector3D translation = QVector3D(0,0,0); // 平移变量
+
     bool MoveRotateMode = 0;
     int selectedShapeIndex = -1; // -1 表示没有选中任何形状
     int lastselectedShapeIndex = -1;

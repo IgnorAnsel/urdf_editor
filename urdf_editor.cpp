@@ -109,6 +109,7 @@ void Urdf_editor::paintGL()
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     // 更新视图矩阵
     QMatrix4x4 transform;
+    transform.translate(translation); // 应用平移
     transform.translate(0.0f, 0.0f, -zoomFactor * 15.0f);
     transform.rotate(rotationAngleX, 1.0f, 0.0f, 0.0f);
     transform.rotate(rotationAngleY, 0.0f, 1.0f, 0.0f);
@@ -196,45 +197,36 @@ void Urdf_editor::paintGL()
                     glTranslatef(localX, localY, localZ);
 
                     // 创建旋转四元数
-                    glm::quat quaternionX = glm::angleAxis(RotateR, glm::vec3(1.0f, 0.0f, 0.0f));
-                    glm::quat quaternionY = glm::angleAxis(RotateP, glm::vec3(0.0f, 1.0f, 0.0f));
-                    glm::quat quaternionZ = glm::angleAxis(RotateY, glm::vec3(0.0f, 0.0f, 1.0f));
+                    glm::quat quaternionX = glm::angleAxis((RotateR), glm::vec3(1.0f, 0.0f, 0.0f));
+                    glm::quat quaternionY = glm::angleAxis((RotateP), glm::vec3(0.0f, 1.0f, 0.0f));
+                    glm::quat quaternionZ = glm::angleAxis((RotateY), glm::vec3(0.0f, 0.0f, 1.0f));
 
                     // 合并旋转四元数
-                    glm::quat combinedQuaternion = quaternionZ * quaternionY * quaternionX;
+                    glm::quat combinedQuaternion = quaternionZ * quaternionY * quaternionX; // ZYX 顺序
 
                     // 将四元数转换为旋转矩阵
                     glm::mat4 rotationMatrix = glm::toMat4(combinedQuaternion);
 
-                    // 将旋转矩阵应用到当前矩阵堆栈
-
                     // X 轴红色
                     glPushMatrix();
-
-                    //glTranslatef(localX, localY, localZ);
                     glMultMatrixf(glm::value_ptr(rotationMatrix));
-
                     drawArrow(0, 0, 0, 2, 0, 0, Qt::red);
                     glPopMatrix();
 
                     // Y 轴绿色
                     glPushMatrix();
-
-                    glTranslatef(localX, localY, localZ);
                     glMultMatrixf(glm::value_ptr(rotationMatrix));
-
                     drawArrow(0, 0, 0, 0, 2, 0, Qt::green);
                     glPopMatrix();
 
                     // Z 轴蓝色
                     glPushMatrix();
-                    glTranslatef(localX, localY, localZ);
                     glMultMatrixf(glm::value_ptr(rotationMatrix));
-
                     drawArrow(0, 0, 0, 0, 0, 2, Qt::blue);
                     glPopMatrix();
 
                     glPopMatrix();
+
 
             }
         }
@@ -410,9 +402,6 @@ void Urdf_editor::drawArrow(float x, float y, float z, float dx, float dy, float
     drawCone(coneHeight, coneRadius, color); // 绘制圆锥
     glPopMatrix();
 }
-
-
-
 
 void Urdf_editor::drawCone(float height, float radius, QColor color)
 {
@@ -800,7 +789,9 @@ void Urdf_editor::mousePressEvent(QMouseEvent *event)
     lastMousePos = event->pos();
     float minDistance = std::numeric_limits<float>::max();
     int closestShapeIndex = -1;
-
+    if (event->button() == Qt::MiddleButton) {
+        setCursor(Qt::ClosedHandCursor); // 改变鼠标指针为手型
+    }
     // 获取鼠标点击位置
     GLint winX = event->pos().x();
     GLint winY = viewport[3] - event->pos().y(); // 注意 Y 轴的方向
@@ -829,7 +820,10 @@ void Urdf_editor::mouseMoveEvent(QMouseEvent *event)
         rotationAngleX -= dy * 180; // 绕 x 轴旋转
         rotationAngleY += dx * 180; // 绕 z 轴旋转
     }
-
+    else if (event->buttons() & Qt::MiddleButton) {
+        translation.setX(translation.x() + dx * 10.0f); // 更新平移值
+        translation.setY(translation.y() + dy * 10.0f); // 更新平移值
+    }
     lastMousePos = event->pos();
     update();
 }
@@ -837,6 +831,9 @@ void Urdf_editor::mouseMoveEvent(QMouseEvent *event)
 void Urdf_editor::mouseReleaseEvent(QMouseEvent *event)
 {
     // 处理鼠标释放事件
+    if (event->button() == Qt::MiddleButton) {
+        setCursor(Qt::ArrowCursor); // 恢复鼠标指针为箭头
+    }
 }
 
 void Urdf_editor::wheelEvent(QWheelEvent *event)

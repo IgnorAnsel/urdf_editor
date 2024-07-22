@@ -23,7 +23,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->actionSave_As, &QAction::triggered, actionHandler, &ActionHandler::saveasFile);
     connect(ui->actionExit, &QAction::triggered, actionHandler, &ActionHandler::Exit);
     connect(ui->actionBase_Setting,&QAction::triggered,actionHandler,&ActionHandler::b_setting);
-
+    connect(ui->actionMode,&QAction::triggered,this,&MainWindow::Change_Mode);
     // 创建垂直布局
     QVBoxLayout *verticalLayout = new QVBoxLayout();
     QVBoxLayout *Layout = new QVBoxLayout();
@@ -68,6 +68,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(this,&MainWindow::updateWHLRStep,urdf_editor,&Urdf_editor::updateWHLRStep);
     connect(this,&MainWindow::ShapeKind,urdf_editor,&Urdf_editor::receiveShapeKind);
     connect(urdf_editor,&Urdf_editor::KeyPress,this,&MainWindow::R_KeyPress);
+
 }
 
 MainWindow::~MainWindow()
@@ -453,6 +454,32 @@ void MainWindow::PopKey()
     if(!queue.empty())
     {
         timer->start(timeout);
+    }
+}
+
+void MainWindow::Change_Mode()
+{
+    QString path = ":/pic/";
+    if(dark_light_mode==1)
+        path = path + "light";
+    else if(dark_light_mode==0)
+        path = path + "dark";
+    else if(dark_light_mode==2)
+        path = path + "dark";
+    switch (currentMode) {
+    case Camera_MODE:
+        ui->actionMoveRotate->setEnabled(true);
+        ui->actionMode->setIcon(QIcon(path+"/Object.png"));
+        currentMode = Object_Mode;
+        break;
+    case Object_Mode:
+        currentMode = MODE_3;
+        break;
+    case MODE_3:
+        ui->actionMoveRotate->setEnabled(false);
+        ui->actionMode->setIcon(QIcon(path+"/Camera.png"));
+        currentMode = Camera_MODE;
+        break;
     }
 }
 
