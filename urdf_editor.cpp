@@ -167,73 +167,75 @@ void Urdf_editor::paintGL()
             float RotateR = shapes[selectedShapeIndex].link.visuals.origin.rpy.x();
             float RotateP = shapes[selectedShapeIndex].link.visuals.origin.rpy.y();
             float RotateY = shapes[selectedShapeIndex].link.visuals.origin.rpy.z();
-            if(MoveRotateMode == 0)
+            if (MoveRotateMode == 0)
             {
-                if (localX != 0.0 || localY != 0.0 || localZ != 0.0) {
+
                     glPushMatrix();
                     glTranslatef(localX, localY, localZ);
-                    glBegin(GL_LINES);
                     // X 轴红色
-                    glColor3f(1.0, 0.0, 0.0);
-                    glVertex3f(0.0, 0.0, 0.0);
-                    glVertex3f(20.0, 0.0, 0.0);
-                    //drawArrow(0,0,0,2,0,0,Qt::red);
-
-                    // Y 轴绿色
-                    glColor3f(0.0, 1.0, 0.0);
-                    glVertex3f(0.0, 0.0, 0.0);
-                    glVertex3f(0.0, 20.0, 0.0);
-                    //drawArrow(0,0,0,0,2,0,Qt::green);
-
-                    // Z 轴蓝色
-                    glColor3f(0.0, 0.0, 1.0);
-                    glVertex3f(0.0, 0.0, 0.0);
-                    glVertex3f(0.0, 0.0, 20.0);
-                    //drawArrow(0,0,0,0,0,2,Qt::blue);
-
                     glEnd();
+                    drawArrow(0,0,0,2,0,0,Qt::red);
                     glPopMatrix();
-                }
+                    // Y 轴绿色
+                    glPushMatrix();
+                    glTranslatef(localX, localY, localZ);
+                    glEnd();
+                    drawArrow(0,0,0,0,2,0,Qt::green);
+                    glPopMatrix();
+                    glPushMatrix();
+                    glTranslatef(localX, localY, localZ);
+                    // Z 轴蓝色
+                    glEnd();
+                    drawArrow(0,0,0,0,0,2,Qt::blue);
+                    glPopMatrix();
             }
+
             else if(MoveRotateMode==1)
             {
-                glPushMatrix();
-                glTranslatef(localX, localY, localZ);
+                    glPushMatrix();
+                    glTranslatef(localX, localY, localZ);
 
-                // 创建旋转四元数
-                glm::quat quaternionX = glm::angleAxis(RotateR, glm::vec3(1.0f, 0.0f, 0.0f));
-                glm::quat quaternionY = glm::angleAxis(RotateP, glm::vec3(0.0f, 1.0f, 0.0f));
-                glm::quat quaternionZ = glm::angleAxis(RotateY, glm::vec3(0.0f, 0.0f, 1.0f));
+                    // 创建旋转四元数
+                    glm::quat quaternionX = glm::angleAxis(RotateR, glm::vec3(1.0f, 0.0f, 0.0f));
+                    glm::quat quaternionY = glm::angleAxis(RotateP, glm::vec3(0.0f, 1.0f, 0.0f));
+                    glm::quat quaternionZ = glm::angleAxis(RotateY, glm::vec3(0.0f, 0.0f, 1.0f));
 
-                // 合并旋转四元数
-                glm::quat combinedQuaternion = quaternionZ * quaternionY * quaternionX;
+                    // 合并旋转四元数
+                    glm::quat combinedQuaternion = quaternionZ * quaternionY * quaternionX;
 
-                // 将四元数转换为旋转矩阵
-                glm::mat4 rotationMatrix = glm::toMat4(combinedQuaternion);
+                    // 将四元数转换为旋转矩阵
+                    glm::mat4 rotationMatrix = glm::toMat4(combinedQuaternion);
 
-                // 将旋转矩阵应用到当前矩阵堆栈
-                glMultMatrixf(glm::value_ptr(rotationMatrix));
+                    // 将旋转矩阵应用到当前矩阵堆栈
 
-                // 绘制坐标轴
-                glBegin(GL_LINES);
+                    // X 轴红色
+                    glPushMatrix();
 
-                // X 轴红色
-                glColor3f(1.0, 0.0, 0.0);
-                glVertex3f(0.0f, 0.0f, 0.0f);
-                glVertex3f(20.0f, 0.0f, 0.0f); // 加长坐标轴
+                    //glTranslatef(localX, localY, localZ);
+                    glMultMatrixf(glm::value_ptr(rotationMatrix));
 
-                // Y 轴绿色
-                glColor3f(0.0, 1.0, 0.0);
-                glVertex3f(0.0f, 0.0f, 0.0f);
-                glVertex3f(0.0f, 20.0f, 0.0f); // 加长坐标轴
+                    drawArrow(0, 0, 0, 2, 0, 0, Qt::red);
+                    glPopMatrix();
 
-                // Z 轴蓝色
-                glColor3f(0.0, 0.0, 1.0);
-                glVertex3f(0.0f, 0.0f, 0.0f);
-                glVertex3f(0.0f, 0.0f, 20.0f); // 加长坐标轴
+                    // Y 轴绿色
+                    glPushMatrix();
 
-                glEnd();
-                glPopMatrix();
+                    glTranslatef(localX, localY, localZ);
+                    glMultMatrixf(glm::value_ptr(rotationMatrix));
+
+                    drawArrow(0, 0, 0, 0, 2, 0, Qt::green);
+                    glPopMatrix();
+
+                    // Z 轴蓝色
+                    glPushMatrix();
+                    glTranslatef(localX, localY, localZ);
+                    glMultMatrixf(glm::value_ptr(rotationMatrix));
+
+                    drawArrow(0, 0, 0, 0, 0, 2, Qt::blue);
+                    glPopMatrix();
+
+                    glPopMatrix();
+
             }
         }
         renderShape(shapes[i]); // 渲染每个形状
