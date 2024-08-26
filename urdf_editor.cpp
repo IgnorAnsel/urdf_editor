@@ -87,7 +87,23 @@ void Urdf_editor::set_set_selectedShapeIndex_f1()
 void Urdf_editor::initializeGL()
 {
     initializeOpenGLFunctions();
+    bool success = m_shaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/shapes.vert");
+    if (!success) {
+        qDebug() << "Vertex Shader Error: " << m_shaderProgram.log();
+    }
+
+    success = m_shaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/shapes.frag");
+    if (!success) {
+        qDebug() << "Fragment Shader Error: " << m_shaderProgram.log();
+    }
+
+    success = m_shaderProgram.link();
+    if (!success) {
+        qDebug() << "Shader Program Link Error: " << m_shaderProgram.log();
+    }
+
     glEnable(GL_DEPTH_TEST);
+    glDisable(GL_CULL_FACE);  // 禁用面剔除，确保所有面都被渲染
     glClearColor(0.5f, 0.5f, 0.5f, 1.0f); // 设置背景颜色为灰色
 }
 void Urdf_editor::resizeGL(int w, int h)
@@ -239,53 +255,140 @@ void Urdf_editor::paintGL()
     glGetIntegerv(GL_VIEWPORT, viewport);
 }
 
+//void Urdf_editor::drawCube(const Shape &shape)
+//{
+//    // 设置颜色
+//    glColor3f(shape.link.visuals.color.redF(), shape.link.visuals.color.greenF(), shape.link.visuals.color.blueF());
+
+//    QVector3D size = shape.link.visuals.geometry.box.size;
+
+//    glBegin(GL_QUADS);
+
+//    // Front face
+//    glVertex3f(-size.x() / 2, -size.y() / 2, size.z() / 2);
+//    glVertex3f(size.x() / 2, -size.y() / 2, size.z() / 2);
+//    glVertex3f(size.x() / 2, size.y() / 2, size.z() / 2);
+//    glVertex3f(-size.x() / 2, size.y() / 2, size.z() / 2);
+
+//    // Back face
+//    glVertex3f(-size.x() / 2, -size.y() / 2, -size.z() / 2);
+//    glVertex3f(-size.x() / 2, size.y() / 2, -size.z() / 2);
+//    glVertex3f(size.x() / 2, size.y() / 2, -size.z() / 2);
+//    glVertex3f(size.x() / 2, -size.y() / 2, -size.z() / 2);
+
+//    // Top face
+//    glVertex3f(-size.x() / 2, size.y() / 2, -size.z() / 2);
+//    glVertex3f(-size.x() / 2, size.y() / 2, size.z() / 2);
+//    glVertex3f(size.x() / 2, size.y() / 2, size.z() / 2);
+//    glVertex3f(size.x() / 2, size.y() / 2, -size.z() / 2);
+
+//    // Bottom face
+//    glVertex3f(-size.x() / 2, -size.y() / 2, -size.z() / 2);
+//    glVertex3f(size.x() / 2, -size.y() / 2, -size.z() / 2);
+//    glVertex3f(size.x() / 2, -size.y() / 2, size.z() / 2);
+//    glVertex3f(-size.x() / 2, -size.y() / 2, size.z() / 2);
+
+//    // Right face
+//    glVertex3f(size.x() / 2, -size.y() / 2, -size.z() / 2);
+//    glVertex3f(size.x() / 2, size.y() / 2, -size.z() / 2);
+//    glVertex3f(size.x() / 2, size.y() / 2, size.z() / 2);
+//    glVertex3f(size.x() / 2, -size.y() / 2, size.z() / 2);
+
+//    // Left face
+//    glVertex3f(-size.x() / 2, -size.y() / 2, -size.z() / 2);
+//    glVertex3f(-size.x() / 2, -size.y() / 2, size.z() / 2);
+//    glVertex3f(-size.x() / 2, size.y() / 2, size.z() / 2);
+//    glVertex3f(-size.x() / 2, size.y() / 2, -size.z() / 2);
+
+//    glEnd();
+//}
 void Urdf_editor::drawCube(const Shape &shape)
 {
-    // 设置颜色
-    glColor3f(shape.link.visuals.color.redF(), shape.link.visuals.color.greenF(), shape.link.visuals.color.blueF());
-
+    // 设置顶点和颜色数据
     QVector3D size = shape.link.visuals.geometry.box.size;
+    QVector3D color = QVector3D(shape.link.visuals.color.redF(), shape.link.visuals.color.greenF(), shape.link.visuals.color.blueF());
 
-    glBegin(GL_QUADS);
+    GLfloat vertices[] = {
+        // Positions          // Colors
+        -size.x() / 2, -size.y() / 2,  size.z() / 2,  color.x(), color.y(), color.z(), // Front face
+        size.x() / 2, -size.y() / 2,  size.z() / 2,  color.x(), color.y(), color.z(),
+        size.x() / 2,  size.y() / 2,  size.z() / 2,  color.x(), color.y(), color.z(),
+        -size.x() / 2,  size.y() / 2,  size.z() / 2,  color.x(), color.y(), color.z(),
+        -size.x() / 2, -size.y() / 2, -size.z() / 2,  color.x(), color.y(), color.z(), // Back face
+        size.x() / 2, -size.y() / 2, -size.z() / 2,  color.x(), color.y(), color.z(),
+        size.x() / 2,  size.y() / 2, -size.z() / 2,  color.x(), color.y(), color.z(),
+        -size.x() / 2,  size.y() / 2, -size.z() / 2,  color.x(), color.y(), color.z(),
+    };
 
-    // Front face
-    glVertex3f(-size.x() / 2, -size.y() / 2, size.z() / 2);
-    glVertex3f(size.x() / 2, -size.y() / 2, size.z() / 2);
-    glVertex3f(size.x() / 2, size.y() / 2, size.z() / 2);
-    glVertex3f(-size.x() / 2, size.y() / 2, size.z() / 2);
+    GLuint indices[] = {
+        0, 1, 2, 2, 3, 0, // Front face
+        4, 5, 6, 6, 7, 4, // Back face
+        0, 4, 7, 7, 3, 0, // Left face
+        1, 5, 6, 6, 2, 1, // Right face
+        0, 1, 5, 5, 4, 0, // Bottom face
+        3, 2, 6, 6, 7, 3  // Top face
+    };
 
-    // Back face
-    glVertex3f(-size.x() / 2, -size.y() / 2, -size.z() / 2);
-    glVertex3f(-size.x() / 2, size.y() / 2, -size.z() / 2);
-    glVertex3f(size.x() / 2, size.y() / 2, -size.z() / 2);
-    glVertex3f(size.x() / 2, -size.y() / 2, -size.z() / 2);
+    //
+    m_shaderProgram.bind();
+    GLenum error = glGetError();
+    if (error != GL_NO_ERROR) {
+        qDebug() << "OpenGL Error after binding shader program: " << error;
+    }
 
-    // Top face
-    glVertex3f(-size.x() / 2, size.y() / 2, -size.z() / 2);
-    glVertex3f(-size.x() / 2, size.y() / 2, size.z() / 2);
-    glVertex3f(size.x() / 2, size.y() / 2, size.z() / 2);
-    glVertex3f(size.x() / 2, size.y() / 2, -size.z() / 2);
+    //
+    // 创建 VAO
+    GLuint VAO, VBO, EBO;
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+    glGenBuffers(1, &EBO);
 
-    // Bottom face
-    glVertex3f(-size.x() / 2, -size.y() / 2, -size.z() / 2);
-    glVertex3f(size.x() / 2, -size.y() / 2, -size.z() / 2);
-    glVertex3f(size.x() / 2, -size.y() / 2, size.z() / 2);
-    glVertex3f(-size.x() / 2, -size.y() / 2, size.z() / 2);
+    glBindVertexArray(VAO);
 
-    // Right face
-    glVertex3f(size.x() / 2, -size.y() / 2, -size.z() / 2);
-    glVertex3f(size.x() / 2, size.y() / 2, -size.z() / 2);
-    glVertex3f(size.x() / 2, size.y() / 2, size.z() / 2);
-    glVertex3f(size.x() / 2, -size.y() / 2, size.z() / 2);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
 
-    // Left face
-    glVertex3f(-size.x() / 2, -size.y() / 2, -size.z() / 2);
-    glVertex3f(-size.x() / 2, -size.y() / 2, size.z() / 2);
-    glVertex3f(-size.x() / 2, size.y() / 2, size.z() / 2);
-    glVertex3f(-size.x() / 2, size.y() / 2, -size.z() / 2);
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_DYNAMIC_DRAW);
 
-    glEnd();
+    // 设置顶点属性指针
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);
+    glEnableVertexAttribArray(0);
+
+    // 设置颜色属性指针
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+    glEnableVertexAttribArray(1);
+
+    glBindVertexArray(0);
+
+
+    // 传递变换矩阵
+    QMatrix4x4 model;
+    model.setToIdentity();
+    m_shaderProgram.setUniformValue("model", model);
+    m_shaderProgram.setUniformValue("view", viewMatrix);       // m_viewMatrix 是相机视图矩阵
+    QMatrix4x4 projMatrix(
+        projectionMatrix[0], projectionMatrix[1], projectionMatrix[2], projectionMatrix[3],
+        projectionMatrix[4], projectionMatrix[5], projectionMatrix[6], projectionMatrix[7],
+        projectionMatrix[8], projectionMatrix[9], projectionMatrix[10], projectionMatrix[11],
+        projectionMatrix[12], projectionMatrix[13], projectionMatrix[14], projectionMatrix[15]
+        );
+    m_shaderProgram.setUniformValue("projection", projMatrix); // m_projMatrix 是投影矩阵
+
+    // 绘制立方体
+    glBindVertexArray(VAO);
+    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
+
+    // 解绑着色器程序
+    m_shaderProgram.release();
+
+    // 清理资源
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
+    glDeleteBuffers(1, &EBO);
 }
+
 inline double Urdf_editor::radiansToDegrees(double radians) {
     return radians * (180.0 / M_PI);
 }

@@ -21,7 +21,7 @@
        <enum>Qt::Horizontal</enum>
       </property>
       <widget class="QWidget" name="widget_3" native="true"/>
-      <widget class="QOpenGLWidget" name="widget">
+      <widget class="Urdf_editor" name="widget">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
          <horstretch>2</horstretch>
@@ -298,6 +298,13 @@
    </property>
   </action>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Urdf_editor</class>
+   <extends>QOpenGLWidget</extends>
+   <header>../../../urdf_editor/urdf_editor.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="res.qrc"/>
  </resources>

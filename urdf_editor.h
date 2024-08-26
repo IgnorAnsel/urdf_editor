@@ -3,6 +3,8 @@
 
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions>
+#include <QOpenGLFunctions_4_5_Core>
+#include <QOpenGLShaderProgram>
 #include <QMatrix4x4>
 #include <QMouseEvent>
 #include <QWheelEvent>
@@ -18,7 +20,7 @@
 
 extern std::vector<Shape> shapes;
 extern std::vector<URDFJoint> joints;
-class Urdf_editor : public QOpenGLWidget, protected QOpenGLFunctions
+class Urdf_editor : public QOpenGLWidget, QOpenGLFunctions_4_5_Core
 {
     Q_OBJECT
 public:
@@ -61,7 +63,7 @@ protected:
     void keyReleaseEvent(QKeyEvent *event) override;
 private:
     QVector3D translation = QVector3D(0,0,0); // 平移变量
-
+    QOpenGLShaderProgram m_shaderProgram;
     bool MoveRotateMode = 0;
     int selectedShapeIndex = -1; // -1 表示没有选中任何形状
     int lastselectedShapeIndex = -1;
@@ -84,6 +86,7 @@ private:
     Shape cylinder;
     Shape currentShape;
     GLdouble projectionMatrix[16];
+
     GLdouble modelviewMatrix[16];
     GLint viewport[4];
     QColor precolor;
