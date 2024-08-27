@@ -171,7 +171,7 @@ void Urdf_editor::paintGL()
 
     // 绘制背景网格
     glDisable(GL_DEPTH_TEST); // 禁用深度测试，确保网格总是在最底层
-    drawGrid(20.0f, 1.0f);   // 调用绘制网格的函数，网格大小为100，步长为1
+    drawGrid(10.0f, 1.0f);   // 调用绘制网格的函数，网格大小为100，步长为1
     //drawPlane(10,10,1);
     glEnable(GL_DEPTH_TEST);  // 重新启用深度测试
 
@@ -231,6 +231,88 @@ void Urdf_editor::paintGL()
 //    glVertex3f(-size.x() / 2, size.y() / 2, size.z() / 2);
 //    glVertex3f(-size.x() / 2, size.y() / 2, -size.z() / 2);
 
+//    glEnd();
+//}
+//void Urdf_editor::drawSphere(const Shape &shape)
+//{
+//    // 设置颜色
+//    glColor3f(shape.link.visuals.color.redF(), shape.link.visuals.color.greenF(), shape.link.visuals.color.blueF());
+
+//    double radius = shape.link.visuals.geometry.sphere.radius;
+//    const int slices = 30;
+//    const int stacks = 30;
+
+//    for (int i = 0; i <= stacks; ++i)
+//    {
+//        double lat0 = M_PI * (-0.5 + (double)(i - 1) / stacks);
+//        double z0 = sin(lat0);
+//        double zr0 = cos(lat0);
+
+//        double lat1 = M_PI * (-0.5 + (double)i / stacks);
+//        double z1 = sin(lat1);
+//        double zr1 = cos(lat1);
+
+//        glBegin(GL_QUAD_STRIP);
+//        for (int j = 0; j <= slices; ++j)
+//        {
+//            double lng = 2 * M_PI * (double)(j - 1) / slices;
+//            double x = cos(lng);
+//            double y = sin(lng);
+
+//            glNormal3d(x * zr0, y * zr0, z0);
+//            glVertex3d(x * zr0 * radius, y * zr0 * radius, z0 * radius);
+
+//            glNormal3d(x * zr1, y * zr1, z1);
+//            glVertex3d(x * zr1 * radius, y * zr1 * radius, z1 * radius);
+//        }
+//        glEnd();
+//    }
+//}
+//void Urdf_editor::drawCylinder(const Shape &shape)
+//{
+//    // 设置颜色
+//    glColor3f(shape.link.visuals.color.redF(), shape.link.visuals.color.greenF(), shape.link.visuals.color.blueF());
+
+//    double radius = shape.link.visuals.geometry.cylinder.radius;
+//    double height = shape.link.visuals.geometry.cylinder.length;
+//    const int slices = 30;
+//    double halfHeight = height / 2.0;
+
+//    // 绘制圆柱体的底面
+//    glBegin(GL_TRIANGLE_FAN);
+//    glVertex3f(0.0f, 0.0f, -halfHeight);
+//    for (int i = 0; i <= slices; ++i)
+//    {
+//        double angle = 2.0 * M_PI * i / slices;
+//        double x = radius * cos(angle);
+//        double y = radius * sin(angle);
+//        glVertex3f(x, y, -halfHeight);
+//    }
+//    glEnd();
+
+//    // 绘制圆柱体的顶面
+//    glBegin(GL_TRIANGLE_FAN);
+//    glVertex3f(0.0f, 0.0f, halfHeight);
+//    for (int i = 0; i <= slices; ++i)
+//    {
+//        double angle = 2.0 * M_PI * i / slices;
+//        double x = radius * cos(angle);
+//        double y = radius * sin(angle);
+//        glVertex3f(x, y, halfHeight);
+//    }
+//    glEnd();
+
+//    // 绘制圆柱体的侧面
+//    glBegin(GL_QUAD_STRIP);
+//    for (int i = 0; i <= slices; ++i)
+//    {
+//        double angle = 2.0 * M_PI * i / slices;
+//        double x = radius * cos(angle);
+//        double y = radius * sin(angle);
+//        glNormal3f(x, y, 0.0f);
+//        glVertex3f(x, y, -halfHeight);
+//        glVertex3f(x, y, halfHeight);
+//    }
 //    glEnd();
 //}
 void Urdf_editor::drawCube(const Shape &shape)
@@ -302,94 +384,231 @@ void Urdf_editor::drawCube(const Shape &shape)
     glDeleteBuffers(1, &EBO);
 }
 
-
-
 inline double Urdf_editor::radiansToDegrees(double radians) {
     return radians * (180.0 / M_PI);
 }
+
 void Urdf_editor::drawSphere(const Shape &shape)
 {
-    // 设置颜色
-    glColor3f(shape.link.visuals.color.redF(), shape.link.visuals.color.greenF(), shape.link.visuals.color.blueF());
-
+    // 提取颜色和半径
+    QVector3D color = QVector3D(shape.link.visuals.color.redF(), shape.link.visuals.color.greenF(), shape.link.visuals.color.blueF());
     double radius = shape.link.visuals.geometry.sphere.radius;
-    const int slices = 30;
-    const int stacks = 30;
+    const int slices = 30;  // 经度方向的切片数
+    const int stacks = 30;  // 纬度方向的切片数
 
+    std::vector<GLfloat> vertices;
+    std::vector<GLuint> indices;
+
+    // 计算球体顶点和索引
     for (int i = 0; i <= stacks; ++i)
     {
-        double lat0 = M_PI * (-0.5 + (double)(i - 1) / stacks);
-        double z0 = sin(lat0);
-        double zr0 = cos(lat0);
+        double lat = M_PI * (-0.5 + (double)i / stacks);  // 纬度从 -π/2 到 π/2
+        double z = sin(lat) * radius;
+        double zr = cos(lat) * radius;
 
-        double lat1 = M_PI * (-0.5 + (double)i / stacks);
-        double z1 = sin(lat1);
-        double zr1 = cos(lat1);
-
-        glBegin(GL_QUAD_STRIP);
         for (int j = 0; j <= slices; ++j)
         {
-            double lng = 2 * M_PI * (double)(j - 1) / slices;
-            double x = cos(lng);
-            double y = sin(lng);
+            double lng = 2 * M_PI * (double)j / slices;  // 经度从 0 到 2π
+            double x = cos(lng) * zr;
+            double y = sin(lng) * zr;
 
-            glNormal3d(x * zr0, y * zr0, z0);
-            glVertex3d(x * zr0 * radius, y * zr0 * radius, z0 * radius);
-
-            glNormal3d(x * zr1, y * zr1, z1);
-            glVertex3d(x * zr1 * radius, y * zr1 * radius, z1 * radius);
+            vertices.push_back(x);
+            vertices.push_back(y);
+            vertices.push_back(z);
+            vertices.push_back(color.x());
+            vertices.push_back(color.y());
+            vertices.push_back(color.z());
         }
-        glEnd();
     }
+
+    // 生成索引数据
+    for (int i = 0; i < stacks; ++i)
+    {
+        for (int j = 0; j < slices; ++j)
+        {
+            int first = (i * (slices + 1)) + j;
+            int second = first + slices + 1;
+
+            indices.push_back(first);
+            indices.push_back(second);
+            indices.push_back(first + 1);
+
+            indices.push_back(second);
+            indices.push_back(second + 1);
+            indices.push_back(first + 1);
+        }
+    }
+
+    // 生成和绑定VAO、VBO和EBO
+    GLuint VAO, VBO, EBO;
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+    glGenBuffers(1, &EBO);
+
+    glBindVertexArray(VAO);
+
+    // 绑定顶点数据到VBO
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), vertices.data(), GL_DYNAMIC_DRAW);
+
+    // 绑定索引数据到EBO
+    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), indices.data(), GL_DYNAMIC_DRAW);
+
+    // 设置顶点属性指针
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);
+    glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+    glEnableVertexAttribArray(1);
+
+    glBindVertexArray(0);
+
+    // 绑定着色器程序并传递变换矩阵
+    m_shaderProgram.bind();
+    m_shaderProgram.setUniformValue("useUniformColor", false);
+
+    QMatrix4x4 model;
+    model.setToIdentity();
+    m_shaderProgram.setUniformValue("model", model);
+    m_shaderProgram.setUniformValue("view", viewMatrix);
+    m_shaderProgram.setUniformValue("projection", projection);
+
+    // 绘制球体
+    glBindVertexArray(VAO);
+    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+    glBindVertexArray(0);
+
+    m_shaderProgram.release();
+
+    // 清理资源
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
+    glDeleteBuffers(1, &EBO);
 }
+
 
 void Urdf_editor::drawCylinder(const Shape &shape)
 {
-    // 设置颜色
-    glColor3f(shape.link.visuals.color.redF(), shape.link.visuals.color.greenF(), shape.link.visuals.color.blueF());
-
+    // 提取颜色、半径和高度
+    QVector3D color = QVector3D(shape.link.visuals.color.redF(), shape.link.visuals.color.greenF(), shape.link.visuals.color.blueF());
     double radius = shape.link.visuals.geometry.cylinder.radius;
     double height = shape.link.visuals.geometry.cylinder.length;
     const int slices = 30;
     double halfHeight = height / 2.0;
 
-    // 绘制圆柱体的底面
-    glBegin(GL_TRIANGLE_FAN);
-    glVertex3f(0.0f, 0.0f, -halfHeight);
-    for (int i = 0; i <= slices; ++i)
-    {
-        double angle = 2.0 * M_PI * i / slices;
-        double x = radius * cos(angle);
-        double y = radius * sin(angle);
-        glVertex3f(x, y, -halfHeight);
-    }
-    glEnd();
+    std::vector<GLfloat> vertices;
 
-    // 绘制圆柱体的顶面
-    glBegin(GL_TRIANGLE_FAN);
-    glVertex3f(0.0f, 0.0f, halfHeight);
-    for (int i = 0; i <= slices; ++i)
-    {
-        double angle = 2.0 * M_PI * i / slices;
-        double x = radius * cos(angle);
-        double y = radius * sin(angle);
-        glVertex3f(x, y, halfHeight);
-    }
-    glEnd();
+    // 计算底面顶点
+    vertices.push_back(0.0f);
+    vertices.push_back(0.0f);
+    vertices.push_back(-halfHeight);
+    vertices.push_back(color.x());
+    vertices.push_back(color.y());
+    vertices.push_back(color.z());
 
-    // 绘制圆柱体的侧面
-    glBegin(GL_QUAD_STRIP);
     for (int i = 0; i <= slices; ++i)
     {
         double angle = 2.0 * M_PI * i / slices;
         double x = radius * cos(angle);
         double y = radius * sin(angle);
-        glNormal3f(x, y, 0.0f);
-        glVertex3f(x, y, -halfHeight);
-        glVertex3f(x, y, halfHeight);
+        vertices.push_back(x);
+        vertices.push_back(y);
+        vertices.push_back(-halfHeight);
+        vertices.push_back(color.x());
+        vertices.push_back(color.y());
+        vertices.push_back(color.z());
     }
-    glEnd();
+
+    // 计算顶面顶点
+    vertices.push_back(0.0f);
+    vertices.push_back(0.0f);
+    vertices.push_back(halfHeight);
+    vertices.push_back(color.x());
+    vertices.push_back(color.y());
+    vertices.push_back(color.z());
+
+    for (int i = 0; i <= slices; ++i)
+    {
+        double angle = 2.0 * M_PI * i / slices;
+        double x = radius * cos(angle);
+        double y = radius * sin(angle);
+        vertices.push_back(x);
+        vertices.push_back(y);
+        vertices.push_back(halfHeight);
+        vertices.push_back(color.x());
+        vertices.push_back(color.y());
+        vertices.push_back(color.z());
+    }
+
+    // 计算侧面顶点
+    for (int i = 0; i <= slices; ++i)
+    {
+        double angle = 2.0 * M_PI * i / slices;
+        double x = radius * cos(angle);
+        double y = radius * sin(angle);
+        vertices.push_back(x);
+        vertices.push_back(y);
+        vertices.push_back(-halfHeight);
+        vertices.push_back(color.x());
+        vertices.push_back(color.y());
+        vertices.push_back(color.z());
+
+        vertices.push_back(x);
+        vertices.push_back(y);
+        vertices.push_back(halfHeight);
+        vertices.push_back(color.x());
+        vertices.push_back(color.y());
+        vertices.push_back(color.z());
+    }
+
+    // 生成和绑定VAO、VBO
+    GLuint VAO, VBO;
+    glGenVertexArrays(1, &VAO);
+    glGenBuffers(1, &VBO);
+
+    // 绑定VAO
+    glBindVertexArray(VAO);
+
+    // 绑定顶点数据到VBO
+    glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), vertices.data(), GL_DYNAMIC_DRAW);
+
+    // 绑定VBO到VAO并设置顶点属性指针
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);
+    glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 *sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+    glEnableVertexAttribArray(1);
+
+    // 解绑VAO（在绘制之前，可以解除绑定）
+    glBindVertexArray(0);
+
+    // 绑定着色器程序并传递变换矩阵
+    m_shaderProgram.bind();
+    m_shaderProgram.setUniformValue("useUniformColor", false); // 使用顶点颜色
+
+    QMatrix4x4 model;
+    model.setToIdentity();  // 设置模型矩阵为单位矩阵
+    m_shaderProgram.setUniformValue("model", model);
+    m_shaderProgram.setUniformValue("view", viewMatrix);  // 设置视图矩阵
+    m_shaderProgram.setUniformValue("projection", projection);  // 设置投影矩阵
+
+    // 重新绑定VAO并绘制
+    glBindVertexArray(VAO);
+    glDrawArrays(GL_TRIANGLE_FAN, 0, slices + 2); // 绘制底面
+    glDrawArrays(GL_TRIANGLE_FAN, slices + 2, slices + 2); // 绘制顶面
+    glDrawArrays(GL_QUAD_STRIP, 2 * (slices + 2), 2 * (slices + 1)); // 绘制侧面
+
+    glBindVertexArray(0); // 解除VAO绑定
+
+    m_shaderProgram.release();  // 释放着色器程序
+
+    // 清理资源
+    glDeleteVertexArrays(1, &VAO);
+    glDeleteBuffers(1, &VBO);
 }
+
 
 void Urdf_editor::drawArrow(float x, float y, float z, float dx, float dy, float dz, QColor color)
 {
