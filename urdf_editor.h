@@ -54,9 +54,9 @@ protected:
     void wheelEvent(QWheelEvent *event) override;
     void dragEnterEvent(QDragEnterEvent *event) override;
     void dropEvent(QDropEvent *event) override;
-    void drawCube(const Shape &shape);
-    void drawSphere(const Shape &shape);
-    void drawCylinder(const Shape &shape);
+    void drawCube(const Shape &shape, QMatrix4x4 model);
+    void drawSphere(const Shape &shape, QMatrix4x4 model);
+    void drawCylinder(const Shape &shape, QMatrix4x4 model);
     void drawArrow(float x, float y, float z, float dx, float dy, float dz, QColor color);
     void drawCone(float height, float radius, QColor color);
     void keyPressEvent(QKeyEvent *event) override;

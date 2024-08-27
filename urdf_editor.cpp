@@ -165,14 +165,13 @@ void Urdf_editor::paintGL()
     viewMatrix.lookAt(eye, center, up);
     viewMatrix *= transform;
 
-
     m_shaderProgram.bind();
     m_shaderProgram.setUniformValue("view", viewMatrix);
+    m_shaderProgram.setUniformValue("projection", projection);  // 如果需要
 
     // 绘制背景网格
     glDisable(GL_DEPTH_TEST); // 禁用深度测试，确保网格总是在最底层
     drawGrid(10.0f, 1.0f);   // 调用绘制网格的函数，网格大小为100，步长为1
-    //drawPlane(10,10,1);
     glEnable(GL_DEPTH_TEST);  // 重新启用深度测试
 
     // 渲染坐标轴
@@ -181,141 +180,9 @@ void Urdf_editor::paintGL()
     // 渲染形状
     renderShapes();
     m_shaderProgram.release();
-
 }
 
-
-
-//void Urdf_editor::drawCube(const Shape &shape)
-//{
-//    // 设置颜色
-//    glColor3f(shape.link.visuals.color.redF(), shape.link.visuals.color.greenF(), shape.link.visuals.color.blueF());
-
-//    QVector3D size = shape.link.visuals.geometry.box.size;
-
-//    glBegin(GL_QUADS);
-
-//    // Front face
-//    glVertex3f(-size.x() / 2, -size.y() / 2, size.z() / 2);
-//    glVertex3f(size.x() / 2, -size.y() / 2, size.z() / 2);
-//    glVertex3f(size.x() / 2, size.y() / 2, size.z() / 2);
-//    glVertex3f(-size.x() / 2, size.y() / 2, size.z() / 2);
-
-//    // Back face
-//    glVertex3f(-size.x() / 2, -size.y() / 2, -size.z() / 2);
-//    glVertex3f(-size.x() / 2, size.y() / 2, -size.z() / 2);
-//    glVertex3f(size.x() / 2, size.y() / 2, -size.z() / 2);
-//    glVertex3f(size.x() / 2, -size.y() / 2, -size.z() / 2);
-
-//    // Top face
-//    glVertex3f(-size.x() / 2, size.y() / 2, -size.z() / 2);
-//    glVertex3f(-size.x() / 2, size.y() / 2, size.z() / 2);
-//    glVertex3f(size.x() / 2, size.y() / 2, size.z() / 2);
-//    glVertex3f(size.x() / 2, size.y() / 2, -size.z() / 2);
-
-//    // Bottom face
-//    glVertex3f(-size.x() / 2, -size.y() / 2, -size.z() / 2);
-//    glVertex3f(size.x() / 2, -size.y() / 2, -size.z() / 2);
-//    glVertex3f(size.x() / 2, -size.y() / 2, size.z() / 2);
-//    glVertex3f(-size.x() / 2, -size.y() / 2, size.z() / 2);
-
-//    // Right face
-//    glVertex3f(size.x() / 2, -size.y() / 2, -size.z() / 2);
-//    glVertex3f(size.x() / 2, size.y() / 2, -size.z() / 2);
-//    glVertex3f(size.x() / 2, size.y() / 2, size.z() / 2);
-//    glVertex3f(size.x() / 2, -size.y() / 2, size.z() / 2);
-
-//    // Left face
-//    glVertex3f(-size.x() / 2, -size.y() / 2, -size.z() / 2);
-//    glVertex3f(-size.x() / 2, -size.y() / 2, size.z() / 2);
-//    glVertex3f(-size.x() / 2, size.y() / 2, size.z() / 2);
-//    glVertex3f(-size.x() / 2, size.y() / 2, -size.z() / 2);
-
-//    glEnd();
-//}
-//void Urdf_editor::drawSphere(const Shape &shape)
-//{
-//    // 设置颜色
-//    glColor3f(shape.link.visuals.color.redF(), shape.link.visuals.color.greenF(), shape.link.visuals.color.blueF());
-
-//    double radius = shape.link.visuals.geometry.sphere.radius;
-//    const int slices = 30;
-//    const int stacks = 30;
-
-//    for (int i = 0; i <= stacks; ++i)
-//    {
-//        double lat0 = M_PI * (-0.5 + (double)(i - 1) / stacks);
-//        double z0 = sin(lat0);
-//        double zr0 = cos(lat0);
-
-//        double lat1 = M_PI * (-0.5 + (double)i / stacks);
-//        double z1 = sin(lat1);
-//        double zr1 = cos(lat1);
-
-//        glBegin(GL_QUAD_STRIP);
-//        for (int j = 0; j <= slices; ++j)
-//        {
-//            double lng = 2 * M_PI * (double)(j - 1) / slices;
-//            double x = cos(lng);
-//            double y = sin(lng);
-
-//            glNormal3d(x * zr0, y * zr0, z0);
-//            glVertex3d(x * zr0 * radius, y * zr0 * radius, z0 * radius);
-
-//            glNormal3d(x * zr1, y * zr1, z1);
-//            glVertex3d(x * zr1 * radius, y * zr1 * radius, z1 * radius);
-//        }
-//        glEnd();
-//    }
-//}
-//void Urdf_editor::drawCylinder(const Shape &shape)
-//{
-//    // 设置颜色
-//    glColor3f(shape.link.visuals.color.redF(), shape.link.visuals.color.greenF(), shape.link.visuals.color.blueF());
-
-//    double radius = shape.link.visuals.geometry.cylinder.radius;
-//    double height = shape.link.visuals.geometry.cylinder.length;
-//    const int slices = 30;
-//    double halfHeight = height / 2.0;
-
-//    // 绘制圆柱体的底面
-//    glBegin(GL_TRIANGLE_FAN);
-//    glVertex3f(0.0f, 0.0f, -halfHeight);
-//    for (int i = 0; i <= slices; ++i)
-//    {
-//        double angle = 2.0 * M_PI * i / slices;
-//        double x = radius * cos(angle);
-//        double y = radius * sin(angle);
-//        glVertex3f(x, y, -halfHeight);
-//    }
-//    glEnd();
-
-//    // 绘制圆柱体的顶面
-//    glBegin(GL_TRIANGLE_FAN);
-//    glVertex3f(0.0f, 0.0f, halfHeight);
-//    for (int i = 0; i <= slices; ++i)
-//    {
-//        double angle = 2.0 * M_PI * i / slices;
-//        double x = radius * cos(angle);
-//        double y = radius * sin(angle);
-//        glVertex3f(x, y, halfHeight);
-//    }
-//    glEnd();
-
-//    // 绘制圆柱体的侧面
-//    glBegin(GL_QUAD_STRIP);
-//    for (int i = 0; i <= slices; ++i)
-//    {
-//        double angle = 2.0 * M_PI * i / slices;
-//        double x = radius * cos(angle);
-//        double y = radius * sin(angle);
-//        glNormal3f(x, y, 0.0f);
-//        glVertex3f(x, y, -halfHeight);
-//        glVertex3f(x, y, halfHeight);
-//    }
-//    glEnd();
-//}
-void Urdf_editor::drawCube(const Shape &shape)
+void Urdf_editor::drawCube(const Shape &shape, QMatrix4x4 model)
 {
     // 设置顶点和颜色数据
     QVector3D size = shape.link.visuals.geometry.box.size;
@@ -366,8 +233,6 @@ void Urdf_editor::drawCube(const Shape &shape)
     m_shaderProgram.bind();
     m_shaderProgram.setUniformValue("useUniformColor", false); // 使用顶点颜色
 
-    QMatrix4x4 model;
-    model.setToIdentity();
     m_shaderProgram.setUniformValue("model", model);
     m_shaderProgram.setUniformValue("view", viewMatrix);
     m_shaderProgram.setUniformValue("projection", projection);
@@ -388,7 +253,7 @@ inline double Urdf_editor::radiansToDegrees(double radians) {
     return radians * (180.0 / M_PI);
 }
 
-void Urdf_editor::drawSphere(const Shape &shape)
+void Urdf_editor::drawSphere(const Shape &shape, QMatrix4x4 model)
 {
     // 提取颜色和半径
     QVector3D color = QVector3D(shape.link.visuals.color.redF(), shape.link.visuals.color.greenF(), shape.link.visuals.color.blueF());
@@ -468,8 +333,6 @@ void Urdf_editor::drawSphere(const Shape &shape)
     m_shaderProgram.bind();
     m_shaderProgram.setUniformValue("useUniformColor", false);
 
-    QMatrix4x4 model;
-    model.setToIdentity();
     m_shaderProgram.setUniformValue("model", model);
     m_shaderProgram.setUniformValue("view", viewMatrix);
     m_shaderProgram.setUniformValue("projection", projection);
@@ -488,7 +351,7 @@ void Urdf_editor::drawSphere(const Shape &shape)
 }
 
 
-void Urdf_editor::drawCylinder(const Shape &shape)
+void Urdf_editor::drawCylinder(const Shape &shape, QMatrix4x4 model)
 {
     // 提取颜色、半径和高度
     QVector3D color = QVector3D(shape.link.visuals.color.redF(), shape.link.visuals.color.greenF(), shape.link.visuals.color.blueF());
@@ -588,8 +451,6 @@ void Urdf_editor::drawCylinder(const Shape &shape)
     m_shaderProgram.bind();
     m_shaderProgram.setUniformValue("useUniformColor", false); // 使用顶点颜色
 
-    QMatrix4x4 model;
-    model.setToIdentity();  // 设置模型矩阵为单位矩阵
     m_shaderProgram.setUniformValue("model", model);
     m_shaderProgram.setUniformValue("view", viewMatrix);  // 设置视图矩阵
     m_shaderProgram.setUniformValue("projection", projection);  // 设置投影矩阵
@@ -1029,26 +890,28 @@ void Urdf_editor::renderShape(const Shape &shape)
     applyTransform(modelMatrix, shape.link.visuals.origin.xyz, shape.link.visuals.origin.rpy);
     modelMatrix.scale(QVector3D(1.0f, 1.0f, 1.0f)); // 如果需要缩放，可以调整这里的参数
 
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
-    glMultMatrixf(modelMatrix.constData());
+    // 绑定着色器程序并传递变换矩阵
+    m_shaderProgram.bind();
+    m_shaderProgram.setUniformValue("model", modelMatrix);
+    m_shaderProgram.setUniformValue("view", viewMatrix);
 
     // 绘制形状
     if (shape.type == Shape::Cube)
     {
-        drawCube(shape);
+        drawCube(shape, modelMatrix);
     }
     else if (shape.type == Shape::Sphere)
     {
-        drawSphere(shape);
+        drawSphere(shape, modelMatrix);
     }
     else if (shape.type == Shape::Cylinder)
     {
-        drawCylinder(shape);
+        drawCylinder(shape, modelMatrix);
     }
 
-    glPopMatrix();
+    m_shaderProgram.release();
 }
+
 void Urdf_editor::keyPressEvent(QKeyEvent *event)
 {
     emit KeyPress(event->key());
