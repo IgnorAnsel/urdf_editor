@@ -64,6 +64,9 @@ protected:
 private:
     QVector3D translation = QVector3D(0,0,0); // 平移变量
     QOpenGLShaderProgram m_shaderProgram;
+    void drawAxis();
+    void renderShapes();
+    void drawGrid(float gridSize, float step);
     bool MoveRotateMode = 0;
     int selectedShapeIndex = -1; // -1 表示没有选中任何形状
     int lastselectedShapeIndex = -1;
@@ -80,13 +83,14 @@ private:
     float zoomFactor;
     float rotationAngleX;
     float rotationAngleY;
+    float rotationAngleZ;
     int shapekind;
     Shape cube; // 将cube定义为类的成员变量
     Shape sphere;
     Shape cylinder;
     Shape currentShape;
     GLdouble projectionMatrix[16];
-
+    QMatrix4x4 projection;
     GLdouble modelviewMatrix[16];
     GLint viewport[4];
     QColor precolor;
@@ -99,7 +103,8 @@ private:
     float Cyliner_R = 0.1;
     float Sphere_R = 0.1;
     QVector3D eye;
-
+    QVector3D center;            // 看向的中心点，使相机朝向 y 轴正方向
+    QVector3D up;               // 上方向，使 x 轴朝向相机
 
     //
     bool PressKey_Plus = false;
