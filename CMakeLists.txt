@@ -26,6 +26,7 @@ set(PROJECT_SOURCES
         property.h property.cpp property.ui
         param_struct.h
         shape.h shape.cpp
+        camera.h camera.cpp
         shape_relation.h shape_relation.cpp shape_relation.ui
         codemaker.h codemaker.cpp
         base_setting.h base_setting.cpp base_setting.ui

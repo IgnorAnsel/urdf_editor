@@ -170,8 +170,7 @@ void Urdf_editor::paintGL()
     m_shaderProgram.setUniformValue("projection", projection);  // 如果需要
 
     // 绘制背景网格
-    glDisable(GL_DEPTH_TEST); // 禁用深度测试，确保网格总是在最底层
-    drawGrid(10.0f, 1.0f);   // 调用绘制网格的函数，网格大小为100，步长为1
+    glDisable(GL_DEPTH_TEST); //a调用绘制网格的函数，网格大小为100，步长为1
     glEnable(GL_DEPTH_TEST);  // 重新启用深度测试
 
     // 渲染坐标轴
