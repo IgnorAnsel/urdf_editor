@@ -17,7 +17,8 @@
 #include <glm/gtc/quaternion.hpp>
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtc/type_ptr.hpp>
-
+#include "camera.h"
+#include <QTimer>
 extern std::vector<Shape> shapes;
 extern std::vector<URDFJoint> joints;
 class Urdf_editor : public QOpenGLWidget, QOpenGLFunctions_4_5_Core
@@ -27,6 +28,7 @@ public:
     explicit Urdf_editor(QWidget *parent = nullptr);
     void reset();
 public slots:
+    void on_timeout();
     void receiveShapeKind(int kind);
     void updateWHLRStep(float cube_W ,
                         float cube_H ,
@@ -62,6 +64,11 @@ protected:
     void keyPressEvent(QKeyEvent *event) override;
     void keyReleaseEvent(QKeyEvent *event) override;
 private:
+    QTimer timer;
+    unsigned int axisVAO, axisVBO;
+    QPoint deltaPos;
+    QPoint lastPos;
+    Camera m_camera;
     QVector3D translation = QVector3D(0,0,0); // 平移变量
     QOpenGLShaderProgram m_shaderProgram;
     void drawAxis();
@@ -78,7 +85,7 @@ private:
     void handleKey_Rotate(int key);
     void handleKey_WHLR_Plus(int key);
     void handleKey_WHLR_Minus(int key);
-    QMatrix4x4 viewMatrix;
+    QMatrix4x4 view;
     QPoint lastMousePos;
     float zoomFactor;
     float rotationAngleX;

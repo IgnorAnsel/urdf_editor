@@ -14,6 +14,8 @@ Urdf_editor::Urdf_editor(QWidget *parent) : QOpenGLWidget(parent), cube(Shape::C
     rotationAngleY = 0.0f;
     setFocusPolicy(Qt::StrongFocus);
     setAcceptDrops(true); // 启用拖放功能
+    connect(&timer,SIGNAL(timeout()),this,SLOT(on_timeout()));
+    timer.start(100);
 }
 
 void Urdf_editor::reset()
@@ -22,6 +24,11 @@ void Urdf_editor::reset()
     joints.clear();
     selectedShapeIndex = -1;
     lastselectedShapeIndex = -1;
+}
+
+void Urdf_editor::on_timeout()
+{
+    update();
 }
 
 void Urdf_editor::receiveShapeKind(int kind)
@@ -114,67 +121,42 @@ void Urdf_editor::initializeGL()
         qDebug() << "OpenGL Error after linking shader program: " << error;
     }
 
-
-    // 初始化投影矩阵
-    projection.perspective(45.0, double(width()) / double(height()), 0.1, 100.0);
-
-    // 初始化视图矩阵
-    // 设置相机位置，使得Z轴朝上，X轴朝前，Y轴朝右
-    center = QVector3D(0.0f, 0.0f, 0.0f);
-    up = QVector3D(0.0f, 0.0f, 1.0f); // 将up向量设置为(0, 0, 1)，使Z轴朝上
-    eye = QVector3D(0.0f, -zoomFactor * 10.0f, 0.0f); // 初始相机位置在Y轴方向负方向，指向Z轴方向
-
-    viewMatrix.lookAt(eye, center, up);
-
-
     m_shaderProgram.bind();
-    m_shaderProgram.setUniformValue("view", viewMatrix);
-    m_shaderProgram.setUniformValue("projection", projection);
-    m_shaderProgram.release();
-
+    drawAxis();
     glEnable(GL_DEPTH_TEST);
-    glDisable(GL_CULL_FACE); // 禁用面剔除，确保所有面都被渲染
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glClearColor(0.5f, 0.5f, 0.5f, 1.0f); // 设置背景颜色为灰色
 }
 
 void Urdf_editor::resizeGL(int w, int h)
 {
-    glViewport(0, 0, w, h);
 
-    projection.setToIdentity();
-    projection.perspective(45.0, double(w) / double(h), 0.1, 100.0);
-
-    m_shaderProgram.bind();
-    m_shaderProgram.setUniformValue("projection", projection);
-    m_shaderProgram.release();
 }
 
 void Urdf_editor::paintGL()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // 更新视图矩阵
-    QMatrix4x4 transform;
-    transform.translate(translation);
-    transform.rotate(rotationAngleX, 1.0f, 0.0f, 0.0f); // 绕X轴旋转
-    transform.rotate(rotationAngleZ, 0.0f, 0.0f, 1.0f); // 绕Z轴旋转
+    QMatrix4x4 projection;
+    QMatrix4x4 view;
+    projection.perspective(m_camera.Zoom, (float)width() / height(), 1, 100);
+    m_shaderProgram.setUniformValue("projection", projection);
 
-    eye = QVector3D(0.0f, -zoomFactor * 10.0f, 0.0f); // 相机位置保持不变
-
-    viewMatrix.setToIdentity();
-    viewMatrix.lookAt(eye, center, up);
-    viewMatrix *= transform;
-
+    view.lookAt(m_camera.Positon, m_camera.Positon + m_camera.Front, m_camera.Up);
+    m_shaderProgram.setUniformValue("view", view);
+    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+    glEnable(GL_DEPTH_TEST);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     m_shaderProgram.bind();
-    m_shaderProgram.setUniformValue("view", viewMatrix);
-    m_shaderProgram.setUniformValue("projection", projection);  // 如果需要
-
+    // 绘制坐标轴
+    QMatrix4x4 model;  // 单位矩阵，表示没有平移、旋转或缩放
+    m_shaderProgram.setUniformValue("model", model);  // 设置模型矩阵为单位矩阵
+    glBindVertexArray(axisVAO);
+    glDrawArrays(GL_LINES, 0, 6);  // 绘制三条线，每条线两个顶点，共6个顶点
+    glBindVertexArray(0);
     // 绘制背景网格
     glDisable(GL_DEPTH_TEST); //a调用绘制网格的函数，网格大小为100，步长为1
     glEnable(GL_DEPTH_TEST);  // 重新启用深度测试
-
-    // 渲染坐标轴
-    drawAxis();
 
     // 渲染形状
     renderShapes();
@@ -230,10 +212,15 @@ void Urdf_editor::drawCube(const Shape &shape, QMatrix4x4 model)
 
     // 绑定着色器程序并传递变换矩阵
     m_shaderProgram.bind();
-    m_shaderProgram.setUniformValue("useUniformColor", false); // 使用顶点颜色
 
     m_shaderProgram.setUniformValue("model", model);
-    m_shaderProgram.setUniformValue("view", viewMatrix);
+    QMatrix4x4 view;
+
+    view.lookAt(m_camera.Positon, m_camera.Positon + m_camera.Front, m_camera.Up);
+
+    m_shaderProgram.setUniformValue("view", view);
+    QMatrix4x4 projection;
+    projection.perspective(m_camera.Zoom, (float)width() / height(), 0.1, 100);
     m_shaderProgram.setUniformValue("projection", projection);
 
     glBindVertexArray(VAO);
@@ -333,7 +320,7 @@ void Urdf_editor::drawSphere(const Shape &shape, QMatrix4x4 model)
     m_shaderProgram.setUniformValue("useUniformColor", false);
 
     m_shaderProgram.setUniformValue("model", model);
-    m_shaderProgram.setUniformValue("view", viewMatrix);
+    m_shaderProgram.setUniformValue("view", view);
     m_shaderProgram.setUniformValue("projection", projection);
 
     // 绘制球体
@@ -451,7 +438,7 @@ void Urdf_editor::drawCylinder(const Shape &shape, QMatrix4x4 model)
     m_shaderProgram.setUniformValue("useUniformColor", false); // 使用顶点颜色
 
     m_shaderProgram.setUniformValue("model", model);
-    m_shaderProgram.setUniformValue("view", viewMatrix);  // 设置视图矩阵
+    m_shaderProgram.setUniformValue("view", view);  // 设置视图矩阵
     m_shaderProgram.setUniformValue("projection", projection);  // 设置投影矩阵
 
     // 重新绑定VAO并绘制
@@ -564,33 +551,38 @@ void Urdf_editor::drawGrid(float gridSize, float step)
 
 void Urdf_editor::drawAxis()
 {
-    m_shaderProgram.bind();
-    m_shaderProgram.setUniformValue("useUniformColor", true); // 使用统一颜色
+    // === 初始化坐标轴 ===
 
-    glLineWidth(2.0f);
+    float axisVertices[] = {
+        // X轴 - 红色
+        0.0f, 0.0f, 0.0f,  1.0f, 0.0f, 0.0f,  // 起点
+        10.0f, 0.0f, 0.0f,  1.0f, 0.0f, 0.0f,  // 终点
 
-    // X 轴 - 红色 (朝前)
-    m_shaderProgram.setUniformValue("color", QVector3D(1.0f, 0.0f, 0.0f));
-    glBegin(GL_LINES);
-    glVertex3f(0.0f, 0.0f, 0.0f);   // 原点
-    glVertex3f(100.0f, 0.0f, 0.0f); // 朝前的X轴
-    glEnd();
+        // Y轴 - 绿色
+        0.0f, 0.0f, 0.0f,  0.0f, 1.0f, 0.0f,  // 起点
+        0.0f, 10.0f, 0.0f,  0.0f, 1.0f, 0.0f,  // 终点
 
-    // Y 轴 - 绿色 (朝右)
-    m_shaderProgram.setUniformValue("color", QVector3D(0.0f, 1.0f, 0.0f));
-    glBegin(GL_LINES);
-    glVertex3f(0.0f, 0.0f, 0.0f);   // 原点
-    glVertex3f(0.0f, 100.0f, 0.0f); // 朝右的Y轴
-    glEnd();
+        // Z轴 - 蓝色
+        0.0f, 0.0f, 0.0f,  0.0f, 0.0f, 1.0f,  // 起点
+        0.0f, 0.0f, 10.0f,  0.0f, 0.0f, 1.0f   // 终点
+    };
 
-    // Z 轴 - 蓝色 (朝上)
-    m_shaderProgram.setUniformValue("color", QVector3D(0.0f, 0.0f, 1.0f));
-    glBegin(GL_LINES);
-    glVertex3f(0.0f, 0.0f, 0.0f);   // 原点
-    glVertex3f(0.0f, 0.0f, 100.0f); // 朝上的Z轴
-    glEnd();
+    // 生成坐标轴的VAO和VBO
+    glGenVertexArrays(1, &axisVAO);
+    glGenBuffers(1, &axisVBO);
 
-    m_shaderProgram.release();
+    glBindVertexArray(axisVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, axisVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(axisVertices), axisVertices, GL_STATIC_DRAW);
+
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(0);
+
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
 }
 
 
@@ -891,8 +883,11 @@ void Urdf_editor::renderShape(const Shape &shape)
 
     // 绑定着色器程序并传递变换矩阵
     m_shaderProgram.bind();
-    m_shaderProgram.setUniformValue("model", modelMatrix);
-    m_shaderProgram.setUniformValue("view", viewMatrix);
+    QMatrix4x4 view;
+    view.lookAt(m_camera.Positon, m_camera.Positon + m_camera.Front, m_camera.Up);
+
+    //m_shaderProgram.setUniformValue("model", modelMatrix);
+    m_shaderProgram.setUniformValue("view", view);
 
     // 绘制形状
     if (shape.type == Shape::Cube)
@@ -913,28 +908,38 @@ void Urdf_editor::renderShape(const Shape &shape)
 
 void Urdf_editor::keyPressEvent(QKeyEvent *event)
 {
-    emit KeyPress(event->key());
-    if(selectedShapeIndex != -1)
-    {
-        if(MoveRotateMode==0)
-            handleKey_Move(event->key());
-        else
-            handleKey_Rotate(event->key());
+    float cameraSpeed = 100/1000.0;
+    switch (event->key()) {
+    case Qt::Key_W:m_camera.ProcessKeyborad(FORWARD,cameraSpeed);break;
+    case Qt::Key_S:m_camera.ProcessKeyborad(BACKWARD,cameraSpeed);break;
+    case Qt::Key_D:m_camera.ProcessKeyborad(RIGHT,cameraSpeed);break;
+    case Qt::Key_A:m_camera.ProcessKeyborad(LEFT,cameraSpeed);break;
+
+    default:
+        break;
     }
-    if(event->key()==Qt::Key_Plus)
-        PressKey_Plus = true;
-    else if(event->key()==Qt::Key_Minus)
-        PressKey_Minus = true;
-    if(PressKey_Plus)
-    {
-        handleKey_WHLR_Plus(event->key());
-    }
-    else if(PressKey_Minus)
-    {
-        handleKey_WHLR_Minus(event->key());
-    }
-    update();
-    QWidget::keyPressEvent(event);
+//    emit KeyPress(event->key());
+//    if(selectedShapeIndex != -1)
+//    {
+//        if(MoveRotateMode==0)
+//            handleKey_Move(event->key());
+//        else
+//            handleKey_Rotate(event->key());
+//    }
+//    if(event->key()==Qt::Key_Plus)
+//        PressKey_Plus = true;
+//    else if(event->key()==Qt::Key_Minus)
+//        PressKey_Minus = true;
+//    if(PressKey_Plus)
+//    {
+//        handleKey_WHLR_Plus(event->key());
+//    }
+//    else if(PressKey_Minus)
+//    {
+//        handleKey_WHLR_Minus(event->key());
+//    }
+//    update();
+//    QWidget::keyPressEvent(event);
 }
 
 void Urdf_editor::keyReleaseEvent(QKeyEvent *event)
@@ -978,48 +983,60 @@ void Urdf_editor::renderShapes()
 // 在鼠标点击事件中检测是否点击了某个形状
 void Urdf_editor::mousePressEvent(QMouseEvent *event)
 {
-    lastMousePos = event->pos();
-    float minDistance = std::numeric_limits<float>::max();
-    int closestShapeIndex = -1;
-    if (event->button() == Qt::MiddleButton) {
-        setCursor(Qt::ClosedHandCursor); // 改变鼠标指针为手型
+    if (event->button() == Qt::LeftButton) {
+        // 重置 lastPos 为鼠标按下时的位置
+        lastPos = event->pos();
     }
-    // 获取鼠标点击位置
-    GLint winX = event->pos().x();
-    GLint winY = viewport[3] - event->pos().y(); // 注意 Y 轴的方向
-    GLfloat winZ;
-    glReadPixels(winX, winY, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &winZ);
+//    lastMousePos = event->pos();
+//    float minDistance = std::numeric_limits<float>::max();
+//    int closestShapeIndex = -1;
+//    if (event->button() == Qt::MiddleButton) {
+//        setCursor(Qt::ClosedHandCursor); // 改变鼠标指针为手型
+//    }
+//    // 获取鼠标点击位置
+//    GLint winX = event->pos().x();
+//    GLint winY = viewport[3] - event->pos().y(); // 注意 Y 轴的方向
+//    GLfloat winZ;
+//    glReadPixels(winX, winY, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &winZ);
 
-    // 将窗口坐标转换为世界坐标
-    GLdouble worldX, worldY, worldZ;
-    gluUnProject(winX, winY, winZ, modelviewMatrix, projectionMatrix, viewport, &worldX, &worldY, &worldZ);
-    QVector3D clickPos(worldX, worldY, worldZ);
-    update();
-
+//    // 将窗口坐标转换为世界坐标
+//    GLdouble worldX, worldY, worldZ;
+//    gluUnProject(winX, winY, winZ, modelviewMatrix, projectionMatrix, viewport, &worldX, &worldY, &worldZ);
+//    QVector3D clickPos(worldX, worldY, worldZ);
+//    update();
 }
 
 void Urdf_editor::mouseMoveEvent(QMouseEvent *event)
 {
-    float dx = float(event->x() - lastMousePos.x()) / width();
-    float dy = float(event->y() - lastMousePos.y()) / height();
+//    float dx = float(event->x() - lastMousePos.x()) / width();
+//    float dy = float(event->y() - lastMousePos.y()) / height();
 
-    if (event->buttons() & Qt::LeftButton)
-    {
-        rotationAngleX += dy * 180; // 调整符号，使上下旋转方向符合直觉
-        rotationAngleZ += dx * 180; // 调整符号，使左右旋转方向符合直觉
-    }
-    else if (event->buttons() & Qt::RightButton)
-    {
-        rotationAngleX += dy * 180; // 调整符号，使上下旋转方向符合直觉
-        rotationAngleZ += dx * 180; // 调整符号，使左右旋转方向符合直觉
-    }
-    else if (event->buttons() & Qt::MiddleButton) {
-        translation.setX(translation.x() + dx * 10.0f); // 更新平移值 (左右平移)
-        translation.setY(translation.y() - dy * 10.0f); // 更新平移值 (上下平移)
-    }
+//    if (event->buttons() & Qt::LeftButton)
+//    {
+//        rotationAngleX += dy * 180; // 调整符号，使上下旋转方向符合直觉
+//        rotationAngleZ += dx * 180; // 调整符号，使左右旋转方向符合直觉
+//    }
+//    else if (event->buttons() & Qt::RightButton)
+//    {
+//        rotationAngleX += dy * 180; // 调整符号，使上下旋转方向符合直觉
+//        rotationAngleZ += dx * 180; // 调整符号，使左右旋转方向符合直觉
+//    }
+//    else if (event->buttons() & Qt::MiddleButton) {
+//        translation.setX(translation.x() + dx * 10.0f); // 更新平移值 (左右平移)
+//        translation.setY(translation.y() - dy * 10.0f); // 更新平移值 (上下平移)
+//    }
 
-    lastMousePos = event->pos();
-    update();
+//    lastMousePos = event->pos();
+//    update();
+    // 检查鼠标左键是否按下
+    if (event->buttons() & Qt::LeftButton) {
+        //static QPoint lastPos(width() / 2, height() / 2);
+        auto currentPos = event->pos();
+        deltaPos = currentPos - lastPos;
+        lastPos = currentPos;
+        m_camera.ProcessMouseMoveMent(deltaPos.x(), -deltaPos.y(),GL_FALSE);
+        update();
+    }
 }
 
 
@@ -1036,9 +1053,7 @@ void Urdf_editor::mouseReleaseEvent(QMouseEvent *event)
 
 void Urdf_editor::wheelEvent(QWheelEvent *event)
 {
-    zoomFactor -= event->angleDelta().y() / 1200.0f;
-    if (zoomFactor < 0.1f)
-        zoomFactor = 0.1f;
+    m_camera.ProcessMouseScroll(event->angleDelta().y()/120);
     update();
 }
 

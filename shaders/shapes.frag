@@ -1,10 +1,12 @@
 #version 450 core
-
-in vec3 FragColor;
-
-out vec4 finalColor;
-
+out vec4 FragColor;
+in vec3 ourColor;
+in vec2 TexCord;
+uniform sampler2D texture0;
+uniform sampler2D texture1;
+uniform sampler2D textureHuaji;
+uniform float ratio;
 void main()
 {
-    finalColor = vec4(FragColor, 1.0);
+    FragColor = vec4(ourColor, 1.0f);
 }
