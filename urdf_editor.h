@@ -67,6 +67,10 @@ protected:
     void keyPressEvent(QKeyEvent *event) override;
     void keyReleaseEvent(QKeyEvent *event) override;
 private:
+    GLuint FBO; // 帧缓冲对象
+    GLuint frame_color_texture; // 颜色附件0的纹理
+    GLuint frame_id_texture; // 颜色附件1的纹理（存储模型ID）
+    GLuint frame_depth_stencil_texture; // 深度和模板缓冲的纹理
 
     QTimer update_timer; // 定时器（用于更新画面）
     unsigned int axisVAO, axisVBO; // 轴的顶点数组对象和顶点缓冲对象

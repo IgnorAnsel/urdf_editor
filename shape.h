@@ -25,7 +25,7 @@ public:
     Type type;
     URDFLink link;
     URDFJoint joint;
-
+    bool isSelected;
 private:
 };
 

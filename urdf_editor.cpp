@@ -93,13 +93,50 @@ void Urdf_editor::set_set_selectedShapeIndex_f1()
     qDebug()<<"pre:"<<precolor;
     update();
 }
-void Urdf_editor::initializeGL()
-{
+void Urdf_editor::initializeGL() {
     initializeOpenGLFunctions();
     GLenum error = glGetError();
     if (error != GL_NO_ERROR) {
         qDebug() << "OpenGL Error after initializing OpenGL functions: " << error;
     }
+
+    // 创建帧缓冲对象并绑定
+    glGenFramebuffers(1, &FBO);
+    glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+
+    // 创建并配置第一个颜色附件 (普通颜色)
+    glGenTextures(1, &frame_color_texture);
+    glBindTexture(GL_TEXTURE_2D, frame_color_texture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width(), height(), 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, frame_color_texture, 0);
+
+    // 创建并配置第二个颜色附件 (ID颜色)
+    glGenTextures(1, &frame_id_texture);
+    glBindTexture(GL_TEXTURE_2D, frame_id_texture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width(), height(), 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, frame_id_texture, 0);
+
+    // 创建深度和模板缓冲附件
+    glGenTextures(1, &frame_depth_stencil_texture);
+    glBindTexture(GL_TEXTURE_2D, frame_depth_stencil_texture);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH24_STENCIL8, width(), height(), 0, GL_DEPTH_STENCIL, GL_UNSIGNED_INT_24_8, nullptr);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_DEPTH_STENCIL_ATTACHMENT, GL_TEXTURE_2D, frame_depth_stencil_texture, 0);
+
+    // 设置绘制缓冲目标
+    GLenum drawBuffers[] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 };
+    glDrawBuffers(2, drawBuffers);
+
+    // 检查帧缓冲完整性
+    if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+        qDebug() << "Frame buffer is not complete!";
+    }
+    glBindFramebuffer(GL_FRAMEBUFFER, 0); // 解除绑定
 
     // 编译和链接着色器
     bool success = m_shaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/shapes.vert");
@@ -127,8 +164,9 @@ void Urdf_editor::initializeGL()
     drawAxis();
     glEnable(GL_DEPTH_TEST);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    //glClearColor(0.5f, 0.5f, 0.5f, 1.0f); // 设置背景颜色为灰色
+    // glClearColor(0.5f, 0.5f, 0.5f, 1.0f); // 设置背景颜色为灰色
 }
+
 
 void Urdf_editor::resizeGL(int w, int h)
 {
@@ -191,6 +229,8 @@ void Urdf_editor::paintGL()
 
 
 void Urdf_editor::drawCube(const Shape &shape, QMatrix4x4 model) {
+    int modelID = shape.id;
+
     // 设置顶点和颜色数据
     QVector3D size = shape.link.visuals.geometry.box.size;
     QVector3D color = QVector3D(shape.link.visuals.color.redF(), shape.link.visuals.color.greenF(), shape.link.visuals.color.blueF());
@@ -199,6 +239,7 @@ void Urdf_editor::drawCube(const Shape &shape, QMatrix4x4 model) {
 
     m_shaderProgram.bind();
     m_shaderProgram.setUniformValue("model", model);
+    m_shaderProgram.setUniformValue("modelID", modelID);
 
     QMatrix4x4 view;
     view.lookAt(m_camera.Positon, m_camera.Positon + m_camera.Front, m_camera.Up);
@@ -772,13 +813,47 @@ void Urdf_editor::renderShapes()
 }
 
 // 在鼠标点击事件中检测是否点击了某个形状
-void Urdf_editor::mousePressEvent(QMouseEvent *event)
-{
+void Urdf_editor::mousePressEvent(QMouseEvent *event) {
     if (event->button() == Qt::LeftButton) {
-        // 重置 lastPos 为鼠标按下时的位置
         lastPos = event->pos();
+
+        makeCurrent();
+        glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+
+        // 从颜色附件1中读取像素值（索引值）
+        GLubyte pixel[4];
+        glReadBuffer(GL_COLOR_ATTACHMENT1);
+        glReadPixels(
+            (int)event->pos().x(),
+            this->height() - (int)event->pos().y(),
+            1, 1,
+            GL_RGB, GL_UNSIGNED_BYTE,
+            pixel
+            );
+
+        int flag = 0;  // 标识是否有模型被选中
+        // 遍历模型，检测哪个被选中
+        foreach(auto modelinfo, shapes) {
+            if (modelinfo.id == pixel[0]) {
+                flag = 1;
+                modelinfo.isSelected = true;
+                qDebug() << "The model be selected" << "   index: " << pixel[0];
+            } else {
+                modelinfo.isSelected = false;
+            }
+        }
+
+        if (flag == 0) {
+            qDebug() << "No model be selected" << "   index: " << pixel[0];
+        }
+
+        // 操作执行完毕，切换回默认帧缓冲
+        glBindFramebuffer(GL_FRAMEBUFFER, defaultFramebufferObject());
+        doneCurrent();
     }
 }
+
+
 
 void Urdf_editor::mouseMoveEvent(QMouseEvent *event)
 {
