@@ -6,7 +6,8 @@ uniform sampler2D texture0;
 uniform sampler2D texture1;
 uniform sampler2D textureHuaji;
 uniform float ratio;
+uniform bool isHaveTextue;
 void main()
 {
-    FragColor = vec4(ourColor, 1.0f);
+        FragColor = vec4(ourColor, 1.0f);
 }

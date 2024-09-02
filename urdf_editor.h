@@ -19,6 +19,9 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "camera.h"
 #include <QTimer>
+#include "meshgenerator.h"
+#include <QElapsedTimer>
+#include <QPainter>
 extern std::vector<Shape> shapes;
 extern std::vector<URDFJoint> joints;
 class Urdf_editor : public QOpenGLWidget, QOpenGLFunctions_4_5_Core
@@ -64,10 +67,12 @@ protected:
     void keyPressEvent(QKeyEvent *event) override;
     void keyReleaseEvent(QKeyEvent *event) override;
 private:
-    QTimer timer;
-    unsigned int axisVAO, axisVBO;
+
+    QTimer update_timer; // 定时器（用于更新画面）
+    unsigned int axisVAO, axisVBO; // 轴的顶点数组对象和顶点缓冲对象
     QPoint deltaPos;
     QPoint lastPos;
+
     Camera m_camera;
     QVector3D translation = QVector3D(0,0,0); // 平移变量
     QOpenGLShaderProgram m_shaderProgram;
@@ -85,7 +90,6 @@ private:
     void handleKey_Rotate(int key);
     void handleKey_WHLR_Plus(int key);
     void handleKey_WHLR_Minus(int key);
-    QMatrix4x4 view;
     QPoint lastMousePos;
     float zoomFactor;
     float rotationAngleX;
@@ -96,10 +100,7 @@ private:
     Shape sphere;
     Shape cylinder;
     Shape currentShape;
-    GLdouble projectionMatrix[16];
     QMatrix4x4 projection;
-    GLdouble modelviewMatrix[16];
-    GLint viewport[4];
     QColor precolor;
     float Movestep = 0.5;
     float Rotatestep = 0.1;
@@ -109,9 +110,6 @@ private:
     float Cyliner_H = 0.1;
     float Cyliner_R = 0.1;
     float Sphere_R = 0.1;
-    QVector3D eye;
-    QVector3D center;            // 看向的中心点，使相机朝向 y 轴正方向
-    QVector3D up;               // 上方向，使 x 轴朝向相机
 
     //
     bool PressKey_Plus = false;
@@ -119,6 +117,11 @@ private:
 
     float coneHeight = 0.5f;
     float coneRadius = 0.1f;
+
+    // 显示帧率
+    int frameCount;
+    float fps;
+    QElapsedTimer fps_timer;
 };
 
 #endif // URDF_EDITOR_H

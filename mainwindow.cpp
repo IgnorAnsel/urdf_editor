@@ -38,7 +38,9 @@ MainWindow::MainWindow(QWidget *parent)
     ui->widget_3->setLayout(Layout2);
     //    Layout2->addWidget(pro2);
     //    ui->widget_param->setLayout(Layout2);
-    urdf_editor = new Urdf_editor(ui->widget);
+    //urdf_editor = new Urdf_editor(ui->widget);
+    urdf_editor = ui->widget; // 直接将指针指向提升后的 widget
+
     ui->widget->setLayout(verticalLayout);
     verticalLayout->addWidget(urdf_editor);
     // 最后，设置 ui->widget 的布局

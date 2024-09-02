@@ -8,6 +8,7 @@ Camera::Camera(QVector3D postion, QVector3D up, float yaw, float pitch)
     Pitch = pitch;
     MouseSensitivity = SENSITIVITY;
     MovementSpeed = SPEED;
+    Zoom = ZOOM;
     updateCameraVectors();
 }
 
@@ -38,7 +39,7 @@ void Camera::ProcessKeyborad(Camera_Movement direction, float deltaTime)
         Positon -= Right * velocity;
     if(direction == RIGHT)
         Positon += Right * velocity;
-    qDebug() << direction;
+    qDebug() << Positon << "Pitch:"<< Pitch <<"Yaw:"<< Yaw << "Zoom" << Zoom;
 }
 
 void Camera::ProcessMouseScroll(float yoffset)

@@ -6,7 +6,8 @@
 #include <GL/glu.h>
 std::vector<Shape> shapes;
 
-Urdf_editor::Urdf_editor(QWidget *parent) : QOpenGLWidget(parent), cube(Shape::Cube), sphere(Shape::Sphere), cylinder(Shape::Cylinder)
+Urdf_editor::Urdf_editor(QWidget *parent) : QOpenGLWidget(parent), cube(Shape::Cube), sphere(Shape::Sphere), cylinder(Shape::Cylinder) ,
+    frameCount(0), fps(0.0f)
 {
     setMinimumSize(640, 480);
     zoomFactor = 1.0f;
@@ -14,8 +15,9 @@ Urdf_editor::Urdf_editor(QWidget *parent) : QOpenGLWidget(parent), cube(Shape::C
     rotationAngleY = 0.0f;
     setFocusPolicy(Qt::StrongFocus);
     setAcceptDrops(true); // 启用拖放功能
-    connect(&timer,SIGNAL(timeout()),this,SLOT(on_timeout()));
-    timer.start(100);
+    connect(&update_timer,SIGNAL(timeout()),this,SLOT(on_timeout()));
+    update_timer.start(100);
+    fps_timer.start();
 }
 
 void Urdf_editor::reset()
@@ -125,7 +127,7 @@ void Urdf_editor::initializeGL()
     drawAxis();
     glEnable(GL_DEPTH_TEST);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glClearColor(0.5f, 0.5f, 0.5f, 1.0f); // 设置背景颜色为灰色
+    //glClearColor(0.5f, 0.5f, 0.5f, 1.0f); // 设置背景颜色为灰色
 }
 
 void Urdf_editor::resizeGL(int w, int h)
@@ -135,326 +137,135 @@ void Urdf_editor::resizeGL(int w, int h)
 
 void Urdf_editor::paintGL()
 {
+    // 清除颜色和深度缓冲区
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
+    // 设置投影和视图矩阵
     QMatrix4x4 projection;
     QMatrix4x4 view;
     projection.perspective(m_camera.Zoom, (float)width() / height(), 1, 100);
-    m_shaderProgram.setUniformValue("projection", projection);
-
     view.lookAt(m_camera.Positon, m_camera.Positon + m_camera.Front, m_camera.Up);
+
+    m_shaderProgram.bind();
+    m_shaderProgram.setUniformValue("projection", projection);
     m_shaderProgram.setUniformValue("view", view);
     glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-    glEnable(GL_DEPTH_TEST);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    m_shaderProgram.bind();
-    // 绘制坐标轴
-    QMatrix4x4 model;  // 单位矩阵，表示没有平移、旋转或缩放
-    m_shaderProgram.setUniformValue("model", model);  // 设置模型矩阵为单位矩阵
+    // 先绘制坐标轴
+    QMatrix4x4 model;
+    m_shaderProgram.setUniformValue("model", model);
     glBindVertexArray(axisVAO);
-    glDrawArrays(GL_LINES, 0, 6);  // 绘制三条线，每条线两个顶点，共6个顶点
+    glDrawArrays(GL_LINES, 0, 6);
     glBindVertexArray(0);
-    // 绘制背景网格
-    glDisable(GL_DEPTH_TEST); //a调用绘制网格的函数，网格大小为100，步长为1
-    glEnable(GL_DEPTH_TEST);  // 重新启用深度测试
 
-    // 渲染形状
+    // 绘制其他形状
     renderShapes();
+
+    // 释放着色器程序
     m_shaderProgram.release();
+
+    // 计算FPS
+    frameCount++;
+    if (fps_timer.elapsed() >= 1000) { // 每秒更新一次FPS
+        fps = frameCount / (fps_timer.elapsed() / 1000.0f);
+        frameCount = 0;
+        fps_timer.restart();
+    }
+
+    // 保存OpenGL状态
+    glPushAttrib(GL_ALL_ATTRIB_BITS);
+
+    // 使用QPainter绘制FPS
+    QPainter painter(this);
+    painter.setPen(Qt::white);
+    painter.setFont(QFont("Arial", 16));
+    painter.drawText(10, 20, QString("FPS: %1").arg(fps, 0, 'f', 2));
+
+    // 结束QPainter的绘制
+    painter.end();
+
+    // 恢复OpenGL状态
+    glPopAttrib();
 }
 
-void Urdf_editor::drawCube(const Shape &shape, QMatrix4x4 model)
-{
+
+
+
+void Urdf_editor::drawCube(const Shape &shape, QMatrix4x4 model) {
     // 设置顶点和颜色数据
     QVector3D size = shape.link.visuals.geometry.box.size;
     QVector3D color = QVector3D(shape.link.visuals.color.redF(), shape.link.visuals.color.greenF(), shape.link.visuals.color.blueF());
+    // 使用 MeshGenerator 生成方体网格
+    static auto cubeMesh = MeshGenerator::generateCubeMesh(size,color);
 
-    GLfloat vertices[] = {
-        // Positions          // Colors
-        -size.x() / 2, -size.y() / 2,  size.z() / 2,  color.x(), color.y(), color.z(),
-        size.x() / 2, -size.y() / 2,  size.z() / 2,  color.x(), color.y(), color.z(),
-        size.x() / 2,  size.y() / 2,  size.z() / 2,  color.x(), color.y(), color.z(),
-        -size.x() / 2,  size.y() / 2,  size.z() / 2,  color.x(), color.y(), color.z(),
-        -size.x() / 2, -size.y() / 2, -size.z() / 2,  color.x(), color.y(), color.z(),
-        size.x() / 2, -size.y() / 2, -size.z() / 2,  color.x(), color.y(), color.z(),
-        size.x() / 2,  size.y() / 2, -size.z() / 2,  color.x(), color.y(), color.z(),
-        -size.x() / 2,  size.y() / 2, -size.z() / 2,  color.x(), color.y(), color.z(),
-    };
-
-    GLuint indices[] = {
-        0, 1, 2, 2, 3, 0, // Front face
-        4, 5, 6, 6, 7, 4, // Back face
-        0, 4, 7, 7, 3, 0, // Left face
-        1, 5, 6, 6, 2, 1, // Right face
-        0, 1, 5, 5, 4, 0, // Bottom face
-        3, 2, 6, 6, 7, 3  // Top face
-    };
-    GLuint VAO, VBO, EBO;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
-
-    glBindVertexArray(VAO);
-
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_DYNAMIC_DRAW);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_DYNAMIC_DRAW);
-
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);
-    glEnableVertexAttribArray(0);
-
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
-    glEnableVertexAttribArray(1);
-
-    glBindVertexArray(0);
-
-    // 绑定着色器程序并传递变换矩阵
     m_shaderProgram.bind();
-
     m_shaderProgram.setUniformValue("model", model);
+
     QMatrix4x4 view;
-
     view.lookAt(m_camera.Positon, m_camera.Positon + m_camera.Front, m_camera.Up);
-
     m_shaderProgram.setUniformValue("view", view);
+
     QMatrix4x4 projection;
     projection.perspective(m_camera.Zoom, (float)width() / height(), 0.1, 100);
     m_shaderProgram.setUniformValue("projection", projection);
 
-    glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0);
+    cubeMesh->Draw();
 
     m_shaderProgram.release();
-
-    // 清理资源
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
-    glDeleteBuffers(1, &EBO);
 }
+
 
 inline double Urdf_editor::radiansToDegrees(double radians) {
     return radians * (180.0 / M_PI);
 }
 
-void Urdf_editor::drawSphere(const Shape &shape, QMatrix4x4 model)
-{
-    // 提取颜色和半径
-    QVector3D color = QVector3D(shape.link.visuals.color.redF(), shape.link.visuals.color.greenF(), shape.link.visuals.color.blueF());
-    double radius = shape.link.visuals.geometry.sphere.radius;
-    const int slices = 30;  // 经度方向的切片数
-    const int stacks = 30;  // 纬度方向的切片数
+void Urdf_editor::drawSphere(const Shape &shape, QMatrix4x4 model) {
+    auto sphereMesh = MeshGenerator::generateSphereMesh(
+        shape.link.visuals.geometry.sphere.radius,
+        30, 30,
+        QVector3D(shape.link.visuals.color.redF(), shape.link.visuals.color.greenF(), shape.link.visuals.color.blueF())
+        );
 
-    std::vector<GLfloat> vertices;
-    std::vector<GLuint> indices;
-
-    // 计算球体顶点和索引
-    for (int i = 0; i <= stacks; ++i)
-    {
-        double lat = M_PI * (-0.5 + (double)i / stacks);  // 纬度从 -π/2 到 π/2
-        double z = sin(lat) * radius;
-        double zr = cos(lat) * radius;
-
-        for (int j = 0; j <= slices; ++j)
-        {
-            double lng = 2 * M_PI * (double)j / slices;  // 经度从 0 到 2π
-            double x = cos(lng) * zr;
-            double y = sin(lng) * zr;
-
-            vertices.push_back(x);
-            vertices.push_back(y);
-            vertices.push_back(z);
-            vertices.push_back(color.x());
-            vertices.push_back(color.y());
-            vertices.push_back(color.z());
-        }
-    }
-
-    // 生成索引数据
-    for (int i = 0; i < stacks; ++i)
-    {
-        for (int j = 0; j < slices; ++j)
-        {
-            int first = (i * (slices + 1)) + j;
-            int second = first + slices + 1;
-
-            indices.push_back(first);
-            indices.push_back(second);
-            indices.push_back(first + 1);
-
-            indices.push_back(second);
-            indices.push_back(second + 1);
-            indices.push_back(first + 1);
-        }
-    }
-
-    // 生成和绑定VAO、VBO和EBO
-    GLuint VAO, VBO, EBO;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
-
-    glBindVertexArray(VAO);
-
-    // 绑定顶点数据到VBO
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), vertices.data(), GL_DYNAMIC_DRAW);
-
-    // 绑定索引数据到EBO
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, indices.size() * sizeof(GLuint), indices.data(), GL_DYNAMIC_DRAW);
-
-    // 设置顶点属性指针
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);
-    glEnableVertexAttribArray(0);
-
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
-    glEnableVertexAttribArray(1);
-
-    glBindVertexArray(0);
-
-    // 绑定着色器程序并传递变换矩阵
     m_shaderProgram.bind();
-    m_shaderProgram.setUniformValue("useUniformColor", false);
-
     m_shaderProgram.setUniformValue("model", model);
+
+    QMatrix4x4 view;
+    view.lookAt(m_camera.Positon, m_camera.Positon + m_camera.Front, m_camera.Up);
     m_shaderProgram.setUniformValue("view", view);
+
+    QMatrix4x4 projection;
+    projection.perspective(m_camera.Zoom, (float)width() / height(), 0.1, 100);
     m_shaderProgram.setUniformValue("projection", projection);
 
-    // 绘制球体
-    glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0);
+    sphereMesh->Draw();
 
     m_shaderProgram.release();
-
-    // 清理资源
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
-    glDeleteBuffers(1, &EBO);
 }
 
+void Urdf_editor::drawCylinder(const Shape &shape, QMatrix4x4 model) {
+    // 使用 MeshGenerator 生成圆柱体网格
+    static auto cylinderMesh = MeshGenerator::generateCylinderMesh(
+        shape.link.visuals.geometry.cylinder.radius,
+        shape.link.visuals.geometry.cylinder.length,
+        30,  // 分段数量，可以调整以增加细节
+        QVector3D(shape.link.visuals.color.redF(), shape.link.visuals.color.greenF(), shape.link.visuals.color.blueF())
+        );
 
-void Urdf_editor::drawCylinder(const Shape &shape, QMatrix4x4 model)
-{
-    // 提取颜色、半径和高度
-    QVector3D color = QVector3D(shape.link.visuals.color.redF(), shape.link.visuals.color.greenF(), shape.link.visuals.color.blueF());
-    double radius = shape.link.visuals.geometry.cylinder.radius;
-    double height = shape.link.visuals.geometry.cylinder.length;
-    const int slices = 30;
-    double halfHeight = height / 2.0;
-
-    std::vector<GLfloat> vertices;
-
-    // 计算底面顶点
-    vertices.push_back(0.0f);
-    vertices.push_back(0.0f);
-    vertices.push_back(-halfHeight);
-    vertices.push_back(color.x());
-    vertices.push_back(color.y());
-    vertices.push_back(color.z());
-
-    for (int i = 0; i <= slices; ++i)
-    {
-        double angle = 2.0 * M_PI * i / slices;
-        double x = radius * cos(angle);
-        double y = radius * sin(angle);
-        vertices.push_back(x);
-        vertices.push_back(y);
-        vertices.push_back(-halfHeight);
-        vertices.push_back(color.x());
-        vertices.push_back(color.y());
-        vertices.push_back(color.z());
-    }
-
-    // 计算顶面顶点
-    vertices.push_back(0.0f);
-    vertices.push_back(0.0f);
-    vertices.push_back(halfHeight);
-    vertices.push_back(color.x());
-    vertices.push_back(color.y());
-    vertices.push_back(color.z());
-
-    for (int i = 0; i <= slices; ++i)
-    {
-        double angle = 2.0 * M_PI * i / slices;
-        double x = radius * cos(angle);
-        double y = radius * sin(angle);
-        vertices.push_back(x);
-        vertices.push_back(y);
-        vertices.push_back(halfHeight);
-        vertices.push_back(color.x());
-        vertices.push_back(color.y());
-        vertices.push_back(color.z());
-    }
-
-    // 计算侧面顶点
-    for (int i = 0; i <= slices; ++i)
-    {
-        double angle = 2.0 * M_PI * i / slices;
-        double x = radius * cos(angle);
-        double y = radius * sin(angle);
-        vertices.push_back(x);
-        vertices.push_back(y);
-        vertices.push_back(-halfHeight);
-        vertices.push_back(color.x());
-        vertices.push_back(color.y());
-        vertices.push_back(color.z());
-
-        vertices.push_back(x);
-        vertices.push_back(y);
-        vertices.push_back(halfHeight);
-        vertices.push_back(color.x());
-        vertices.push_back(color.y());
-        vertices.push_back(color.z());
-    }
-
-    // 生成和绑定VAO、VBO
-    GLuint VAO, VBO;
-    glGenVertexArrays(1, &VAO);
-    glGenBuffers(1, &VBO);
-
-    // 绑定VAO
-    glBindVertexArray(VAO);
-
-    // 绑定顶点数据到VBO
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, vertices.size() * sizeof(GLfloat), vertices.data(), GL_DYNAMIC_DRAW);
-
-    // 绑定VBO到VAO并设置顶点属性指针
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(GLfloat), (GLvoid*)0);
-    glEnableVertexAttribArray(0);
-
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 *sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
-    glEnableVertexAttribArray(1);
-
-    // 解绑VAO（在绘制之前，可以解除绑定）
-    glBindVertexArray(0);
-
-    // 绑定着色器程序并传递变换矩阵
     m_shaderProgram.bind();
-    m_shaderProgram.setUniformValue("useUniformColor", false); // 使用顶点颜色
-
     m_shaderProgram.setUniformValue("model", model);
-    m_shaderProgram.setUniformValue("view", view);  // 设置视图矩阵
-    m_shaderProgram.setUniformValue("projection", projection);  // 设置投影矩阵
 
-    // 重新绑定VAO并绘制
-    glBindVertexArray(VAO);
-    glDrawArrays(GL_TRIANGLE_FAN, 0, slices + 2); // 绘制底面
-    glDrawArrays(GL_TRIANGLE_FAN, slices + 2, slices + 2); // 绘制顶面
-    glDrawArrays(GL_QUAD_STRIP, 2 * (slices + 2), 2 * (slices + 1)); // 绘制侧面
+    QMatrix4x4 view;
+    view.lookAt(m_camera.Positon, m_camera.Positon + m_camera.Front, m_camera.Up);
+    m_shaderProgram.setUniformValue("view", view);
 
-    glBindVertexArray(0); // 解除VAO绑定
+    QMatrix4x4 projection;
+    projection.perspective(m_camera.Zoom, (float)width() / height(), 0.1, 100);
+    m_shaderProgram.setUniformValue("projection", projection);
 
-    m_shaderProgram.release();  // 释放着色器程序
+    cylinderMesh->Draw();
 
-    // 清理资源
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteBuffers(1, &VBO);
+    m_shaderProgram.release();
 }
+
 
 
 void Urdf_editor::drawArrow(float x, float y, float z, float dx, float dy, float dz, QColor color)
@@ -918,28 +729,8 @@ void Urdf_editor::keyPressEvent(QKeyEvent *event)
     default:
         break;
     }
-//    emit KeyPress(event->key());
-//    if(selectedShapeIndex != -1)
-//    {
-//        if(MoveRotateMode==0)
-//            handleKey_Move(event->key());
-//        else
-//            handleKey_Rotate(event->key());
-//    }
-//    if(event->key()==Qt::Key_Plus)
-//        PressKey_Plus = true;
-//    else if(event->key()==Qt::Key_Minus)
-//        PressKey_Minus = true;
-//    if(PressKey_Plus)
-//    {
-//        handleKey_WHLR_Plus(event->key());
-//    }
-//    else if(PressKey_Minus)
-//    {
-//        handleKey_WHLR_Minus(event->key());
-//    }
-//    update();
-//    QWidget::keyPressEvent(event);
+    update();
+
 }
 
 void Urdf_editor::keyReleaseEvent(QKeyEvent *event)
@@ -987,48 +778,10 @@ void Urdf_editor::mousePressEvent(QMouseEvent *event)
         // 重置 lastPos 为鼠标按下时的位置
         lastPos = event->pos();
     }
-//    lastMousePos = event->pos();
-//    float minDistance = std::numeric_limits<float>::max();
-//    int closestShapeIndex = -1;
-//    if (event->button() == Qt::MiddleButton) {
-//        setCursor(Qt::ClosedHandCursor); // 改变鼠标指针为手型
-//    }
-//    // 获取鼠标点击位置
-//    GLint winX = event->pos().x();
-//    GLint winY = viewport[3] - event->pos().y(); // 注意 Y 轴的方向
-//    GLfloat winZ;
-//    glReadPixels(winX, winY, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &winZ);
-
-//    // 将窗口坐标转换为世界坐标
-//    GLdouble worldX, worldY, worldZ;
-//    gluUnProject(winX, winY, winZ, modelviewMatrix, projectionMatrix, viewport, &worldX, &worldY, &worldZ);
-//    QVector3D clickPos(worldX, worldY, worldZ);
-//    update();
 }
 
 void Urdf_editor::mouseMoveEvent(QMouseEvent *event)
 {
-//    float dx = float(event->x() - lastMousePos.x()) / width();
-//    float dy = float(event->y() - lastMousePos.y()) / height();
-
-//    if (event->buttons() & Qt::LeftButton)
-//    {
-//        rotationAngleX += dy * 180; // 调整符号，使上下旋转方向符合直觉
-//        rotationAngleZ += dx * 180; // 调整符号，使左右旋转方向符合直觉
-//    }
-//    else if (event->buttons() & Qt::RightButton)
-//    {
-//        rotationAngleX += dy * 180; // 调整符号，使上下旋转方向符合直觉
-//        rotationAngleZ += dx * 180; // 调整符号，使左右旋转方向符合直觉
-//    }
-//    else if (event->buttons() & Qt::MiddleButton) {
-//        translation.setX(translation.x() + dx * 10.0f); // 更新平移值 (左右平移)
-//        translation.setY(translation.y() - dy * 10.0f); // 更新平移值 (上下平移)
-//    }
-
-//    lastMousePos = event->pos();
-//    update();
-    // 检查鼠标左键是否按下
     if (event->buttons() & Qt::LeftButton) {
         //static QPoint lastPos(width() / 2, height() / 2);
         auto currentPos = event->pos();
@@ -1038,9 +791,6 @@ void Urdf_editor::mouseMoveEvent(QMouseEvent *event)
         update();
     }
 }
-
-
-
 
 
 void Urdf_editor::mouseReleaseEvent(QMouseEvent *event)
