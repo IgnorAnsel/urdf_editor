@@ -28,6 +28,12 @@ QMatrix4x4 Camera::GetViewMatrix()
     return theMatrix;
 }
 
+QMatrix4x4 Camera::GetProjectionMatrix(float Ratio)
+{
+    QMatrix4x4 projection;
+    projection.perspective(Zoom, Ratio, 0.1, 100);
+}
+
 void Camera::ProcessKeyborad(Camera_Movement direction, float deltaTime)
 {
     float velocity = MovementSpeed * deltaTime;

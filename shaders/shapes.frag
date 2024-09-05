@@ -13,5 +13,9 @@ uniform int modelID;
 void main()
 {
         FragColor = vec4(ourColor, 1.0f);
-        IDColor = vec4(float(modelID) / 255.0, 0.0, 0.0, 1.0);
+        float r = float((modelID & 0xFF0000) >> 16) / 255.0;
+        float g = float((modelID & 0x00FF00) >> 8) / 255.0;
+        float b = float(modelID & 0x0000FF) / 255.0;
+
+        IDColor = vec4(r, g, b, 1.0);
 }

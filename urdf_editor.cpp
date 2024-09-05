@@ -260,6 +260,7 @@ inline double Urdf_editor::radiansToDegrees(double radians) {
 }
 
 void Urdf_editor::drawSphere(const Shape &shape, QMatrix4x4 model) {
+    int modelID = shape.id;
     auto sphereMesh = MeshGenerator::generateSphereMesh(
         shape.link.visuals.geometry.sphere.radius,
         30, 30,
@@ -268,6 +269,8 @@ void Urdf_editor::drawSphere(const Shape &shape, QMatrix4x4 model) {
 
     m_shaderProgram.bind();
     m_shaderProgram.setUniformValue("model", model);
+    m_shaderProgram.setUniformValue("modelID", modelID);
+
 
     QMatrix4x4 view;
     view.lookAt(m_camera.Positon, m_camera.Positon + m_camera.Front, m_camera.Up);
@@ -283,6 +286,7 @@ void Urdf_editor::drawSphere(const Shape &shape, QMatrix4x4 model) {
 }
 
 void Urdf_editor::drawCylinder(const Shape &shape, QMatrix4x4 model) {
+    int modelID = shape.id;
     // 使用 MeshGenerator 生成圆柱体网格
     static auto cylinderMesh = MeshGenerator::generateCylinderMesh(
         shape.link.visuals.geometry.cylinder.radius,
@@ -293,6 +297,8 @@ void Urdf_editor::drawCylinder(const Shape &shape, QMatrix4x4 model) {
 
     m_shaderProgram.bind();
     m_shaderProgram.setUniformValue("model", model);
+    m_shaderProgram.setUniformValue("modelID", modelID);
+
 
     QMatrix4x4 view;
     view.lookAt(m_camera.Positon, m_camera.Positon + m_camera.Front, m_camera.Up);
@@ -817,11 +823,16 @@ void Urdf_editor::mousePressEvent(QMouseEvent *event) {
     if (event->button() == Qt::LeftButton) {
         lastPos = event->pos();
 
+        // 绑定帧缓冲对象，确保渲染的是带有 ID 颜色的帧缓冲
         makeCurrent();
         glBindFramebuffer(GL_FRAMEBUFFER, FBO);
 
-        // 从颜色附件1中读取像素值（索引值）
-        GLubyte pixel[4];
+        // 清除颜色和深度缓冲区并渲染场景
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        renderShapes();  // 渲染所有形状到帧缓冲
+
+        // 从颜色附件1中读取像素值（RGB分量）
+        GLubyte pixel[3];
         glReadBuffer(GL_COLOR_ATTACHMENT1);
         glReadPixels(
             (int)event->pos().x(),
@@ -831,20 +842,24 @@ void Urdf_editor::mousePressEvent(QMouseEvent *event) {
             pixel
             );
 
+        // 重新组合RGB通道值为modelID
+        int selectedModelID = (pixel[0] << 16) | (pixel[1] << 8) | pixel[2];
+        qDebug() << "Selected model ID: " << selectedModelID;
+
+        // 遍历模型，检测哪个模型的 ID 被选中
         int flag = 0;  // 标识是否有模型被选中
-        // 遍历模型，检测哪个被选中
-        foreach(auto modelinfo, shapes) {
-            if (modelinfo.id == pixel[0]) {
+        for (auto &modelinfo : shapes) {
+            if (modelinfo.id == selectedModelID) {
                 flag = 1;
                 modelinfo.isSelected = true;
-                qDebug() << "The model be selected" << "   index: " << pixel[0];
+                qDebug() << "The model is selected: " << " index: " << selectedModelID;
             } else {
                 modelinfo.isSelected = false;
             }
         }
 
         if (flag == 0) {
-            qDebug() << "No model be selected" << "   index: " << pixel[0];
+            qDebug() << "No model is selected, index: " << selectedModelID;
         }
 
         // 操作执行完毕，切换回默认帧缓冲
@@ -852,6 +867,7 @@ void Urdf_editor::mousePressEvent(QMouseEvent *event) {
         doneCurrent();
     }
 }
+
 
 
 

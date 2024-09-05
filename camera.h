@@ -36,6 +36,7 @@ public:
     Camera(QVector3D postion = QVector3D(10.0f, 10.0f, 10.0f), QVector3D up = QVector3D(0.0f, 1.0f, 0.0f), float yaw = -135.0f, float pitch = 328.0f);
     Camera(float posX, float posY, float posZ, float upX, float upY, float upZ, float yaw, float pitch);
     QMatrix4x4 GetViewMatrix();
+    QMatrix4x4 GetProjectionMatrix(float Ratio);
     void ProcessKeyborad(Camera_Movement direction, float deltaTime);
     void ProcessMouseMoveMent(float xoffset, float yoffset, GLboolean constrainPitch);
     void ProcessMouseScroll(float yoffset);
