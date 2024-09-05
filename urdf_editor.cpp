@@ -233,13 +233,22 @@ void Urdf_editor::drawCube(const Shape &shape, QMatrix4x4 model) {
 
     // 设置顶点和颜色数据
     QVector3D size = shape.link.visuals.geometry.box.size;
-    QVector3D color = QVector3D(shape.link.visuals.color.redF(), shape.link.visuals.color.greenF(), shape.link.visuals.color.blueF());
+    QVector3D color;
+    if(shape.isSelected)
+    {
+        color = QVector3D(1, 1, 0);
+        qDebug() << "yes";
+    }
+    else
+        color = QVector3D(shape.link.visuals.color.redF(), shape.link.visuals.color.greenF(), shape.link.visuals.color.blueF());
     // 使用 MeshGenerator 生成方体网格
     static auto cubeMesh = MeshGenerator::generateCubeMesh(size,color);
 
     m_shaderProgram.bind();
     m_shaderProgram.setUniformValue("model", model);
     m_shaderProgram.setUniformValue("modelID", modelID);
+    m_shaderProgram.setUniformValue("color", color);  // 传递颜色到着色器
+
 
     QMatrix4x4 view;
     view.lookAt(m_camera.Positon, m_camera.Positon + m_camera.Front, m_camera.Up);
@@ -261,15 +270,21 @@ inline double Urdf_editor::radiansToDegrees(double radians) {
 
 void Urdf_editor::drawSphere(const Shape &shape, QMatrix4x4 model) {
     int modelID = shape.id;
+    QVector3D color;
+    if(shape.isSelected)
+        color = QVector3D(1, 1, 0);
+    else
+        color = QVector3D(shape.link.visuals.color.redF(), shape.link.visuals.color.greenF(), shape.link.visuals.color.blueF());
     auto sphereMesh = MeshGenerator::generateSphereMesh(
         shape.link.visuals.geometry.sphere.radius,
         30, 30,
-        QVector3D(shape.link.visuals.color.redF(), shape.link.visuals.color.greenF(), shape.link.visuals.color.blueF())
+        color
         );
 
     m_shaderProgram.bind();
     m_shaderProgram.setUniformValue("model", model);
     m_shaderProgram.setUniformValue("modelID", modelID);
+    m_shaderProgram.setUniformValue("color", color);  // 传递颜色到着色器
 
 
     QMatrix4x4 view;
@@ -287,17 +302,23 @@ void Urdf_editor::drawSphere(const Shape &shape, QMatrix4x4 model) {
 
 void Urdf_editor::drawCylinder(const Shape &shape, QMatrix4x4 model) {
     int modelID = shape.id;
+    QVector3D color;
+    if(shape.isSelected)
+        color = QVector3D(1, 1, 0);
+    else
+        color = QVector3D(shape.link.visuals.color.redF(), shape.link.visuals.color.greenF(), shape.link.visuals.color.blueF());
     // 使用 MeshGenerator 生成圆柱体网格
     static auto cylinderMesh = MeshGenerator::generateCylinderMesh(
         shape.link.visuals.geometry.cylinder.radius,
         shape.link.visuals.geometry.cylinder.length,
         30,  // 分段数量，可以调整以增加细节
-        QVector3D(shape.link.visuals.color.redF(), shape.link.visuals.color.greenF(), shape.link.visuals.color.blueF())
+        color
         );
 
     m_shaderProgram.bind();
     m_shaderProgram.setUniformValue("model", model);
     m_shaderProgram.setUniformValue("modelID", modelID);
+    m_shaderProgram.setUniformValue("color", color);  // 传递颜色到着色器
 
 
     QMatrix4x4 view;
