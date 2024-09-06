@@ -229,9 +229,6 @@ void Urdf_editor::paintGL()
 }
 
 
-
-
-
 void Urdf_editor::drawCube(const Shape &shape, QMatrix4x4 model) {
     int modelID = shape.id;
 
@@ -242,11 +239,13 @@ void Urdf_editor::drawCube(const Shape &shape, QMatrix4x4 model) {
     {
         color = QVector3D(1, 1, 0);
         selectedShapeIndex = modelID;
+
         if(selectedShapeIndex != lastselectedShapeIndex)
         {
             lastselectedShapeIndex = selectedShapeIndex;
             emit updateIndex(selectedShapeIndex);
         }
+        drawAxisAtShape(model);
     }
     else
         color = QVector3D(shape.link.visuals.color.redF(), shape.link.visuals.color.greenF(), shape.link.visuals.color.blueF());
@@ -448,6 +447,65 @@ void Urdf_editor::drawGrid(float gridSize, float step)
 
     m_shaderProgram.release();
 }
+void Urdf_editor::drawCylinder(float radius, float height, const QVector3D& color)
+{
+    // 使用给定颜色绘制圆柱体
+    axis_shaderProgram.setUniformValue("color", color);
+
+    GLUquadric *quad = gluNewQuadric();
+    gluQuadricNormals(quad, GLU_SMOOTH);
+
+    // 圆柱体起始点在原点，沿Z轴方向延伸
+    glPushMatrix();
+    glTranslatef(0.0f, 0.0f, height / 2.0f); // 移动到适当位置
+
+    // 绘制圆柱体
+    gluCylinder(quad, radius, radius, height, 30, 30);
+
+    glPopMatrix();
+    gluDeleteQuadric(quad);
+}
+
+void Urdf_editor::drawAxisAtShape(const QMatrix4x4 &modelMatrix)
+{
+    // 使用 axis_shaderProgram 渲染坐标轴
+    axis_shaderProgram.bind();
+
+    // 设置投影矩阵和视图矩阵
+    QMatrix4x4 projection;
+    projection.perspective(m_camera.Zoom, (float)width() / height(), 0.1f, 100.0f);
+
+    QMatrix4x4 view;
+    view.lookAt(m_camera.Positon, m_camera.Positon + m_camera.Front, m_camera.Up);
+
+    // 从物体的 modelMatrix 中仅提取平移部分，不应用旋转
+    QMatrix4x4 axisModelMatrix;
+    axisModelMatrix.translate(modelMatrix.column(3).toVector3D());  // 只使用平移部分
+
+    axis_shaderProgram.setUniformValue("model", axisModelMatrix);
+    axis_shaderProgram.setUniformValue("view", view);
+    axis_shaderProgram.setUniformValue("projection", projection);
+
+    // 绘制 X 轴并赋予唯一的颜色 ID
+    axis_shaderProgram.setUniformValue("color", QVector3D(1.0f, 0.0f, 0.0f));  // 红色
+    axis_shaderProgram.setUniformValue("modelID", 10); // 假设 1000 代表 X 轴的 ID
+    glBindVertexArray(axisVAO);
+    glDrawArrays(GL_LINES, 0, 2);  // 绘制X轴
+
+    // 绘制 Y 轴并赋予唯一的颜色 ID
+    axis_shaderProgram.setUniformValue("color", QVector3D(0.0f, 1.0f, 0.0f));  // 绿色
+    axis_shaderProgram.setUniformValue("modelID", 11); // 假设 1001 代表 Y 轴的 ID
+    glDrawArrays(GL_LINES, 2, 2);  // 绘制Y轴
+
+    // 绘制 Z 轴并赋予唯一的颜色 ID
+    axis_shaderProgram.setUniformValue("color", QVector3D(0.0f, 0.0f, 1.0f));  // 蓝色
+    axis_shaderProgram.setUniformValue("modelID", 12); // 假设 1002 代表 Z 轴的 ID
+    glDrawArrays(GL_LINES, 4, 2);  // 绘制Z轴
+
+    glBindVertexArray(0);
+    axis_shaderProgram.release();
+}
+
 
 
 
@@ -816,6 +874,9 @@ void Urdf_editor::keyPressEvent(QKeyEvent *event)
     case Qt::Key_S:m_camera.ProcessKeyborad(BACKWARD,cameraSpeed);break;
     case Qt::Key_D:m_camera.ProcessKeyborad(RIGHT,cameraSpeed);break;
     case Qt::Key_A:m_camera.ProcessKeyborad(LEFT,cameraSpeed);break;
+    case Qt::Key_X:isXKeyPressed = true; isObjectMoveMode = true;break;// X键被按下
+    case Qt::Key_Y:isYKeyPressed = true; isObjectMoveMode = true;break;// Y键被按下
+    case Qt::Key_Z:isZKeyPressed = true; isObjectMoveMode = true;break;// Z键被按下
 
     default:
         break;
@@ -826,34 +887,21 @@ void Urdf_editor::keyPressEvent(QKeyEvent *event)
 
 void Urdf_editor::keyReleaseEvent(QKeyEvent *event)
 {
+    switch (event->key()) {
+    case Qt::Key_X:isXKeyPressed = false; isObjectMoveMode = false;break;// X键被释放
+    case Qt::Key_Y:isYKeyPressed = false; isObjectMoveMode = false;break;// Y键被释放
+    case Qt::Key_Z:isZKeyPressed = false; isObjectMoveMode = false;break;// Z键被释放
+
+    default:
+        QOpenGLWidget::keyReleaseEvent(event); // 调用默认事件处理
+        break;
+    }
     if(event->key()==Qt::Key_Plus)
         PressKey_Plus = false;
     if(event->key()==Qt::Key_Minus)
         PressKey_Minus = false;
     QWidget::keyReleaseEvent(event);
 }
-
-//void Urdf_editor::drawAxis()
-//{
-//    glLineWidth(2.0);
-//    glBegin(GL_LINES);
-
-//    glColor3f(1.0, 0.0, 0.0); // X 轴
-//    glVertex3f(0.0, 0.0, 0.0);
-//    glVertex3f(100.0, 0.0, 0.0);
-//    glEnd();
-//    glBegin(GL_LINES);
-//    glColor3f(0.0, 1.0, 0.0); // Y 轴
-//    glVertex3f(0.0, 0.0, 0.0);
-//    glVertex3f(0.0, 100.0, 0.0);
-//    glEnd();
-
-//    glColor3f(0.0, 0.0, 1.0); // Z 轴
-//    glVertex3f(0.0, 0.0, 0.0);
-//    glVertex3f(0.0, 0.0, 100.0);
-
-//    glEnd();
-//}
 
 void Urdf_editor::renderShapes()
 {
@@ -889,6 +937,14 @@ void Urdf_editor::mousePressEvent(QMouseEvent *event) {
         // 重新组合RGB通道值为modelID
         int selectedModelID = (pixel[0] << 16) | (pixel[1] << 8) | pixel[2];
         qDebug() << "Selected model ID: " << selectedModelID;
+        if (selectedModelID < 10000)
+            lastselectedModelID = selectedModelID;
+        else
+        {
+            if(lastselectedModelID == -1);
+            else
+                selectedModelID = lastselectedModelID;
+        }
 
         // 遍历模型，检测哪个模型的 ID 被选中
         int flag = 0;  // 标识是否有模型被选中
@@ -901,8 +957,7 @@ void Urdf_editor::mousePressEvent(QMouseEvent *event) {
                 modelinfo.isSelected = false;
             }
         }
-
-        if (flag == 0) {
+        if (flag == 0 ) {
             qDebug() << "No model is selected, index: " << selectedModelID;
         }
 
@@ -913,8 +968,6 @@ void Urdf_editor::mousePressEvent(QMouseEvent *event) {
 }
 
 
-
-
 void Urdf_editor::mouseMoveEvent(QMouseEvent *event)
 {
     if (event->buttons() & Qt::LeftButton) {
@@ -922,7 +975,25 @@ void Urdf_editor::mouseMoveEvent(QMouseEvent *event)
         auto currentPos = event->pos();
         deltaPos = currentPos - lastPos;
         lastPos = currentPos;
-        m_camera.ProcessMouseMoveMent(deltaPos.x(), -deltaPos.y(),GL_FALSE);
+        if(isObjectMoveMode&&selectedShapeIndex>=0)
+        {
+            float moveSpeed = 0.01f;  // 控制移动速度
+            if(isXKeyPressed)
+                shapes[selectedShapeIndex].link.visuals.origin.xyz.setX(
+                    shapes[selectedShapeIndex].link.visuals.origin.xyz.x() + deltaPos.x() * moveSpeed
+                    );
+            else if(isYKeyPressed)
+                shapes[selectedShapeIndex].link.visuals.origin.xyz.setY(
+                    shapes[selectedShapeIndex].link.visuals.origin.xyz.y() + deltaPos.x() * moveSpeed
+                    );
+            else if(isZKeyPressed)
+                shapes[selectedShapeIndex].link.visuals.origin.xyz.setZ(
+                    shapes[selectedShapeIndex].link.visuals.origin.xyz.z() + deltaPos.x() * moveSpeed
+                    );
+        }
+        else
+            m_camera.ProcessMouseMoveMent(deltaPos.x(), -deltaPos.y(),GL_FALSE);
+
         update();
     }
 }

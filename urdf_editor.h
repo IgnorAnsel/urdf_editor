@@ -81,6 +81,8 @@ private:
     QVector3D translation = QVector3D(0,0,0); // 平移变量
     QOpenGLShaderProgram m_shaderProgram;
     QOpenGLShaderProgram axis_shaderProgram;
+    void drawCylinder(float radius, float height, const QVector3D& color);
+    void drawAxisAtShape(const QMatrix4x4 &modelMatrix);
     void drawAxis();
     void renderShapes();
     void drawGrid(float gridSize, float step);
@@ -127,6 +129,16 @@ private:
     int frameCount;
     float fps;
     QElapsedTimer fps_timer;
+
+    //
+    int lastselectedModelID = -1;
+
+    // anjian
+    bool isObjectMoveMode =false;
+    bool isXKeyPressed = false; // 标记是否按下了X键
+    bool isYKeyPressed = false;
+    bool isZKeyPressed = false;
+
 };
 
 #endif // URDF_EDITOR_H
