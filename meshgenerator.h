@@ -8,9 +8,10 @@
 
 class MeshGenerator {
 public:
-    static std::shared_ptr<MeshObject> generateSphereMesh(float radius, int slices, int stacks, const QVector3D& color);
-    static std::shared_ptr<MeshObject> generateCylinderMesh(float radius, float height, int slices, const QVector3D& color);
-    static std::shared_ptr<MeshObject> generateCubeMesh(const QVector3D& size, const QVector3D& color);
+    static std::shared_ptr<MeshObject> generateSphereMesh(float radius, int slices, int stacks);
+    static std::shared_ptr<MeshObject> generateCylinderMesh(float radius, float height, int slices);
+    static std::shared_ptr<MeshObject> generateCubeMesh(const QVector3D& size);
+
 };
 
 #endif // MESHGENERATOR_H

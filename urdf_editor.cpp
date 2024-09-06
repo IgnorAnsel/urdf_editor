@@ -95,6 +95,9 @@ void Urdf_editor::set_set_selectedShapeIndex_f1()
 }
 void Urdf_editor::initializeGL() {
     initializeOpenGLFunctions();
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LESS);  // 使用默认的深度比较方式
+    glDepthMask(GL_TRUE);   // 允许写入深度缓冲区
     GLenum error = glGetError();
     if (error != GL_NO_ERROR) {
         qDebug() << "OpenGL Error after initializing OpenGL functions: " << error;
@@ -138,32 +141,17 @@ void Urdf_editor::initializeGL() {
     }
     glBindFramebuffer(GL_FRAMEBUFFER, 0); // 解除绑定
 
-    // 编译和链接着色器
-    bool success = m_shaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/shapes.vert");
-    error = glGetError();
-    if (!success || error != GL_NO_ERROR) {
-        qDebug() << "Vertex Shader Error: " << m_shaderProgram.log();
-        qDebug() << "OpenGL Error after adding vertex shader: " << error;
-    }
-
-    success = m_shaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/shapes.frag");
-    error = glGetError();
-    if (!success || error != GL_NO_ERROR) {
-        qDebug() << "Fragment Shader Error: " << m_shaderProgram.log();
-        qDebug() << "OpenGL Error after adding fragment shader: " << error;
-    }
-
-    success = m_shaderProgram.link();
-    error = glGetError();
-    if (!success || error != GL_NO_ERROR) {
-        qDebug() << "Shader Program Link Error: " << m_shaderProgram.log();
-        qDebug() << "OpenGL Error after linking shader program: " << error;
-    }
-
-    m_shaderProgram.bind();
+    axis_shaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/axis.vert");
+    axis_shaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/axis.frag");
+    axis_shaderProgram.link();
+    // 初始化坐标轴的 VAO 和 VBO
     drawAxis();
-    glEnable(GL_DEPTH_TEST);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    // 编译和链接着色器
+    m_shaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/shapes.vert");
+    m_shaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/shapes.frag");
+    m_shaderProgram.link();
+    m_shaderProgram.bind();
+    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     // glClearColor(0.5f, 0.5f, 0.5f, 1.0f); // 设置背景颜色为灰色
 }
 
@@ -177,6 +165,7 @@ void Urdf_editor::paintGL()
 {
     // 清除颜色和深度缓冲区
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    glDepthMask(GL_TRUE); // 启用深度缓冲区写入
 
     // 设置投影和视图矩阵
     QMatrix4x4 projection;
@@ -184,24 +173,38 @@ void Urdf_editor::paintGL()
     projection.perspective(m_camera.Zoom, (float)width() / height(), 1, 100);
     view.lookAt(m_camera.Positon, m_camera.Positon + m_camera.Front, m_camera.Up);
 
-    m_shaderProgram.bind();
-    m_shaderProgram.setUniformValue("projection", projection);
-    m_shaderProgram.setUniformValue("view", view);
-    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-    // 先绘制坐标轴
-    QMatrix4x4 model;
-    m_shaderProgram.setUniformValue("model", model);
+    // === 使用 axis_shaderProgram 渲染坐标轴 ===
+    axis_shaderProgram.bind();  // 绑定用于坐标轴的着色器
+
+    // 设置坐标轴的 Uniforms
+    QMatrix4x4 model;  // 坐标轴的模型矩阵，一般为单位矩阵
+    axis_shaderProgram.setUniformValue("model", model);
+    axis_shaderProgram.setUniformValue("view", view);
+    axis_shaderProgram.setUniformValue("projection", projection);
+
+    // 绘制坐标轴
     glBindVertexArray(axisVAO);
-    glDrawArrays(GL_LINES, 0, 6);
+    glDrawArrays(GL_LINES, 0, 6);  // 绘制X、Y、Z轴（6个顶点）
     glBindVertexArray(0);
 
-    // 绘制其他形状
-    renderShapes();
+    // 释放 axis_shaderProgram
+    axis_shaderProgram.release();
 
-    // 释放着色器程序
+    // === 使用 m_shaderProgram 渲染其他形状 ===
+    m_shaderProgram.bind();  // 绑定用于几何形状的着色器
+    glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+
+    // 设置几何体的 Uniforms
+    m_shaderProgram.setUniformValue("view", view);
+    m_shaderProgram.setUniformValue("projection", projection);
+
+    // 绘制其他形状
+    renderShapes();  // renderShapes() 内部应该负责设置模型矩阵和调用形状的渲染
+
+    // 释放 m_shaderProgram
     m_shaderProgram.release();
 
-    // 计算FPS
+    // === 计算并显示 FPS ===
     frameCount++;
     if (fps_timer.elapsed() >= 1000) { // 每秒更新一次FPS
         fps = frameCount / (fps_timer.elapsed() / 1000.0f);
@@ -228,6 +231,7 @@ void Urdf_editor::paintGL()
 
 
 
+
 void Urdf_editor::drawCube(const Shape &shape, QMatrix4x4 model) {
     int modelID = shape.id;
 
@@ -237,12 +241,17 @@ void Urdf_editor::drawCube(const Shape &shape, QMatrix4x4 model) {
     if(shape.isSelected)
     {
         color = QVector3D(1, 1, 0);
-        qDebug() << "yes";
+        selectedShapeIndex = modelID;
+        if(selectedShapeIndex != lastselectedShapeIndex)
+        {
+            lastselectedShapeIndex = selectedShapeIndex;
+            emit updateIndex(selectedShapeIndex);
+        }
     }
     else
         color = QVector3D(shape.link.visuals.color.redF(), shape.link.visuals.color.greenF(), shape.link.visuals.color.blueF());
     // 使用 MeshGenerator 生成方体网格
-    static auto cubeMesh = MeshGenerator::generateCubeMesh(size,color);
+    static auto cubeMesh = MeshGenerator::generateCubeMesh(size);
 
     m_shaderProgram.bind();
     m_shaderProgram.setUniformValue("model", model);
@@ -272,13 +281,20 @@ void Urdf_editor::drawSphere(const Shape &shape, QMatrix4x4 model) {
     int modelID = shape.id;
     QVector3D color;
     if(shape.isSelected)
+    {
         color = QVector3D(1, 1, 0);
+        selectedShapeIndex = modelID;
+        if(selectedShapeIndex != lastselectedShapeIndex)
+        {
+            lastselectedShapeIndex = selectedShapeIndex;
+            emit updateIndex(selectedShapeIndex);
+        }
+    }
     else
         color = QVector3D(shape.link.visuals.color.redF(), shape.link.visuals.color.greenF(), shape.link.visuals.color.blueF());
     auto sphereMesh = MeshGenerator::generateSphereMesh(
         shape.link.visuals.geometry.sphere.radius,
-        30, 30,
-        color
+        30, 30
         );
 
     m_shaderProgram.bind();
@@ -304,15 +320,22 @@ void Urdf_editor::drawCylinder(const Shape &shape, QMatrix4x4 model) {
     int modelID = shape.id;
     QVector3D color;
     if(shape.isSelected)
+    {
         color = QVector3D(1, 1, 0);
+        selectedShapeIndex = modelID;
+        if(selectedShapeIndex != lastselectedShapeIndex)
+        {
+            lastselectedShapeIndex = selectedShapeIndex;
+            emit updateIndex(selectedShapeIndex);
+        }
+    }
     else
         color = QVector3D(shape.link.visuals.color.redF(), shape.link.visuals.color.greenF(), shape.link.visuals.color.blueF());
     // 使用 MeshGenerator 生成圆柱体网格
     static auto cylinderMesh = MeshGenerator::generateCylinderMesh(
         shape.link.visuals.geometry.cylinder.radius,
         shape.link.visuals.geometry.cylinder.length,
-        30,  // 分段数量，可以调整以增加细节
-        color
+        30  // 分段数量，可以调整以增加细节
         );
 
     m_shaderProgram.bind();

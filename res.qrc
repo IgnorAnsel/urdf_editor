@@ -24,5 +24,7 @@
         <file>pic/light/Object.png</file>
         <file>shaders/shapes.frag</file>
         <file>shaders/shapes.vert</file>
+        <file>shaders/axis.frag</file>
+        <file>shaders/axis.vert</file>
     </qresource>
 </RCC>

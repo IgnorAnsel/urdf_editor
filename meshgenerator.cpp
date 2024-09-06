@@ -1,7 +1,7 @@
 #include "meshgenerator.h"
 
 
-std::shared_ptr<MeshObject> MeshGenerator::generateSphereMesh(float radius, int slices, int stacks, const QVector3D &color)
+std::shared_ptr<MeshObject> MeshGenerator::generateSphereMesh(float radius, int slices, int stacks)
 {
     std::vector<GLfloat> vertices;
     std::vector<GLuint> indices;
@@ -19,9 +19,6 @@ std::shared_ptr<MeshObject> MeshGenerator::generateSphereMesh(float radius, int 
             vertices.push_back(x);
             vertices.push_back(y);
             vertices.push_back(z);
-            vertices.push_back(color.x());
-            vertices.push_back(color.y());
-            vertices.push_back(color.z());
         }
     }
 
@@ -43,7 +40,7 @@ std::shared_ptr<MeshObject> MeshGenerator::generateSphereMesh(float radius, int 
     return std::make_shared<MeshObject>(vertices, indices);
 }
 
-std::shared_ptr<MeshObject> MeshGenerator::generateCylinderMesh(float radius, float height, int slices, const QVector3D &color)
+std::shared_ptr<MeshObject> MeshGenerator::generateCylinderMesh(float radius, float height, int slices)
 {
     std::vector<GLfloat> vertices;
     std::vector<GLuint> indices;
@@ -53,9 +50,6 @@ std::shared_ptr<MeshObject> MeshGenerator::generateCylinderMesh(float radius, fl
     vertices.push_back(0.0f);
     vertices.push_back(-halfHeight);
     vertices.push_back(0.0f);
-    vertices.push_back(color.x());
-    vertices.push_back(color.y());
-    vertices.push_back(color.z());
 
     for (int i = 0; i <= slices; ++i) {
         float theta = 2.0f * M_PI * i / slices;
@@ -64,18 +58,12 @@ std::shared_ptr<MeshObject> MeshGenerator::generateCylinderMesh(float radius, fl
         vertices.push_back(x);
         vertices.push_back(-halfHeight);
         vertices.push_back(z);
-        vertices.push_back(color.x());
-        vertices.push_back(color.y());
-        vertices.push_back(color.z());
     }
 
     // Top circle
     vertices.push_back(0.0f);
     vertices.push_back(halfHeight);
     vertices.push_back(0.0f);
-    vertices.push_back(color.x());
-    vertices.push_back(color.y());
-    vertices.push_back(color.z());
 
     for (int i = 0; i <= slices; ++i) {
         float theta = 2.0f * M_PI * i / slices;
@@ -84,9 +72,6 @@ std::shared_ptr<MeshObject> MeshGenerator::generateCylinderMesh(float radius, fl
         vertices.push_back(x);
         vertices.push_back(halfHeight);
         vertices.push_back(z);
-        vertices.push_back(color.x());
-        vertices.push_back(color.y());
-        vertices.push_back(color.z());
     }
 
     // Bottom face indices
@@ -103,9 +88,9 @@ std::shared_ptr<MeshObject> MeshGenerator::generateCylinderMesh(float radius, fl
         indices.push_back(i);
     }
 
-    // Side faces indices
+    // Side faces indices (修正后的部分)
     for (int i = 1; i <= slices; ++i) {
-        int next = (i % slices) + 1;
+        int next = (i == slices) ? 1 : i + 1; // 修正闭合问题
         indices.push_back(i);
         indices.push_back(i + slices + 1);
         indices.push_back(next + slices + 1);
@@ -114,24 +99,23 @@ std::shared_ptr<MeshObject> MeshGenerator::generateCylinderMesh(float radius, fl
         indices.push_back(next + slices + 1);
         indices.push_back(next);
     }
-    qDebug() << "Vertices count:" << vertices.size() / 6;  // 每个顶点有6个值：3个位置 + 3个颜色
-    qDebug() << "Indices count:" << indices.size();
 
     return std::make_shared<MeshObject>(vertices, indices);
 }
 
-std::shared_ptr<MeshObject> MeshGenerator::generateCubeMesh(const QVector3D& size, const QVector3D& color)
+
+std::shared_ptr<MeshObject> MeshGenerator::generateCubeMesh(const QVector3D& size)
 {
     std::vector<GLfloat> vertices = {
-        // Positions                             // Colors
-        -size.x() / 2, -size.y() / 2,  size.z() / 2,  color.x(), color.y(), color.z(),  // 前面左下角
-        size.x() / 2, -size.y() / 2,  size.z() / 2,  color.x(), color.y(), color.z(),  // 前面右下角
-        size.x() / 2,  size.y() / 2,  size.z() / 2,  color.x(), color.y(), color.z(),  // 前面右上角
-        -size.x() / 2,  size.y() / 2,  size.z() / 2,  color.x(), color.y(), color.z(),  // 前面左上角
-        -size.x() / 2, -size.y() / 2, -size.z() / 2,  color.x(), color.y(), color.z(),  // 后面左下角
-        size.x() / 2, -size.y() / 2, -size.z() / 2,  color.x(), color.y(), color.z(),  // 后面右下角
-        size.x() / 2,  size.y() / 2, -size.z() / 2,  color.x(), color.y(), color.z(),  // 后面右上角
-        -size.x() / 2,  size.y() / 2, -size.z() / 2,  color.x(), color.y(), color.z()   // 后面左上角
+        // Positions
+        -size.x() / 2, -size.y() / 2,  size.z() / 2,  // 前面左下角
+        size.x() / 2, -size.y() / 2,  size.z() / 2,  // 前面右下角
+        size.x() / 2,  size.y() / 2,  size.z() / 2,  // 前面右上角
+        -size.x() / 2,  size.y() / 2,  size.z() / 2,  // 前面左上角
+        -size.x() / 2, -size.y() / 2, -size.z() / 2,  // 后面左下角
+        size.x() / 2, -size.y() / 2, -size.z() / 2,  // 后面右下角
+        size.x() / 2,  size.y() / 2, -size.z() / 2,  // 后面右上角
+        -size.x() / 2,  size.y() / 2, -size.z() / 2   // 后面左上角
     };
 
     std::vector<GLuint> indices = {
@@ -142,8 +126,6 @@ std::shared_ptr<MeshObject> MeshGenerator::generateCubeMesh(const QVector3D& siz
         0, 1, 5, 5, 4, 0, // Bottom face
         3, 2, 6, 6, 7, 3  // Top face
     };
-    qDebug() << "Vertices count:" << vertices.size() / 6;  // 每个顶点有6个值：3个位置 + 3个颜色
-    qDebug() << "Indices count:" << indices.size();
 
     return std::make_shared<MeshObject>(vertices, indices);
 }

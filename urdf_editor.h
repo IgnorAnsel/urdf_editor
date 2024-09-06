@@ -80,6 +80,7 @@ private:
     Camera m_camera;
     QVector3D translation = QVector3D(0,0,0); // 平移变量
     QOpenGLShaderProgram m_shaderProgram;
+    QOpenGLShaderProgram axis_shaderProgram;
     void drawAxis();
     void renderShapes();
     void drawGrid(float gridSize, float step);
