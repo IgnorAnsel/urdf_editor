@@ -171,7 +171,7 @@ void Urdf_editor::paintGL()
     QMatrix4x4 projection;
     QMatrix4x4 view;
     projection.perspective(m_camera.Zoom, (float)width() / height(), 1, 100);
-    view.lookAt(m_camera.Positon, m_camera.Positon + m_camera.Front, m_camera.Up);
+    view.lookAt(m_camera.Position, m_camera.Position + m_camera.Front, m_camera.Up);
 
     // === 使用 axis_shaderProgram 渲染坐标轴 ===
     axis_shaderProgram.bind();  // 绑定用于坐标轴的着色器
@@ -183,9 +183,9 @@ void Urdf_editor::paintGL()
     axis_shaderProgram.setUniformValue("projection", projection);
 
     // 绘制坐标轴
-    glBindVertexArray(axisVAO);
-    glDrawArrays(GL_LINES, 0, 6);  // 绘制X、Y、Z轴（6个顶点）
-    glBindVertexArray(0);
+    //glBindVertexArray(axisVAO);
+    //glDrawArrays(GL_LINES, 0, 6);  // 绘制X、Y、Z轴（6个顶点）
+    //glBindVertexArray(0);
 
     // 释放 axis_shaderProgram
     axis_shaderProgram.release();
@@ -227,6 +227,15 @@ void Urdf_editor::paintGL()
     // 恢复OpenGL状态
     glPopAttrib();
 }
+QMatrix4x4 convertOpenGLToRViz() {
+    QMatrix4x4 conversionMatrix;
+
+    // OpenGL to RViz coordinate conversion
+    conversionMatrix.setToIdentity();
+    conversionMatrix.rotate(90.0f, 1.0f, 0.0f, 0.0f);  // X轴旋转90度，交换Y和Z轴
+
+    return conversionMatrix;
+}
 
 
 void Urdf_editor::drawCube(const Shape &shape, QMatrix4x4 model) {
@@ -259,7 +268,7 @@ void Urdf_editor::drawCube(const Shape &shape, QMatrix4x4 model) {
 
 
     QMatrix4x4 view;
-    view.lookAt(m_camera.Positon, m_camera.Positon + m_camera.Front, m_camera.Up);
+    view.lookAt(m_camera.Position, m_camera.Position + m_camera.Front, m_camera.Up);
     m_shaderProgram.setUniformValue("view", view);
 
     QMatrix4x4 projection;
@@ -303,7 +312,7 @@ void Urdf_editor::drawSphere(const Shape &shape, QMatrix4x4 model) {
 
 
     QMatrix4x4 view;
-    view.lookAt(m_camera.Positon, m_camera.Positon + m_camera.Front, m_camera.Up);
+    view.lookAt(m_camera.Position, m_camera.Position + m_camera.Front, m_camera.Up);
     m_shaderProgram.setUniformValue("view", view);
 
     QMatrix4x4 projection;
@@ -344,7 +353,7 @@ void Urdf_editor::drawCylinder(const Shape &shape, QMatrix4x4 model) {
 
 
     QMatrix4x4 view;
-    view.lookAt(m_camera.Positon, m_camera.Positon + m_camera.Front, m_camera.Up);
+    view.lookAt(m_camera.Position, m_camera.Position + m_camera.Front, m_camera.Up);
     m_shaderProgram.setUniformValue("view", view);
 
     QMatrix4x4 projection;
@@ -476,7 +485,7 @@ void Urdf_editor::drawAxisAtShape(const QMatrix4x4 &modelMatrix)
     projection.perspective(m_camera.Zoom, (float)width() / height(), 0.1f, 100.0f);
 
     QMatrix4x4 view;
-    view.lookAt(m_camera.Positon, m_camera.Positon + m_camera.Front, m_camera.Up);
+    view.lookAt(m_camera.Position, m_camera.Position + m_camera.Front, m_camera.Up);
 
     // 从物体的 modelMatrix 中仅提取平移部分，不应用旋转
     QMatrix4x4 axisModelMatrix;
@@ -844,7 +853,7 @@ void Urdf_editor::renderShape(const Shape &shape)
     // 绑定着色器程序并传递变换矩阵
     m_shaderProgram.bind();
     QMatrix4x4 view;
-    view.lookAt(m_camera.Positon, m_camera.Positon + m_camera.Front, m_camera.Up);
+    view.lookAt(m_camera.Position, m_camera.Position + m_camera.Front, m_camera.Up);
 
     //m_shaderProgram.setUniformValue("model", modelMatrix);
     m_shaderProgram.setUniformValue("view", view);
@@ -877,7 +886,7 @@ void Urdf_editor::keyPressEvent(QKeyEvent *event)
     case Qt::Key_X:isXKeyPressed = true; isObjectMoveMode = true;break;// X键被按下
     case Qt::Key_Y:isYKeyPressed = true; isObjectMoveMode = true;break;// Y键被按下
     case Qt::Key_Z:isZKeyPressed = true; isObjectMoveMode = true;break;// Z键被按下
-
+    case Qt::Key_G:isFreeMoveMode = true; break;
     default:
         break;
     }
@@ -891,7 +900,8 @@ void Urdf_editor::keyReleaseEvent(QKeyEvent *event)
     case Qt::Key_X:isXKeyPressed = false; isObjectMoveMode = false;break;// X键被释放
     case Qt::Key_Y:isYKeyPressed = false; isObjectMoveMode = false;break;// Y键被释放
     case Qt::Key_Z:isZKeyPressed = false; isObjectMoveMode = false;break;// Z键被释放
-
+    case Qt::Key_G:isFreeMoveMode = false; break;
+    //case Qt::Key_S:isScaleMode = false;break;
     default:
         QOpenGLWidget::keyReleaseEvent(event); // 调用默认事件处理
         break;
@@ -905,6 +915,8 @@ void Urdf_editor::keyReleaseEvent(QKeyEvent *event)
 
 void Urdf_editor::renderShapes()
 {
+    QMatrix4x4 model;
+    drawAxisAtShape(model); //
     for (size_t i = 0; i < shapes.size(); ++i) {
         renderShape(shapes[i]); // 渲染每个形状
     }
@@ -971,32 +983,122 @@ void Urdf_editor::mousePressEvent(QMouseEvent *event) {
 void Urdf_editor::mouseMoveEvent(QMouseEvent *event)
 {
     if (event->buttons() & Qt::LeftButton) {
-        //static QPoint lastPos(width() / 2, height() / 2);
         auto currentPos = event->pos();
-        deltaPos = currentPos - lastPos;
-        lastPos = currentPos;
-        if(isObjectMoveMode&&selectedShapeIndex>=0)
-        {
-            float moveSpeed = 0.01f;  // 控制移动速度
-            if(isXKeyPressed)
-                shapes[selectedShapeIndex].link.visuals.origin.xyz.setX(
-                    shapes[selectedShapeIndex].link.visuals.origin.xyz.x() + deltaPos.x() * moveSpeed
-                    );
-            else if(isYKeyPressed)
-                shapes[selectedShapeIndex].link.visuals.origin.xyz.setY(
-                    shapes[selectedShapeIndex].link.visuals.origin.xyz.y() + deltaPos.x() * moveSpeed
-                    );
-            else if(isZKeyPressed)
-                shapes[selectedShapeIndex].link.visuals.origin.xyz.setZ(
-                    shapes[selectedShapeIndex].link.visuals.origin.xyz.z() + deltaPos.x() * moveSpeed
-                    );
-        }
-        else
-            m_camera.ProcessMouseMoveMent(deltaPos.x(), -deltaPos.y(),GL_FALSE);
+        deltaPos = currentPos - lastPos;  // 计算鼠标移动的增量
+        lastPos = currentPos;  // 更新上一次鼠标位置
 
-        update();
+        // 检查是否处于自由移动模式
+        if (isFreeMoveMode && selectedShapeIndex >= 0) {
+            float moveSpeed = 0.01f;  // 控制移动速度
+
+            // 获取摄像机的右向量和上向量
+            QVector3D rightVector = m_camera.GetRightVector();  // 摄像机的右向量
+            QVector3D upVector = m_camera.GetUpVector();        // 摄像机的上向量
+
+            // 在自由移动模式下，鼠标左右移动对应沿着右向量移动，鼠标上下移动对应沿着上向量移动
+            QVector3D deltaMove = rightVector * deltaPos.x() * moveSpeed + upVector * -deltaPos.y() * moveSpeed;
+
+            // 更新模型的位置
+            shapes[selectedShapeIndex].link.visuals.origin.xyz += deltaMove;
+            qDebug() << "Free moving model, delta: " << deltaMove;
+            emit updateIndex(selectedShapeIndex);
+            update();  // 更新场景以反映模型的位置变化
+        } else if (isObjectMoveMode && selectedShapeIndex >= 0) {
+            float moveSpeed = 0.01f;
+
+            // 获取摄像机的右向量、上向量和前向量
+            QVector3D rightVector = m_camera.GetRightVector();  // 摄像机的右向量
+            QVector3D upVector = m_camera.GetUpVector();        // 摄像机的上向量
+
+            QVector3D deltaMove = rightVector * deltaPos.x() * moveSpeed + upVector * -deltaPos.y() * moveSpeed;
+
+            if (isXKeyPressed) {
+                // 只沿摄像机的右向量移动对象，鼠标的 x 轴决定对象的移动
+                shapes[selectedShapeIndex].link.visuals.origin.xyz.setX(
+                    shapes[selectedShapeIndex].link.visuals.origin.xyz.x() + deltaMove.x()
+                    );
+            } else if (isYKeyPressed) {
+                // 只沿摄像机的上向量移动对象，鼠标的 y 轴决定对象的移动
+                shapes[selectedShapeIndex].link.visuals.origin.xyz.setY(
+                    shapes[selectedShapeIndex].link.visuals.origin.xyz.y() + deltaMove.y()
+                    );
+            } else if (isZKeyPressed) {
+                // 只沿摄像机的前后向量移动对象，鼠标的 y 轴决定对象的移动
+                shapes[selectedShapeIndex].link.visuals.origin.xyz.setZ(
+                    shapes[selectedShapeIndex].link.visuals.origin.xyz.z() + deltaMove.z()
+                    );
+            }
+            emit updateIndex(selectedShapeIndex);
+
+        }
+        else if (isScaleMode && selectedShapeIndex >= 0)
+        {
+            float scaleSpeed = 0.01f;
+
+            // 获取摄像机的右向量、上向量
+            QVector3D rightVector = m_camera.GetRightVector();  // 摄像机的右向量
+            QVector3D upVector = m_camera.GetUpVector();        // 摄像机的上向量
+
+            // 计算鼠标移动引起的缩放变化
+            QVector3D deltaMove = rightVector * deltaPos.x() * scaleSpeed + upVector * -deltaPos.y() * scaleSpeed;
+
+            if (shapekind == 0)  // 处理盒子(Box)
+            {
+                if (isXKeyPressed) {
+                    // 修改盒子的X轴尺寸
+                    shapes[selectedShapeIndex].link.visuals.geometry.box.size.setX(
+                        shapes[selectedShapeIndex].link.visuals.geometry.box.size.x() + deltaMove.x()
+                        );
+                } else if (isYKeyPressed) {
+                    // 修改盒子的Y轴尺寸
+                    shapes[selectedShapeIndex].link.visuals.geometry.box.size.setY(
+                        shapes[selectedShapeIndex].link.visuals.geometry.box.size.y() + deltaMove.y()
+                        );
+                } else if (isZKeyPressed) {
+                    // 修改盒子的Z轴尺寸
+                    shapes[selectedShapeIndex].link.visuals.geometry.box.size.setZ(
+                        shapes[selectedShapeIndex].link.visuals.geometry.box.size.z() + deltaMove.z()
+                        );
+                }
+            }
+            else if (shapekind == 1)  // 处理球体(Sphere)
+            {
+                if (isXKeyPressed || isYKeyPressed || isZKeyPressed) {
+                    // 修改球体的半径（球体只需要调整半径）
+                    float newRadius = shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius + deltaMove.length();
+                    shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius = std::max(newRadius, 0.1f);  // 防止半径为负
+                }
+            }
+            else if (shapekind == 2)  // 处理圆柱体(Cylinder)
+            {
+                if (isXKeyPressed || isZKeyPressed) {
+                    // 修改圆柱体的半径
+                    float newRadius = shapes[selectedShapeIndex].link.visuals.geometry.cylinder.radius + deltaMove.length();
+                    shapes[selectedShapeIndex].link.visuals.geometry.cylinder.radius = std::max(newRadius, 0.1f);  // 防止半径为负
+                }
+                else if (isYKeyPressed) {
+                    // 修改圆柱体的高度
+                    shapes[selectedShapeIndex].link.visuals.geometry.cylinder.length += deltaMove.y();
+                    if (shapes[selectedShapeIndex].link.visuals.geometry.cylinder.length < 0.1f)
+                        shapes[selectedShapeIndex].link.visuals.geometry.cylinder.length = 0.1f;  // 防止高度为负
+                }
+            }
+
+            // 发送更新信号以更新UI和场景
+            emit updateIndex(selectedShapeIndex);
+        }
+
+        else {
+            // 处理摄像机视角变化
+            m_camera.ProcessMouseMoveMent(deltaPos.x(), -deltaPos.y(), GL_FALSE);
+        }
+
+        update();  // 更新场景
     }
 }
+
+
+
 
 
 void Urdf_editor::mouseReleaseEvent(QMouseEvent *event)

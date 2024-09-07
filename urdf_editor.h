@@ -134,7 +134,9 @@ private:
     int lastselectedModelID = -1;
 
     // anjian
-    bool isObjectMoveMode =false;
+    bool isScaleMode = false;
+    bool isObjectMoveMode = false;
+    bool isFreeMoveMode = false;
     bool isXKeyPressed = false; // 标记是否按下了X键
     bool isYKeyPressed = false;
     bool isZKeyPressed = false;
