@@ -254,7 +254,13 @@ void Urdf_editor::drawCube(const Shape &shape, QMatrix4x4 model) {
             lastselectedShapeIndex = selectedShapeIndex;
             emit updateIndex(selectedShapeIndex);
         }
-        drawAxisAtShape(model);
+
+        if(isMoveMode)
+            drawConeAtCubeAxis(size, model);  // 新增的函数，用于在方块上绘制圆锥
+        else
+            drawAxisAtShape(model);
+
+
     }
     else
         color = QVector3D(shape.link.visuals.color.redF(), shape.link.visuals.color.greenF(), shape.link.visuals.color.blueF());
@@ -280,7 +286,6 @@ void Urdf_editor::drawCube(const Shape &shape, QMatrix4x4 model) {
     m_shaderProgram.release();
 }
 
-
 inline double Urdf_editor::radiansToDegrees(double radians) {
     return radians * (180.0 / M_PI);
 }
@@ -288,6 +293,7 @@ inline double Urdf_editor::radiansToDegrees(double radians) {
 void Urdf_editor::drawSphere(const Shape &shape, QMatrix4x4 model) {
     int modelID = shape.id;
     QVector3D color;
+    float radius = shape.link.visuals.geometry.sphere.radius;
     if(shape.isSelected)
     {
         color = QVector3D(1, 1, 0);
@@ -297,11 +303,15 @@ void Urdf_editor::drawSphere(const Shape &shape, QMatrix4x4 model) {
             lastselectedShapeIndex = selectedShapeIndex;
             emit updateIndex(selectedShapeIndex);
         }
+        if(isMoveMode)
+            drawConeAtSphereAxis(radius, model);
+        else
+            drawAxisAtShape(model);
     }
     else
         color = QVector3D(shape.link.visuals.color.redF(), shape.link.visuals.color.greenF(), shape.link.visuals.color.blueF());
-    auto sphereMesh = MeshGenerator::generateSphereMesh(
-        shape.link.visuals.geometry.sphere.radius,
+    static auto sphereMesh = MeshGenerator::generateSphereMesh(
+        radius,
         30, 30
         );
 
@@ -327,6 +337,8 @@ void Urdf_editor::drawSphere(const Shape &shape, QMatrix4x4 model) {
 void Urdf_editor::drawCylinder(const Shape &shape, QMatrix4x4 model) {
     int modelID = shape.id;
     QVector3D color;
+    float radius = shape.link.visuals.geometry.cylinder.radius;
+    float length = shape.link.visuals.geometry.cylinder.length;
     if(shape.isSelected)
     {
         color = QVector3D(1, 1, 0);
@@ -336,13 +348,17 @@ void Urdf_editor::drawCylinder(const Shape &shape, QMatrix4x4 model) {
             lastselectedShapeIndex = selectedShapeIndex;
             emit updateIndex(selectedShapeIndex);
         }
+        if(isMoveMode)
+            drawConeAtCylinderAxis(radius, length, model);
+        else
+            drawAxisAtShape(model);
     }
     else
         color = QVector3D(shape.link.visuals.color.redF(), shape.link.visuals.color.greenF(), shape.link.visuals.color.blueF());
     // 使用 MeshGenerator 生成圆柱体网格
     static auto cylinderMesh = MeshGenerator::generateCylinderMesh(
-        shape.link.visuals.geometry.cylinder.radius,
-        shape.link.visuals.geometry.cylinder.length,
+        radius,
+        length,
         30  // 分段数量，可以调整以增加细节
         );
 
@@ -456,24 +472,6 @@ void Urdf_editor::drawGrid(float gridSize, float step)
 
     m_shaderProgram.release();
 }
-void Urdf_editor::drawCylinder(float radius, float height, const QVector3D& color)
-{
-    // 使用给定颜色绘制圆柱体
-    axis_shaderProgram.setUniformValue("color", color);
-
-    GLUquadric *quad = gluNewQuadric();
-    gluQuadricNormals(quad, GLU_SMOOTH);
-
-    // 圆柱体起始点在原点，沿Z轴方向延伸
-    glPushMatrix();
-    glTranslatef(0.0f, 0.0f, height / 2.0f); // 移动到适当位置
-
-    // 绘制圆柱体
-    gluCylinder(quad, radius, radius, height, 30, 30);
-
-    glPopMatrix();
-    gluDeleteQuadric(quad);
-}
 
 void Urdf_editor::drawAxisAtShape(const QMatrix4x4 &modelMatrix)
 {
@@ -497,18 +495,15 @@ void Urdf_editor::drawAxisAtShape(const QMatrix4x4 &modelMatrix)
 
     // 绘制 X 轴并赋予唯一的颜色 ID
     axis_shaderProgram.setUniformValue("color", QVector3D(1.0f, 0.0f, 0.0f));  // 红色
-    axis_shaderProgram.setUniformValue("modelID", 10); // 假设 1000 代表 X 轴的 ID
     glBindVertexArray(axisVAO);
     glDrawArrays(GL_LINES, 0, 2);  // 绘制X轴
 
     // 绘制 Y 轴并赋予唯一的颜色 ID
     axis_shaderProgram.setUniformValue("color", QVector3D(0.0f, 1.0f, 0.0f));  // 绿色
-    axis_shaderProgram.setUniformValue("modelID", 11); // 假设 1001 代表 Y 轴的 ID
     glDrawArrays(GL_LINES, 2, 2);  // 绘制Y轴
 
     // 绘制 Z 轴并赋予唯一的颜色 ID
     axis_shaderProgram.setUniformValue("color", QVector3D(0.0f, 0.0f, 1.0f));  // 蓝色
-    axis_shaderProgram.setUniformValue("modelID", 12); // 假设 1002 代表 Z 轴的 ID
     glDrawArrays(GL_LINES, 4, 2);  // 绘制Z轴
 
     glBindVertexArray(0);
@@ -554,6 +549,136 @@ void Urdf_editor::drawAxis()
     glBindVertexArray(0);
 }
 
+void Urdf_editor::drawConeAtCubeAxis(const QVector3D& size, QMatrix4x4 model) {
+    // 根据方块的尺寸调整圆锥的大小
+    float coneRadius = size.x() * 0.2f;  // 圆锥的半径为方块宽度的 20%
+    float coneHeight = size.y() * 0.8f;  // 圆锥的高度为方块高度的 30%
+    auto coneMesh = MeshGenerator::generateConeMesh(coneRadius, coneHeight, 32);  // 动态生成圆锥
+
+    m_shaderProgram.bind();
+
+    // 设置颜色为红色（X轴圆锥），绿色（Y轴圆锥），蓝色（Z轴圆锥）
+    QVector3D xAxisColor(1, 0, 0);  // 红色
+    QVector3D yAxisColor(0, 1, 0);  // 绿色
+    QVector3D zAxisColor(0, 0, 1);  // 蓝色
+
+    // X轴上的圆锥
+    QMatrix4x4 xConeModel = model;
+    xConeModel.translate(QVector3D(size.x()*1.5, 0, 0));  // 沿X轴正方向平移，平移距离为方块宽度的一半
+    xConeModel.rotate(-90, 0, 0, 1);  // 旋转使其对准X轴
+    m_shaderProgram.setUniformValue("model", xConeModel);
+    m_shaderProgram.setUniformValue("color", xAxisColor);
+    m_shaderProgram.setUniformValue("modelID", 10000);
+
+    coneMesh->Draw();
+
+    // Y轴上的圆锥
+    QMatrix4x4 yConeModel = model;
+    yConeModel.translate(QVector3D(0, size.y()*1.5, 0));  // 沿Y轴正方向平移，平移距离为方块高度的一半
+    yConeModel.rotate(0, 1, 0, 0);  // 对齐 Y 轴
+    m_shaderProgram.setUniformValue("model", yConeModel);
+    m_shaderProgram.setUniformValue("color", yAxisColor);
+    m_shaderProgram.setUniformValue("modelID", 10001);
+
+    coneMesh->Draw();
+
+    // Z轴上的圆锥
+    QMatrix4x4 zConeModel = model;
+    zConeModel.translate(QVector3D(0, 0, size.z()*1.5));  // 沿Z轴正方向平移，平移距离为方块深度的一半
+    zConeModel.rotate(90, QVector3D(1, 0, 0));  // 旋转使其对准Z轴
+    m_shaderProgram.setUniformValue("model", zConeModel);
+    m_shaderProgram.setUniformValue("color", zAxisColor);
+    m_shaderProgram.setUniformValue("modelID", 10002);
+
+    coneMesh->Draw();
+
+    m_shaderProgram.release();
+}
+
+
+void Urdf_editor::drawConeAtSphereAxis(float radius, QMatrix4x4 model) {
+    // 使用 MeshGenerator 生成圆锥网格
+    float coneRadius = radius * 0.2f;  // 圆锥的半径为球体半径的 20%
+    float coneHeight = radius * 0.8f;  // 圆锥的高度为球体半径的 30%
+    auto coneMesh = MeshGenerator::generateConeMesh(coneRadius, coneHeight, 32);  // 动态生成圆锥
+
+    m_shaderProgram.bind();
+
+    // 设置颜色为红色（X轴圆锥），绿色（Y轴圆锥），蓝色（Z轴圆锥）
+    QVector3D xAxisColor(1, 0, 0);  // 红色
+    QVector3D yAxisColor(0, 1, 0);  // 绿色
+    QVector3D zAxisColor(0, 0, 1);  // 蓝色
+
+    // X轴上的圆锥
+    QMatrix4x4 xConeModel = model;
+    xConeModel.translate(QVector3D(radius*1.5, 0, 0));  // 沿X轴正方向平移
+    xConeModel.rotate(-90, 0, 0, 1);  // 旋转使其对准X轴
+    m_shaderProgram.setUniformValue("model", xConeModel);
+    m_shaderProgram.setUniformValue("color", xAxisColor);
+    coneMesh->Draw();
+
+    // Y轴上的圆锥
+    QMatrix4x4 yConeModel = model;
+    yConeModel.translate(QVector3D(0, radius*1.5, 0));  // 沿Y轴正方向平移
+    yConeModel.rotate(0, 1, 0, 0);  // 对齐 Y 轴
+    m_shaderProgram.setUniformValue("model", yConeModel);
+    m_shaderProgram.setUniformValue("color", yAxisColor);
+    coneMesh->Draw();
+
+    // Z轴上的圆锥
+    QMatrix4x4 zConeModel = model;
+    zConeModel.translate(QVector3D(0, 0, radius*1.5));  // 沿Z轴正方向平移
+    zConeModel.rotate(90, QVector3D(1, 0, 0));  // 旋转使其对准Z轴
+    m_shaderProgram.setUniformValue("model", zConeModel);
+    m_shaderProgram.setUniformValue("color", zAxisColor);
+    coneMesh->Draw();
+
+    m_shaderProgram.release();
+}
+
+
+void Urdf_editor::drawConeAtCylinderAxis(float radius, float height, QMatrix4x4 model) {
+    // 使用 MeshGenerator 生成圆锥网格
+    float coneRadius = radius * 0.2f;  // 圆锥的半径为圆柱体半径的 20%
+    float coneHeight = height * 0.3f;  // 圆锥的高度为圆柱体高度的 30%
+    auto coneMesh = MeshGenerator::generateConeMesh(coneRadius, coneHeight, 32);  // 动态生成圆锥
+
+    m_shaderProgram.bind();
+
+    // 设置颜色为红色（X轴圆锥），绿色（Y轴圆锥），蓝色（Z轴圆锥）
+    QVector3D xAxisColor(1, 0, 0);  // 红色
+    QVector3D yAxisColor(0, 1, 0);  // 绿色
+    QVector3D zAxisColor(0, 0, 1);  // 蓝色
+
+    // X轴上的圆锥
+    QMatrix4x4 xConeModel = model;
+    xConeModel.translate(QVector3D(radius * 1.5, 0, 0));  // 沿X轴正方向平移
+    xConeModel.rotate(-90, 0, 0, 1);  // 旋转使其对准X轴
+    m_shaderProgram.setUniformValue("model", xConeModel);
+    m_shaderProgram.setUniformValue("color", xAxisColor);
+    coneMesh->Draw();
+
+    // Y轴上的圆锥
+    QMatrix4x4 yConeModel = model;
+    yConeModel.translate(QVector3D(0, height * 1.5, 0));  // 沿Y轴正方向平移
+    yConeModel.rotate(0, 1, 0, 0);  // 对齐 Y 轴
+    m_shaderProgram.setUniformValue("model", yConeModel);
+    m_shaderProgram.setUniformValue("color", yAxisColor);
+    coneMesh->Draw();
+
+    // Z轴上的圆锥
+    QMatrix4x4 zConeModel = model;
+    zConeModel.translate(QVector3D(0, 0, height * 1.5));  // 沿Z轴正方向平移
+    zConeModel.rotate(90, QVector3D(1, 0, 0));  // 旋转使其对准Z轴
+    m_shaderProgram.setUniformValue("model", zConeModel);
+    m_shaderProgram.setUniformValue("color", zAxisColor);
+    coneMesh->Draw();
+
+    m_shaderProgram.release();
+}
+
+
+
 
 
 
@@ -589,6 +714,365 @@ void Urdf_editor::applyTransform(QMatrix4x4 &matrix, const QVector3D &translatio
     matrix.rotate(qRadiansToDegrees(rotation.y()), 0.0f, 1.0f, 0.0f);
     matrix.rotate(qRadiansToDegrees(rotation.x()), 1.0f, 0.0f, 0.0f);
 }
+
+void Urdf_editor::renderShape(const Shape &shape)
+{
+    // 初始化变换矩阵为单位矩阵
+    QMatrix4x4 modelMatrix;
+
+    // 如果有父节点，通过关节变换计算子节点的变换矩阵
+    if (shape.joint.parent_id >= 0) {
+        for (const auto &s : shapes) {
+            if (s.id == shape.joint.parent_id) {
+                // 创建关节的变换矩阵
+                QMatrix4x4 jointMatrix;
+                applyTransform(jointMatrix, shape.joint.parent_to_child_origin.xyz, shape.joint.parent_to_child_origin.rpy);
+
+                // 计算子节点的变换矩阵
+                modelMatrix = jointMatrix;
+                break;
+            }
+        }
+    }
+
+    // 应用几何变换
+    applyTransform(modelMatrix, shape.link.visuals.origin.xyz, shape.link.visuals.origin.rpy);
+    modelMatrix.scale(QVector3D(1.0f, 1.0f, 1.0f)); // 如果需要缩放，可以调整这里的参数
+
+    // 绑定着色器程序并传递变换矩阵
+    m_shaderProgram.bind();
+    QMatrix4x4 view;
+    view.lookAt(m_camera.Position, m_camera.Position + m_camera.Front, m_camera.Up);
+
+    //m_shaderProgram.setUniformValue("model", modelMatrix);
+    m_shaderProgram.setUniformValue("view", view);
+
+    // 绘制形状
+    if (shape.type == Shape::Cube)
+    {
+        drawCube(shape, modelMatrix);
+    }
+    else if (shape.type == Shape::Sphere)
+    {
+        drawSphere(shape, modelMatrix);
+    }
+    else if (shape.type == Shape::Cylinder)
+    {
+        drawCylinder(shape, modelMatrix);
+    }
+
+    m_shaderProgram.release();
+}
+
+void Urdf_editor::keyPressEvent(QKeyEvent *event)
+{
+    float cameraSpeed = 100 / 1000.0;
+    switch (event->key()) {
+    case Qt::Key_W:m_camera.ProcessKeyborad(FORWARD, cameraSpeed);break;
+    case Qt::Key_S:m_camera.ProcessKeyborad(BACKWARD, cameraSpeed);break;
+    case Qt::Key_D:m_camera.ProcessKeyborad(RIGHT, cameraSpeed);break;
+    case Qt::Key_A:m_camera.ProcessKeyborad(LEFT, cameraSpeed);break;
+    case Qt::Key_X:isXKeyPressed = true;isCameraCanMove = false;break;
+    case Qt::Key_Y:isYKeyPressed = true;isCameraCanMove = false;break;
+    case Qt::Key_Z:isZKeyPressed = true;isCameraCanMove = false;break;
+    case Qt::Key_G:
+        isCameraCanMove = false;
+        // 切换到移动模式
+        isFreeMoveMode = true;
+        isMoveMode = true;
+        isScaleMode = false;
+        isRotateMode = false;
+        break;
+    case Qt::Key_R:
+        // 切换到旋转模式
+        isMoveMode = false;
+        isScaleMode = false;
+        isRotateMode = true;
+        break;
+    case Qt::Key_C:
+        // 切换到缩放模式
+        isMoveMode = false;
+        isScaleMode = true;
+        isRotateMode = false;
+        break;
+    default:
+        break;
+    }
+    update();
+}
+
+
+void Urdf_editor::keyReleaseEvent(QKeyEvent *event)
+{
+    switch (event->key()) {
+    case Qt::Key_X:isXKeyPressed = false;isCameraCanMove = true;break;
+    case Qt::Key_Y:isYKeyPressed = false;isCameraCanMove = true;break;
+    case Qt::Key_Z:isZKeyPressed = false;isCameraCanMove = true;break;
+    case Qt::Key_G:isFreeMoveMode = false;isCameraCanMove = true;break;
+//    case Qt::Key_G:isMoveMode = false;break;
+//    case Qt::Key_R:isRotateMode = false;break;
+//    case Qt::Key_C:isScaleMode = false;break;
+    default:
+        QOpenGLWidget::keyReleaseEvent(event);
+        break;
+    }
+    if(event->key()==Qt::Key_Plus)
+        PressKey_Plus = false;
+    if(event->key()==Qt::Key_Minus)
+        PressKey_Minus = false;
+    QWidget::keyReleaseEvent(event);
+}
+
+void Urdf_editor::renderShapes()
+{
+    QMatrix4x4 model;
+    drawAxisAtShape(model); //
+    for (size_t i = 0; i < shapes.size(); ++i) {
+        renderShape(shapes[i]); // 渲染每个形状
+    }
+}
+
+// 在鼠标点击事件中检测是否点击了某个形状
+void Urdf_editor::mousePressEvent(QMouseEvent *event) {
+    if (event->button() == Qt::LeftButton) {
+        lastPos = event->pos();
+
+        // 绑定帧缓冲对象，确保渲染的是带有 ID 颜色的帧缓冲
+        makeCurrent();
+        glBindFramebuffer(GL_FRAMEBUFFER, FBO);
+
+        // 清除颜色和深度缓冲区并渲染场景
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        renderShapes();  // 渲染所有形状到帧缓冲
+
+        // 从颜色附件1中读取像素值（RGB分量）
+        GLubyte pixel[3];
+        glReadBuffer(GL_COLOR_ATTACHMENT1);
+        glReadPixels(
+            (int)event->pos().x(),
+            this->height() - (int)event->pos().y(),
+            1, 1,
+            GL_RGB, GL_UNSIGNED_BYTE,
+            pixel
+            );
+
+        // 重新组合RGB通道值为modelID
+        int selectedModelID = (pixel[0] << 16) | (pixel[1] << 8) | pixel[2];
+        qDebug() << "Selected model ID: " << selectedModelID;
+        // 检查是否点击了某个轴上的圆锥
+        if (selectedModelID == 10000) {  // X轴上的圆锥
+        isChooseXCone = true;
+        isChooseYCone = false;
+        isChooseZCone = false;
+        if(!isXKeyPressed&&!isYKeyPressed&&!isZKeyPressed)
+        isCameraCanMove = false;
+        } else if (selectedModelID == 10001) {  // Y轴上的圆锥
+        isChooseXCone = false;
+        isChooseYCone = true;
+        isChooseZCone = false;
+        if(!isXKeyPressed&&!isYKeyPressed&&!isZKeyPressed)
+            isCameraCanMove = false;
+        } else if (selectedModelID == 10002) {  // Z轴上的圆锥
+        isChooseXCone = false;
+        isChooseYCone = false;
+        isChooseZCone = true;
+        } else {
+        isChooseXCone = false;
+        isChooseYCone = false;
+        isChooseZCone = false;
+        }
+        if (selectedModelID < 10000)
+            lastselectedModelID = selectedModelID;
+        else
+        {
+            if(lastselectedModelID == -1);
+            else
+                selectedModelID = lastselectedModelID;
+        }
+
+        // 遍历模型，检测哪个模型的 ID 被选中
+        int flag = 0;  // 标识是否有模型被选中
+        for (auto &modelinfo : shapes) {
+            if (modelinfo.id == selectedModelID) {
+                flag = 1;
+                modelinfo.isSelected = true;
+                qDebug() << "The model is selected: " << " index: " << selectedModelID;
+                if(!isChooseXCone && !isChooseYCone && !isChooseZCone)
+                    isCameraCanMove = true;
+            } else {
+                modelinfo.isSelected = false;
+            }
+        }
+        if (flag == 0 ) {
+            qDebug() << "No model is selected, index: " << selectedModelID;
+        }
+
+        // 操作执行完毕，切换回默认帧缓冲
+        glBindFramebuffer(GL_FRAMEBUFFER, defaultFramebufferObject());
+        doneCurrent();
+    }
+}
+
+
+void Urdf_editor::mouseMoveEvent(QMouseEvent *event)
+{
+    if (event->buttons() & Qt::LeftButton) {
+        auto currentPos = event->pos();
+        deltaPos = currentPos - lastPos;  // 计算鼠标移动的增量
+        lastPos = currentPos;  // 更新上一次鼠标位置
+
+        // 检查是否处于自由移动模式
+        if (isFreeMoveMode && selectedShapeIndex >= 0) {
+            float moveSpeed = 0.01f;  // 控制移动速度
+            // 获取摄像机的右向量和上向量
+            QVector3D rightVector = m_camera.GetRightVector();  // 摄像机的右向量
+            QVector3D upVector = m_camera.GetUpVector();        // 摄像机的上向量
+
+            // 在自由移动模式下，鼠标左右移动对应沿着右向量移动，鼠标上下移动对应沿着上向量移动
+            QVector3D deltaMove = rightVector * deltaPos.x() * moveSpeed + upVector * -deltaPos.y() * moveSpeed;
+
+            // 更新模型的位置
+            shapes[selectedShapeIndex].link.visuals.origin.xyz += deltaMove;
+            qDebug() << "Free moving model, delta: " << deltaMove;
+            emit updateIndex(selectedShapeIndex);
+            update();  // 更新场景以反映模型的位置变化
+        } else if (isMoveMode && selectedShapeIndex >= 0) {
+            float moveSpeed = 0.01f;
+
+            // 获取摄像机的右向量、上向量和前向量
+            QVector3D rightVector = m_camera.GetRightVector();  // 摄像机的右向量
+            QVector3D upVector = m_camera.GetUpVector();        // 摄像机的上向量
+
+            QVector3D deltaMove = rightVector * deltaPos.x() * moveSpeed + upVector * -deltaPos.y() * moveSpeed;
+
+            if (isXKeyPressed || isChooseXCone) {
+                // 只沿摄像机的右向量移动对象，鼠标的 x 轴决定对象的移动
+                shapes[selectedShapeIndex].link.visuals.origin.xyz.setX(
+                    shapes[selectedShapeIndex].link.visuals.origin.xyz.x() + deltaMove.x()
+                    );
+            } else if (isYKeyPressed || isChooseYCone) {
+                // 只沿摄像机的上向量移动对象，鼠标的 y 轴决定对象的移动
+                shapes[selectedShapeIndex].link.visuals.origin.xyz.setY(
+                    shapes[selectedShapeIndex].link.visuals.origin.xyz.y() + deltaMove.y()
+                    );
+            } else if (isZKeyPressed || isChooseZCone) {
+                // 只沿摄像机的前后向量移动对象，鼠标的 y 轴决定对象的移动
+                shapes[selectedShapeIndex].link.visuals.origin.xyz.setZ(
+                    shapes[selectedShapeIndex].link.visuals.origin.xyz.z() + deltaMove.z()
+                    );
+            }
+
+            emit updateIndex(selectedShapeIndex);
+
+        }
+        else if (isScaleMode && selectedShapeIndex >= 0)
+        {
+            float scaleSpeed = 0.01f;
+            qDebug() << "3";
+
+            // 获取摄像机的右向量、上向量
+            QVector3D rightVector = m_camera.GetRightVector();  // 摄像机的右向量
+            QVector3D upVector = m_camera.GetUpVector();        // 摄像机的上向量
+
+            // 计算鼠标移动引起的缩放变化
+            QVector3D deltaMove = rightVector * deltaPos.x() * scaleSpeed + upVector * -deltaPos.y() * scaleSpeed;
+
+            if (shapekind == 0)  // 处理盒子(Box)
+            {
+                if (isXKeyPressed) {
+                    // 修改盒子的X轴尺寸
+                    shapes[selectedShapeIndex].link.visuals.geometry.box.size.setX(
+                        shapes[selectedShapeIndex].link.visuals.geometry.box.size.x() + deltaMove.x()
+                        );
+                } else if (isYKeyPressed) {
+                    // 修改盒子的Y轴尺寸
+                    shapes[selectedShapeIndex].link.visuals.geometry.box.size.setY(
+                        shapes[selectedShapeIndex].link.visuals.geometry.box.size.y() + deltaMove.y()
+                        );
+                } else if (isZKeyPressed) {
+                    // 修改盒子的Z轴尺寸
+                    shapes[selectedShapeIndex].link.visuals.geometry.box.size.setZ(
+                        shapes[selectedShapeIndex].link.visuals.geometry.box.size.z() + deltaMove.z()
+                        );
+                }
+            }
+            else if (shapekind == 1)  // 处理球体(Sphere)
+            {
+                if (isXKeyPressed || isYKeyPressed || isZKeyPressed) {
+                    // 修改球体的半径（球体只需要调整半径）
+                    float newRadius = shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius + deltaMove.length();
+                    shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius = std::max(newRadius, 0.1f);  // 防止半径为负
+                }
+            }
+            else if (shapekind == 2)  // 处理圆柱体(Cylinder)
+            {
+                if (isXKeyPressed || isZKeyPressed) {
+                    // 修改圆柱体的半径
+                    float newRadius = shapes[selectedShapeIndex].link.visuals.geometry.cylinder.radius + deltaMove.length();
+                    shapes[selectedShapeIndex].link.visuals.geometry.cylinder.radius = std::max(newRadius, 0.1f);  // 防止半径为负
+                }
+                else if (isYKeyPressed) {
+                    // 修改圆柱体的高度
+                    shapes[selectedShapeIndex].link.visuals.geometry.cylinder.length += deltaMove.y();
+                    if (shapes[selectedShapeIndex].link.visuals.geometry.cylinder.length < 0.1f)
+                        shapes[selectedShapeIndex].link.visuals.geometry.cylinder.length = 0.1f;  // 防止高度为负
+                }
+            }
+
+            // 发送更新信号以更新UI和场景
+            emit updateIndex(selectedShapeIndex);
+        }
+        if((isXKeyPressed||isYKeyPressed||isZKeyPressed)||isFreeMoveMode)
+            isCameraCanMove = false;
+        if (isCameraCanMove) {
+            // 处理摄像机视角变化
+            m_camera.ProcessMouseMoveMent(deltaPos.x(), -deltaPos.y(), GL_FALSE);
+        }
+
+        update();  // 更新场景
+    }
+}
+
+
+
+
+
+void Urdf_editor::mouseReleaseEvent(QMouseEvent *event)
+{
+    // 处理鼠标释放事件
+    if (event->button() == Qt::MiddleButton) {
+        setCursor(Qt::ArrowCursor); // 恢复鼠标指针为箭头
+    }
+}
+
+void Urdf_editor::wheelEvent(QWheelEvent *event)
+{
+    m_camera.ProcessMouseScroll(event->angleDelta().y()/120);
+    update();
+}
+
+void Urdf_editor::dragEnterEvent(QDragEnterEvent *event)
+{
+
+    if (event->mimeData()->hasText())
+    {
+        event->acceptProposedAction();
+    }
+}
+
+void Urdf_editor::dropEvent(QDropEvent *event)
+{
+    if (event->mimeData()->hasText())
+    {
+        // 获取拖放数据
+        QString text = event->mimeData()->text();
+        shapes.push_back(currentShape);
+        update();
+        event->acceptProposedAction();
+    }
+}
+
+
 void Urdf_editor::handleKey_Move(int key)
 {
     switch (key)
@@ -631,7 +1115,6 @@ void Urdf_editor::handleKey_Move(int key)
     }
     }
 }
-
 void Urdf_editor::handleKey_Rotate(int key)
 {
     switch (key)
@@ -674,7 +1157,6 @@ void Urdf_editor::handleKey_Rotate(int key)
     }
     }
 }
-
 void Urdf_editor::handleKey_WHLR_Plus(int key)
 {
     if(shapekind==0)
@@ -750,7 +1232,6 @@ void Urdf_editor::handleKey_WHLR_Plus(int key)
         }
     }
 }
-
 void Urdf_editor::handleKey_WHLR_Minus(int key)
 {
     if(shapekind==0)
@@ -824,314 +1305,5 @@ void Urdf_editor::handleKey_WHLR_Minus(int key)
             break;
         }
         }
-    }
-}
-void Urdf_editor::renderShape(const Shape &shape)
-{
-    // 初始化变换矩阵为单位矩阵
-    QMatrix4x4 modelMatrix;
-
-    // 如果有父节点，通过关节变换计算子节点的变换矩阵
-    if (shape.joint.parent_id >= 0) {
-        for (const auto &s : shapes) {
-            if (s.id == shape.joint.parent_id) {
-                // 创建关节的变换矩阵
-                QMatrix4x4 jointMatrix;
-                applyTransform(jointMatrix, shape.joint.parent_to_child_origin.xyz, shape.joint.parent_to_child_origin.rpy);
-
-                // 计算子节点的变换矩阵
-                modelMatrix = jointMatrix;
-                break;
-            }
-        }
-    }
-
-    // 应用几何变换
-    applyTransform(modelMatrix, shape.link.visuals.origin.xyz, shape.link.visuals.origin.rpy);
-    modelMatrix.scale(QVector3D(1.0f, 1.0f, 1.0f)); // 如果需要缩放，可以调整这里的参数
-
-    // 绑定着色器程序并传递变换矩阵
-    m_shaderProgram.bind();
-    QMatrix4x4 view;
-    view.lookAt(m_camera.Position, m_camera.Position + m_camera.Front, m_camera.Up);
-
-    //m_shaderProgram.setUniformValue("model", modelMatrix);
-    m_shaderProgram.setUniformValue("view", view);
-
-    // 绘制形状
-    if (shape.type == Shape::Cube)
-    {
-        drawCube(shape, modelMatrix);
-    }
-    else if (shape.type == Shape::Sphere)
-    {
-        drawSphere(shape, modelMatrix);
-    }
-    else if (shape.type == Shape::Cylinder)
-    {
-        drawCylinder(shape, modelMatrix);
-    }
-
-    m_shaderProgram.release();
-}
-
-void Urdf_editor::keyPressEvent(QKeyEvent *event)
-{
-    float cameraSpeed = 100/1000.0;
-    switch (event->key()) {
-    case Qt::Key_W:m_camera.ProcessKeyborad(FORWARD,cameraSpeed);break;
-    case Qt::Key_S:m_camera.ProcessKeyborad(BACKWARD,cameraSpeed);break;
-    case Qt::Key_D:m_camera.ProcessKeyborad(RIGHT,cameraSpeed);break;
-    case Qt::Key_A:m_camera.ProcessKeyborad(LEFT,cameraSpeed);break;
-    case Qt::Key_X:isXKeyPressed = true; isObjectMoveMode = true;break;// X键被按下
-    case Qt::Key_Y:isYKeyPressed = true; isObjectMoveMode = true;break;// Y键被按下
-    case Qt::Key_Z:isZKeyPressed = true; isObjectMoveMode = true;break;// Z键被按下
-    case Qt::Key_G:isFreeMoveMode = true; break;
-    default:
-        break;
-    }
-    update();
-
-}
-
-void Urdf_editor::keyReleaseEvent(QKeyEvent *event)
-{
-    switch (event->key()) {
-    case Qt::Key_X:isXKeyPressed = false; isObjectMoveMode = false;break;// X键被释放
-    case Qt::Key_Y:isYKeyPressed = false; isObjectMoveMode = false;break;// Y键被释放
-    case Qt::Key_Z:isZKeyPressed = false; isObjectMoveMode = false;break;// Z键被释放
-    case Qt::Key_G:isFreeMoveMode = false; break;
-    //case Qt::Key_S:isScaleMode = false;break;
-    default:
-        QOpenGLWidget::keyReleaseEvent(event); // 调用默认事件处理
-        break;
-    }
-    if(event->key()==Qt::Key_Plus)
-        PressKey_Plus = false;
-    if(event->key()==Qt::Key_Minus)
-        PressKey_Minus = false;
-    QWidget::keyReleaseEvent(event);
-}
-
-void Urdf_editor::renderShapes()
-{
-    QMatrix4x4 model;
-    drawAxisAtShape(model); //
-    for (size_t i = 0; i < shapes.size(); ++i) {
-        renderShape(shapes[i]); // 渲染每个形状
-    }
-}
-
-// 在鼠标点击事件中检测是否点击了某个形状
-void Urdf_editor::mousePressEvent(QMouseEvent *event) {
-    if (event->button() == Qt::LeftButton) {
-        lastPos = event->pos();
-
-        // 绑定帧缓冲对象，确保渲染的是带有 ID 颜色的帧缓冲
-        makeCurrent();
-        glBindFramebuffer(GL_FRAMEBUFFER, FBO);
-
-        // 清除颜色和深度缓冲区并渲染场景
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        renderShapes();  // 渲染所有形状到帧缓冲
-
-        // 从颜色附件1中读取像素值（RGB分量）
-        GLubyte pixel[3];
-        glReadBuffer(GL_COLOR_ATTACHMENT1);
-        glReadPixels(
-            (int)event->pos().x(),
-            this->height() - (int)event->pos().y(),
-            1, 1,
-            GL_RGB, GL_UNSIGNED_BYTE,
-            pixel
-            );
-
-        // 重新组合RGB通道值为modelID
-        int selectedModelID = (pixel[0] << 16) | (pixel[1] << 8) | pixel[2];
-        qDebug() << "Selected model ID: " << selectedModelID;
-        if (selectedModelID < 10000)
-            lastselectedModelID = selectedModelID;
-        else
-        {
-            if(lastselectedModelID == -1);
-            else
-                selectedModelID = lastselectedModelID;
-        }
-
-        // 遍历模型，检测哪个模型的 ID 被选中
-        int flag = 0;  // 标识是否有模型被选中
-        for (auto &modelinfo : shapes) {
-            if (modelinfo.id == selectedModelID) {
-                flag = 1;
-                modelinfo.isSelected = true;
-                qDebug() << "The model is selected: " << " index: " << selectedModelID;
-            } else {
-                modelinfo.isSelected = false;
-            }
-        }
-        if (flag == 0 ) {
-            qDebug() << "No model is selected, index: " << selectedModelID;
-        }
-
-        // 操作执行完毕，切换回默认帧缓冲
-        glBindFramebuffer(GL_FRAMEBUFFER, defaultFramebufferObject());
-        doneCurrent();
-    }
-}
-
-
-void Urdf_editor::mouseMoveEvent(QMouseEvent *event)
-{
-    if (event->buttons() & Qt::LeftButton) {
-        auto currentPos = event->pos();
-        deltaPos = currentPos - lastPos;  // 计算鼠标移动的增量
-        lastPos = currentPos;  // 更新上一次鼠标位置
-
-        // 检查是否处于自由移动模式
-        if (isFreeMoveMode && selectedShapeIndex >= 0) {
-            float moveSpeed = 0.01f;  // 控制移动速度
-
-            // 获取摄像机的右向量和上向量
-            QVector3D rightVector = m_camera.GetRightVector();  // 摄像机的右向量
-            QVector3D upVector = m_camera.GetUpVector();        // 摄像机的上向量
-
-            // 在自由移动模式下，鼠标左右移动对应沿着右向量移动，鼠标上下移动对应沿着上向量移动
-            QVector3D deltaMove = rightVector * deltaPos.x() * moveSpeed + upVector * -deltaPos.y() * moveSpeed;
-
-            // 更新模型的位置
-            shapes[selectedShapeIndex].link.visuals.origin.xyz += deltaMove;
-            qDebug() << "Free moving model, delta: " << deltaMove;
-            emit updateIndex(selectedShapeIndex);
-            update();  // 更新场景以反映模型的位置变化
-        } else if (isObjectMoveMode && selectedShapeIndex >= 0) {
-            float moveSpeed = 0.01f;
-
-            // 获取摄像机的右向量、上向量和前向量
-            QVector3D rightVector = m_camera.GetRightVector();  // 摄像机的右向量
-            QVector3D upVector = m_camera.GetUpVector();        // 摄像机的上向量
-
-            QVector3D deltaMove = rightVector * deltaPos.x() * moveSpeed + upVector * -deltaPos.y() * moveSpeed;
-
-            if (isXKeyPressed) {
-                // 只沿摄像机的右向量移动对象，鼠标的 x 轴决定对象的移动
-                shapes[selectedShapeIndex].link.visuals.origin.xyz.setX(
-                    shapes[selectedShapeIndex].link.visuals.origin.xyz.x() + deltaMove.x()
-                    );
-            } else if (isYKeyPressed) {
-                // 只沿摄像机的上向量移动对象，鼠标的 y 轴决定对象的移动
-                shapes[selectedShapeIndex].link.visuals.origin.xyz.setY(
-                    shapes[selectedShapeIndex].link.visuals.origin.xyz.y() + deltaMove.y()
-                    );
-            } else if (isZKeyPressed) {
-                // 只沿摄像机的前后向量移动对象，鼠标的 y 轴决定对象的移动
-                shapes[selectedShapeIndex].link.visuals.origin.xyz.setZ(
-                    shapes[selectedShapeIndex].link.visuals.origin.xyz.z() + deltaMove.z()
-                    );
-            }
-            emit updateIndex(selectedShapeIndex);
-
-        }
-        else if (isScaleMode && selectedShapeIndex >= 0)
-        {
-            float scaleSpeed = 0.01f;
-
-            // 获取摄像机的右向量、上向量
-            QVector3D rightVector = m_camera.GetRightVector();  // 摄像机的右向量
-            QVector3D upVector = m_camera.GetUpVector();        // 摄像机的上向量
-
-            // 计算鼠标移动引起的缩放变化
-            QVector3D deltaMove = rightVector * deltaPos.x() * scaleSpeed + upVector * -deltaPos.y() * scaleSpeed;
-
-            if (shapekind == 0)  // 处理盒子(Box)
-            {
-                if (isXKeyPressed) {
-                    // 修改盒子的X轴尺寸
-                    shapes[selectedShapeIndex].link.visuals.geometry.box.size.setX(
-                        shapes[selectedShapeIndex].link.visuals.geometry.box.size.x() + deltaMove.x()
-                        );
-                } else if (isYKeyPressed) {
-                    // 修改盒子的Y轴尺寸
-                    shapes[selectedShapeIndex].link.visuals.geometry.box.size.setY(
-                        shapes[selectedShapeIndex].link.visuals.geometry.box.size.y() + deltaMove.y()
-                        );
-                } else if (isZKeyPressed) {
-                    // 修改盒子的Z轴尺寸
-                    shapes[selectedShapeIndex].link.visuals.geometry.box.size.setZ(
-                        shapes[selectedShapeIndex].link.visuals.geometry.box.size.z() + deltaMove.z()
-                        );
-                }
-            }
-            else if (shapekind == 1)  // 处理球体(Sphere)
-            {
-                if (isXKeyPressed || isYKeyPressed || isZKeyPressed) {
-                    // 修改球体的半径（球体只需要调整半径）
-                    float newRadius = shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius + deltaMove.length();
-                    shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius = std::max(newRadius, 0.1f);  // 防止半径为负
-                }
-            }
-            else if (shapekind == 2)  // 处理圆柱体(Cylinder)
-            {
-                if (isXKeyPressed || isZKeyPressed) {
-                    // 修改圆柱体的半径
-                    float newRadius = shapes[selectedShapeIndex].link.visuals.geometry.cylinder.radius + deltaMove.length();
-                    shapes[selectedShapeIndex].link.visuals.geometry.cylinder.radius = std::max(newRadius, 0.1f);  // 防止半径为负
-                }
-                else if (isYKeyPressed) {
-                    // 修改圆柱体的高度
-                    shapes[selectedShapeIndex].link.visuals.geometry.cylinder.length += deltaMove.y();
-                    if (shapes[selectedShapeIndex].link.visuals.geometry.cylinder.length < 0.1f)
-                        shapes[selectedShapeIndex].link.visuals.geometry.cylinder.length = 0.1f;  // 防止高度为负
-                }
-            }
-
-            // 发送更新信号以更新UI和场景
-            emit updateIndex(selectedShapeIndex);
-        }
-
-        else {
-            // 处理摄像机视角变化
-            m_camera.ProcessMouseMoveMent(deltaPos.x(), -deltaPos.y(), GL_FALSE);
-        }
-
-        update();  // 更新场景
-    }
-}
-
-
-
-
-
-void Urdf_editor::mouseReleaseEvent(QMouseEvent *event)
-{
-    // 处理鼠标释放事件
-    if (event->button() == Qt::MiddleButton) {
-        setCursor(Qt::ArrowCursor); // 恢复鼠标指针为箭头
-    }
-}
-
-void Urdf_editor::wheelEvent(QWheelEvent *event)
-{
-    m_camera.ProcessMouseScroll(event->angleDelta().y()/120);
-    update();
-}
-
-void Urdf_editor::dragEnterEvent(QDragEnterEvent *event)
-{
-
-    if (event->mimeData()->hasText())
-    {
-        event->acceptProposedAction();
-    }
-}
-
-void Urdf_editor::dropEvent(QDropEvent *event)
-{
-    if (event->mimeData()->hasText())
-    {
-        // 获取拖放数据
-        QString text = event->mimeData()->text();
-        shapes.push_back(currentShape);
-        update();
-        event->acceptProposedAction();
     }
 }

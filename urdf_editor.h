@@ -92,6 +92,9 @@ private:
     inline double radiansToDegrees(double radians);
     void renderShape(const Shape &shape);
     void drawPlane(float width, float height, float gridSize);
+    void drawConeAtCubeAxis(const QVector3D& size, QMatrix4x4 model);
+    void drawConeAtSphereAxis(float radius, QMatrix4x4 model);
+    void drawConeAtCylinderAxis(float radius, float height, QMatrix4x4 model);
     void applyTransform(QMatrix4x4 &matrix, const QVector3D &translation, const QVector3D &rotation);
     void handleKey_Move(int key);
     void handleKey_Rotate(int key);
@@ -134,12 +137,22 @@ private:
     int lastselectedModelID = -1;
 
     // anjian
+    bool isMoveMode = false;
     bool isScaleMode = false;
+    bool isRotateMode = false;
     bool isObjectMoveMode = false;
     bool isFreeMoveMode = false;
     bool isXKeyPressed = false; // 标记是否按下了X键
     bool isYKeyPressed = false;
     bool isZKeyPressed = false;
+    bool isCameraCanMove = true;
+    bool isGPressed = false;
+
+    //
+    bool isChooseXCone = false;
+    bool isChooseYCone = false;
+    bool isChooseZCone = false;
+
 
 };
 

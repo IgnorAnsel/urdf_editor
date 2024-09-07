@@ -45,6 +45,7 @@ void Property::createShape(const QString &shapeType)
         newShape.link.collisions.geometry.cylinder.length = 2.0f;
     }
     // 设置默认属性
+    newShape.link.isSelected = false;
     newShape.link.visuals.origin.xyz = QVector3D(0.0f, 0.0f, 0.0f);
     newShape.link.visuals.origin.rpy = QVector3D(0.0f, 0.0f, 0.0f);
     newShape.link.visuals.color = QColor(Qt::white);

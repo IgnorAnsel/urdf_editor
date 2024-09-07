@@ -130,3 +130,50 @@ std::shared_ptr<MeshObject> MeshGenerator::generateCubeMesh(const QVector3D& siz
     return std::make_shared<MeshObject>(vertices, indices);
 }
 
+std::shared_ptr<MeshObject> MeshGenerator::generateConeMesh(float radius, float height, int slices)
+{
+    std::vector<GLfloat> vertices;
+    std::vector<GLuint> indices;
+    float halfHeight = height / 2.0f;
+
+    // 顶点
+    // 顶点：圆锥的顶点在中间上方
+    vertices.push_back(0.0f);  // x
+    vertices.push_back(halfHeight);  // y
+    vertices.push_back(0.0f);  // z
+
+    // 底部圆的顶点
+    for (int i = 0; i <= slices; ++i) {
+        float theta = 2.0f * M_PI * i / slices;
+        float x = cos(theta) * radius;
+        float z = sin(theta) * radius;
+
+        vertices.push_back(x);
+        vertices.push_back(-halfHeight);  // y 为负半高
+        vertices.push_back(z);
+    }
+
+    // 索引
+    // 圆锥侧面
+    for (int i = 1; i <= slices; ++i) {
+        indices.push_back(0);    // 顶点索引 0
+        indices.push_back(i);    // 当前点
+        indices.push_back(i + 1);  // 下一个点
+    }
+
+    // 底部圆面
+    int centerIndex = slices + 2;  // 底部圆的中心点
+    vertices.push_back(0.0f);  // 中心点的 x
+    vertices.push_back(-halfHeight);  // 中心点的 y
+    vertices.push_back(0.0f);  // 中心点的 z
+
+    for (int i = 1; i <= slices; ++i) {
+        indices.push_back(centerIndex);
+        indices.push_back(i + 1);
+        indices.push_back(i);
+    }
+
+    return std::make_shared<MeshObject>(vertices, indices);
+}
+
+
