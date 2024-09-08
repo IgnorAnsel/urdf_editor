@@ -257,6 +257,8 @@ void Urdf_editor::drawCube(const Shape &shape, QMatrix4x4 model) {
 
         if(isMoveMode)
             drawConeAtCubeAxis(size, model);  // 新增的函数，用于在方块上绘制圆锥
+        else if(isScaleMode)
+            drawScaleAtCubeAxis(size, model);
         else
             drawAxisAtShape(model);
 
@@ -265,7 +267,7 @@ void Urdf_editor::drawCube(const Shape &shape, QMatrix4x4 model) {
     else
         color = QVector3D(shape.link.visuals.color.redF(), shape.link.visuals.color.greenF(), shape.link.visuals.color.blueF());
     // 使用 MeshGenerator 生成方体网格
-    static auto cubeMesh = MeshGenerator::generateCubeMesh(size);
+    auto cubeMesh = MeshGenerator::generateCubeMesh(size);
 
     m_shaderProgram.bind();
     m_shaderProgram.setUniformValue("model", model);
@@ -305,12 +307,14 @@ void Urdf_editor::drawSphere(const Shape &shape, QMatrix4x4 model) {
         }
         if(isMoveMode)
             drawConeAtSphereAxis(radius, model);
+        else if (isScaleMode)
+            drawScaleAtSphereAxis(radius, model);
         else
             drawAxisAtShape(model);
     }
     else
         color = QVector3D(shape.link.visuals.color.redF(), shape.link.visuals.color.greenF(), shape.link.visuals.color.blueF());
-    static auto sphereMesh = MeshGenerator::generateSphereMesh(
+    auto sphereMesh = MeshGenerator::generateSphereMesh(
         radius,
         30, 30
         );
@@ -350,13 +354,15 @@ void Urdf_editor::drawCylinder(const Shape &shape, QMatrix4x4 model) {
         }
         if(isMoveMode)
             drawConeAtCylinderAxis(radius, length, model);
+        else if (isScaleMode)
+            drawScaleAtCylinderAxis(radius, length, model);
         else
             drawAxisAtShape(model);
     }
     else
         color = QVector3D(shape.link.visuals.color.redF(), shape.link.visuals.color.greenF(), shape.link.visuals.color.blueF());
     // 使用 MeshGenerator 生成圆柱体网格
-    static auto cylinderMesh = MeshGenerator::generateCylinderMesh(
+    auto cylinderMesh = MeshGenerator::generateCylinderMesh(
         radius,
         length,
         30  // 分段数量，可以调整以增加细节
@@ -510,9 +516,6 @@ void Urdf_editor::drawAxisAtShape(const QMatrix4x4 &modelMatrix)
     axis_shaderProgram.release();
 }
 
-
-
-
 void Urdf_editor::drawAxis()
 {
     // === 初始化坐标轴 ===
@@ -551,86 +554,149 @@ void Urdf_editor::drawAxis()
 
 void Urdf_editor::drawConeAtCubeAxis(const QVector3D& size, QMatrix4x4 model) {
     // 根据方块的尺寸调整圆锥的大小
-    float coneRadius = size.x() * 0.2f;  // 圆锥的半径为方块宽度的 20%
-    float coneHeight = size.y() * 0.8f;  // 圆锥的高度为方块高度的 30%
+    float coneRadius = 0.2f;  // 圆锥的半径为方块宽度的 20%
+    float coneHeight = 0.8f;  // 圆锥的高度为方块高度的 80%
+    float axisThickness = 0.05f;  // 长方体轴的厚度
+    float axisLength = (std::max({size.x(), size.y(), size.z()}) + 2.0f)/2.0f;  // 最大值作为轴的统一长度
+
+    // 生成圆锥网格
     auto coneMesh = MeshGenerator::generateConeMesh(coneRadius, coneHeight, 32);  // 动态生成圆锥
+    // 生成长方体棍子的网格
+    auto axisMesh = MeshGenerator::generateCubeMesh(QVector3D(axisThickness, axisLength, axisThickness));  // 生成长方体的几何体
 
     m_shaderProgram.bind();
+    QMatrix4x4 projection;
+    projection.perspective(m_camera.Zoom, (float)width() / height(), 0.1f, 100.0f);
 
     // 设置颜色为红色（X轴圆锥），绿色（Y轴圆锥），蓝色（Z轴圆锥）
     QVector3D xAxisColor(1, 0, 0);  // 红色
     QVector3D yAxisColor(0, 1, 0);  // 绿色
     QVector3D zAxisColor(0, 0, 1);  // 蓝色
 
-    // X轴上的圆锥
+    // X轴上的长方体棍子和圆锥
     QMatrix4x4 xConeModel = model;
-    xConeModel.translate(QVector3D(size.x()*1.5, 0, 0));  // 沿X轴正方向平移，平移距离为方块宽度的一半
+    xConeModel.translate(QVector3D(axisLength, 0, 0));  // 沿X轴正方向平移，平移距离为方块宽度的1.5倍
     xConeModel.rotate(-90, 0, 0, 1);  // 旋转使其对准X轴
-    m_shaderProgram.setUniformValue("model", xConeModel);
+
+    // 绘制长方体轴
+    QMatrix4x4 xAxisModel = model;
+    xAxisModel.translate(QVector3D(axisLength / 2.0f, 0, 0));  // 沿X轴平移，使其中心与圆锥对齐
+    xAxisModel.rotate(-90, 0, 0, 1);  // 对准X轴
+    m_shaderProgram.setUniformValue("model", xAxisModel);
     m_shaderProgram.setUniformValue("color", xAxisColor);
+    m_shaderProgram.setUniformValue("projection", projection);
     m_shaderProgram.setUniformValue("modelID", 10000);
+    axisMesh->Draw();
 
+    // 绘制X轴上的圆锥
+    m_shaderProgram.setUniformValue("model", xConeModel);
+    m_shaderProgram.setUniformValue("modelID", 10000);
     coneMesh->Draw();
 
-    // Y轴上的圆锥
+    // Y轴上的长方体棍子和圆锥
     QMatrix4x4 yConeModel = model;
-    yConeModel.translate(QVector3D(0, size.y()*1.5, 0));  // 沿Y轴正方向平移，平移距离为方块高度的一半
+    yConeModel.translate(QVector3D(0, axisLength, 0));  // 沿Y轴正方向平移，平移距离为方块高度的1.5倍
     yConeModel.rotate(0, 1, 0, 0);  // 对齐 Y 轴
-    m_shaderProgram.setUniformValue("model", yConeModel);
-    m_shaderProgram.setUniformValue("color", yAxisColor);
-    m_shaderProgram.setUniformValue("modelID", 10001);
 
+    // 绘制长方体轴
+    QMatrix4x4 yAxisModel = model;
+    yAxisModel.translate(QVector3D(0, axisLength / 2.0f , 0));  // 沿Y轴平移，使其中心与圆锥对齐
+    m_shaderProgram.setUniformValue("model", yAxisModel);
+    m_shaderProgram.setUniformValue("color", yAxisColor);
+    m_shaderProgram.setUniformValue("projection", projection);
+    m_shaderProgram.setUniformValue("modelID", 10001);
+    axisMesh->Draw();
+
+    // 绘制Y轴上的圆锥
+    m_shaderProgram.setUniformValue("model", yConeModel);
+    m_shaderProgram.setUniformValue("modelID", 10001);
     coneMesh->Draw();
 
-    // Z轴上的圆锥
+    // Z轴上的长方体棍子和圆锥
     QMatrix4x4 zConeModel = model;
-    zConeModel.translate(QVector3D(0, 0, size.z()*1.5));  // 沿Z轴正方向平移，平移距离为方块深度的一半
+    zConeModel.translate(QVector3D(0, 0, axisLength));  // 沿Z轴正方向平移，平移距离为方块深度的1.5倍
     zConeModel.rotate(90, QVector3D(1, 0, 0));  // 旋转使其对准Z轴
-    m_shaderProgram.setUniformValue("model", zConeModel);
-    m_shaderProgram.setUniformValue("color", zAxisColor);
-    m_shaderProgram.setUniformValue("modelID", 10002);
 
+    // 绘制长方体轴
+    QMatrix4x4 zAxisModel = model;
+    zAxisModel.translate(QVector3D(0, 0, axisLength / 2.0f));  // 沿Z轴平移，使其中心与圆锥对齐
+    zAxisModel.rotate(90, 1, 0, 0);  // 对准Z轴
+    m_shaderProgram.setUniformValue("model", zAxisModel);
+    m_shaderProgram.setUniformValue("color", zAxisColor);
+    m_shaderProgram.setUniformValue("projection", projection);
+    m_shaderProgram.setUniformValue("modelID", 10002);
+    axisMesh->Draw();
+
+    // 绘制Z轴上的圆锥
+    m_shaderProgram.setUniformValue("model", zConeModel);
+    m_shaderProgram.setUniformValue("modelID", 10002);
     coneMesh->Draw();
 
     m_shaderProgram.release();
 }
 
-
 void Urdf_editor::drawConeAtSphereAxis(float radius, QMatrix4x4 model) {
     // 使用 MeshGenerator 生成圆锥网格
     float coneRadius = radius * 0.2f;  // 圆锥的半径为球体半径的 20%
-    float coneHeight = radius * 0.8f;  // 圆锥的高度为球体半径的 30%
-    auto coneMesh = MeshGenerator::generateConeMesh(coneRadius, coneHeight, 32);  // 动态生成圆锥
+    float coneHeight = radius * 0.8f;  // 圆锥的高度为球体半径的 80%
+    float axisThickness = coneRadius * 0.5f;  // 长方体轴的厚度
+    float axisLength = (radius + 2.0f) / 2.0f;  // 轴的统一长度
+
+    // 生成圆锥网格
+    auto coneMesh = MeshGenerator::generateConeMesh(coneRadius, coneHeight, 32);
+    // 生成长方体网格
+    auto axisMesh = MeshGenerator::generateCubeMesh(QVector3D(axisThickness, axisLength, axisThickness));
 
     m_shaderProgram.bind();
+    QMatrix4x4 projection;
+    projection.perspective(m_camera.Zoom, (float)width() / height(), 0.1f, 100.0f);
 
     // 设置颜色为红色（X轴圆锥），绿色（Y轴圆锥），蓝色（Z轴圆锥）
     QVector3D xAxisColor(1, 0, 0);  // 红色
     QVector3D yAxisColor(0, 1, 0);  // 绿色
     QVector3D zAxisColor(0, 0, 1);  // 蓝色
 
-    // X轴上的圆锥
+    // X轴上的长方体和圆锥
+    QMatrix4x4 xAxisModel = model;
+    xAxisModel.translate(QVector3D(axisLength / 2.0f, 0, 0));  // 平移长方体使其中心对齐X轴
+    xAxisModel.rotate(-90, 0, 0, 1);  // 旋转使其对准X轴
+    m_shaderProgram.setUniformValue("model", xAxisModel);
+    m_shaderProgram.setUniformValue("color", xAxisColor);
+    m_shaderProgram.setUniformValue("projection", projection);
+    axisMesh->Draw();
+
     QMatrix4x4 xConeModel = model;
-    xConeModel.translate(QVector3D(radius*1.5, 0, 0));  // 沿X轴正方向平移
+    xConeModel.translate(QVector3D(axisLength, 0, 0));  // 沿X轴平移圆锥
     xConeModel.rotate(-90, 0, 0, 1);  // 旋转使其对准X轴
     m_shaderProgram.setUniformValue("model", xConeModel);
-    m_shaderProgram.setUniformValue("color", xAxisColor);
     coneMesh->Draw();
 
-    // Y轴上的圆锥
-    QMatrix4x4 yConeModel = model;
-    yConeModel.translate(QVector3D(0, radius*1.5, 0));  // 沿Y轴正方向平移
-    yConeModel.rotate(0, 1, 0, 0);  // 对齐 Y 轴
-    m_shaderProgram.setUniformValue("model", yConeModel);
+    // Y轴上的长方体和圆锥
+    QMatrix4x4 yAxisModel = model;
+    yAxisModel.translate(QVector3D(0, axisLength / 2.0f, 0));  // 平移长方体使其中心对齐Y轴
+    m_shaderProgram.setUniformValue("model", yAxisModel);
     m_shaderProgram.setUniformValue("color", yAxisColor);
+    m_shaderProgram.setUniformValue("projection", projection);
+    axisMesh->Draw();
+
+    QMatrix4x4 yConeModel = model;
+    yConeModel.translate(QVector3D(0, axisLength, 0));  // 沿Y轴平移圆锥
+    m_shaderProgram.setUniformValue("model", yConeModel);
     coneMesh->Draw();
 
-    // Z轴上的圆锥
+    // Z轴上的长方体和圆锥
+    QMatrix4x4 zAxisModel = model;
+    zAxisModel.translate(QVector3D(0, 0, axisLength / 2.0f));  // 平移长方体使其中心对齐Z轴
+    zAxisModel.rotate(90, 1, 0, 0);  // 旋转使其对准Z轴
+    m_shaderProgram.setUniformValue("model", zAxisModel);
+    m_shaderProgram.setUniformValue("color", zAxisColor);
+    m_shaderProgram.setUniformValue("projection", projection);
+    axisMesh->Draw();
+
     QMatrix4x4 zConeModel = model;
-    zConeModel.translate(QVector3D(0, 0, radius*1.5));  // 沿Z轴正方向平移
+    zConeModel.translate(QVector3D(0, 0, axisLength));  // 沿Z轴平移圆锥
     zConeModel.rotate(90, QVector3D(1, 0, 0));  // 旋转使其对准Z轴
     m_shaderProgram.setUniformValue("model", zConeModel);
-    m_shaderProgram.setUniformValue("color", zAxisColor);
     coneMesh->Draw();
 
     m_shaderProgram.release();
@@ -641,46 +707,289 @@ void Urdf_editor::drawConeAtCylinderAxis(float radius, float height, QMatrix4x4 
     // 使用 MeshGenerator 生成圆锥网格
     float coneRadius = radius * 0.2f;  // 圆锥的半径为圆柱体半径的 20%
     float coneHeight = height * 0.3f;  // 圆锥的高度为圆柱体高度的 30%
-    auto coneMesh = MeshGenerator::generateConeMesh(coneRadius, coneHeight, 32);  // 动态生成圆锥
+    float axisThickness = coneRadius * 0.5f;  // 长方体轴的厚度
+    float axisLength = (height + 2.0f) / 2.0f;  // 轴的统一长度
+
+    // 生成圆锥网格
+    auto coneMesh = MeshGenerator::generateConeMesh(coneRadius, coneHeight, 32);
+    // 生成长方体网格
+    auto axisMesh = MeshGenerator::generateCubeMesh(QVector3D(axisThickness, axisLength, axisThickness));
 
     m_shaderProgram.bind();
+    QMatrix4x4 projection;
+    projection.perspective(m_camera.Zoom, (float)width() / QWidget::height(), 0.1f, 100.0f);
 
     // 设置颜色为红色（X轴圆锥），绿色（Y轴圆锥），蓝色（Z轴圆锥）
     QVector3D xAxisColor(1, 0, 0);  // 红色
     QVector3D yAxisColor(0, 1, 0);  // 绿色
     QVector3D zAxisColor(0, 0, 1);  // 蓝色
 
-    // X轴上的圆锥
+    // X轴上的长方体和圆锥
+    QMatrix4x4 xAxisModel = model;
+    xAxisModel.translate(QVector3D(radius * 0.75, 0, 0));  // 沿X轴平移使长方体对齐
+    xAxisModel.rotate(-90, 0, 0, 1);  // 旋转使其对准X轴
+    m_shaderProgram.setUniformValue("model", xAxisModel);
+    m_shaderProgram.setUniformValue("color", xAxisColor);
+    m_shaderProgram.setUniformValue("projection", projection);
+    axisMesh->Draw();
+
     QMatrix4x4 xConeModel = model;
     xConeModel.translate(QVector3D(radius * 1.5, 0, 0));  // 沿X轴正方向平移
     xConeModel.rotate(-90, 0, 0, 1);  // 旋转使其对准X轴
     m_shaderProgram.setUniformValue("model", xConeModel);
-    m_shaderProgram.setUniformValue("color", xAxisColor);
     coneMesh->Draw();
 
-    // Y轴上的圆锥
-    QMatrix4x4 yConeModel = model;
-    yConeModel.translate(QVector3D(0, height * 1.5, 0));  // 沿Y轴正方向平移
-    yConeModel.rotate(0, 1, 0, 0);  // 对齐 Y 轴
-    m_shaderProgram.setUniformValue("model", yConeModel);
+    // Y轴上的长方体和圆锥
+    QMatrix4x4 yAxisModel = model;
+    yAxisModel.translate(QVector3D(0, axisLength / 2.0f, 0));  // 平移长方体使其中心对齐Y轴
+    m_shaderProgram.setUniformValue("model", yAxisModel);
     m_shaderProgram.setUniformValue("color", yAxisColor);
+    m_shaderProgram.setUniformValue("projection", projection);
+    axisMesh->Draw();
+
+    QMatrix4x4 yConeModel = model;
+    yConeModel.translate(QVector3D(0, axisLength, 0));  // 沿Y轴平移圆锥
+    m_shaderProgram.setUniformValue("model", yConeModel);
     coneMesh->Draw();
 
-    // Z轴上的圆锥
+    // Z轴上的长方体和圆锥
+    QMatrix4x4 zAxisModel = model;
+    zAxisModel.translate(QVector3D(0, 0, axisLength / 2.0f));  // 平移长方体使其中心对齐Z轴
+    zAxisModel.rotate(90, 1, 0, 0);  // 旋转使其对准Z轴
+    m_shaderProgram.setUniformValue("model", zAxisModel);
+    m_shaderProgram.setUniformValue("color", zAxisColor);
+    m_shaderProgram.setUniformValue("projection", projection);
+    axisMesh->Draw();
+
     QMatrix4x4 zConeModel = model;
-    zConeModel.translate(QVector3D(0, 0, height * 1.5));  // 沿Z轴正方向平移
+    zConeModel.translate(QVector3D(0, 0, axisLength));  // 沿Z轴平移圆锥
     zConeModel.rotate(90, QVector3D(1, 0, 0));  // 旋转使其对准Z轴
     m_shaderProgram.setUniformValue("model", zConeModel);
-    m_shaderProgram.setUniformValue("color", zAxisColor);
     coneMesh->Draw();
 
     m_shaderProgram.release();
 }
 
 
+void Urdf_editor::drawScaleAtCubeAxis(const QVector3D& size, QMatrix4x4 model) {
+    // 找到 X、Y、Z 轴的最大长度值，并加上1单位的长度
+    float maxLength = (std::max({size.x(), size.y(), size.z()}) + 2.0f)/2.0f;  // 最大值作为轴的统一长度
+    float axisThickness = 1 * 0.05f;  // 长方体的厚度
+    float cubeSize = 1 * 0.2f;  // 末端正方体的大小
 
+    // 使用 generateCubeMesh 来生成不同大小的网格
+    auto axisMeshX = MeshGenerator::generateCubeMesh(QVector3D(maxLength, axisThickness, axisThickness));  // X轴的长方体
+    auto axisMeshY = MeshGenerator::generateCubeMesh(QVector3D(axisThickness, maxLength, axisThickness));  // Y轴的长方体
+    auto axisMeshZ = MeshGenerator::generateCubeMesh(QVector3D(axisThickness, axisThickness, maxLength));  // Z轴的长方体
 
+    // 生成正方体网格
+    auto cubeMesh = MeshGenerator::generateCubeMesh(QVector3D(cubeSize, cubeSize, cubeSize));  // 动态生成正方体
 
+    m_shaderProgram.bind();
+    QMatrix4x4 projection;
+    projection.perspective(m_camera.Zoom, (float)width() / QWidget::height(), 0.1f, 100.0f);
+
+    // 设置颜色为红色（X轴），绿色（Y轴），蓝色（Z轴）
+    QVector3D xAxisColor(1, 0, 0);  // 红色
+    QVector3D yAxisColor(0, 1, 0);  // 绿色
+    QVector3D zAxisColor(0, 0, 1);  // 蓝色
+
+    // X轴上的长方体
+    QMatrix4x4 xAxisModel = model;
+    xAxisModel.translate(QVector3D(maxLength / 2.0f, 0, 0));  // 平移长方体到 X 轴的中心位置
+    m_shaderProgram.setUniformValue("model", xAxisModel);
+    m_shaderProgram.setUniformValue("color", xAxisColor);
+    m_shaderProgram.setUniformValue("modelID", 10000);
+    m_shaderProgram.setUniformValue("projection", projection);
+    axisMeshX->Draw();
+
+    // X轴上的末端正方体
+    QMatrix4x4 xCubeModel = model;
+    xCubeModel.translate(QVector3D(maxLength, 0, 0));  // 平移正方体到长方体末端
+    m_shaderProgram.setUniformValue("model", xCubeModel);
+    m_shaderProgram.setUniformValue("modelID", 10000);
+    cubeMesh->Draw();
+
+    // Y轴上的长方体
+    QMatrix4x4 yAxisModel = model;
+    yAxisModel.translate(QVector3D(0, maxLength / 2.0f, 0));  // 平移长方体到 Y 轴的中心位置
+    m_shaderProgram.setUniformValue("model", yAxisModel);
+    m_shaderProgram.setUniformValue("color", yAxisColor);
+    m_shaderProgram.setUniformValue("modelID", 10001);
+    axisMeshY->Draw();
+
+    // Y轴上的末端正方体
+    QMatrix4x4 yCubeModel = model;
+    yCubeModel.translate(QVector3D(0, maxLength, 0));  // 平移正方体到长方体末端
+    m_shaderProgram.setUniformValue("model", yCubeModel);
+    m_shaderProgram.setUniformValue("modelID", 10001);
+    cubeMesh->Draw();
+
+    // Z轴上的长方体
+    QMatrix4x4 zAxisModel = model;
+    zAxisModel.translate(QVector3D(0, 0, maxLength / 2.0f));  // 平移长方体到 Z 轴的中心位置
+    zAxisModel.rotate(0, 1, 0, 0);  // 旋转使其对准 Z 轴
+    m_shaderProgram.setUniformValue("model", zAxisModel);
+    m_shaderProgram.setUniformValue("color", zAxisColor);
+    m_shaderProgram.setUniformValue("modelID", 10002);
+    axisMeshZ->Draw();
+
+    // Z轴上的末端正方体
+    QMatrix4x4 zCubeModel = model;
+    zCubeModel.translate(QVector3D(0, 0, maxLength));  // 平移正方体到长方体末端
+    zCubeModel.rotate(90, 1, 0, 0);  // 旋转使其对准 Z 轴
+    m_shaderProgram.setUniformValue("model", zCubeModel);
+    m_shaderProgram.setUniformValue("modelID", 10002);
+    cubeMesh->Draw();
+
+    m_shaderProgram.release();
+}
+void Urdf_editor::drawScaleAtSphereAxis(float radius, QMatrix4x4 model) {
+    // 计算轴的最大长度，增加 1 个单位
+    float maxLength = (radius + 2.0f) / 2.0f;  // 最大值作为轴的统一长度
+    float axisThickness = 1 * 0.05f;  // 长方体的厚度
+    float cubeSize = 1 * 0.2f;  // 末端正方体的大小
+
+    // 使用 generateCubeMesh 来生成不同大小的网格
+    auto axisMeshX = MeshGenerator::generateCubeMesh(QVector3D(maxLength, axisThickness, axisThickness));  // X轴的长方体
+    auto axisMeshY = MeshGenerator::generateCubeMesh(QVector3D(axisThickness, maxLength, axisThickness));  // Y轴的长方体
+    auto axisMeshZ = MeshGenerator::generateCubeMesh(QVector3D(axisThickness, axisThickness, maxLength));  // Z轴的长方体
+
+    // 生成正方体网格
+    auto cubeMesh = MeshGenerator::generateCubeMesh(QVector3D(cubeSize, cubeSize, cubeSize));  // 动态生成正方体
+
+    m_shaderProgram.bind();
+    QMatrix4x4 projection;
+    projection.perspective(m_camera.Zoom, (float)width() / QWidget::height(), 0.1f, 100.0f);
+
+    // 设置颜色为红色（X轴），绿色（Y轴），蓝色（Z轴）
+    QVector3D xAxisColor(1, 0, 0);  // 红色
+    QVector3D yAxisColor(0, 1, 0);  // 绿色
+    QVector3D zAxisColor(0, 0, 1);  // 蓝色
+
+    // X轴上的长方体
+    QMatrix4x4 xAxisModel = model;
+    xAxisModel.translate(QVector3D(maxLength / 2.0f, 0, 0));  // 平移长方体到 X 轴的中心位置
+    m_shaderProgram.setUniformValue("model", xAxisModel);
+    m_shaderProgram.setUniformValue("color", xAxisColor);
+    m_shaderProgram.setUniformValue("modelID", 10000);
+    m_shaderProgram.setUniformValue("projection", projection);
+    axisMeshX->Draw();
+
+    // X轴上的末端正方体
+    QMatrix4x4 xCubeModel = model;
+    xCubeModel.translate(QVector3D(maxLength, 0, 0));  // 平移正方体到长方体末端
+    m_shaderProgram.setUniformValue("model", xCubeModel);
+    m_shaderProgram.setUniformValue("modelID", 10000);
+    cubeMesh->Draw();
+
+    // Y轴上的长方体
+    QMatrix4x4 yAxisModel = model;
+    yAxisModel.translate(QVector3D(0, maxLength / 2.0f, 0));  // 平移长方体到 Y 轴的中心位置
+    m_shaderProgram.setUniformValue("model", yAxisModel);
+    m_shaderProgram.setUniformValue("color", yAxisColor);
+    m_shaderProgram.setUniformValue("modelID", 10001);
+    axisMeshY->Draw();
+
+    // Y轴上的末端正方体
+    QMatrix4x4 yCubeModel = model;
+    yCubeModel.translate(QVector3D(0, maxLength, 0));  // 平移正方体到长方体末端
+    m_shaderProgram.setUniformValue("model", yCubeModel);
+    m_shaderProgram.setUniformValue("modelID", 10001);
+    cubeMesh->Draw();
+
+    // Z轴上的长方体
+    QMatrix4x4 zAxisModel = model;
+    zAxisModel.translate(QVector3D(0, 0, maxLength / 2.0f));  // 平移长方体到 Z 轴的中心位置
+    zAxisModel.rotate(0, 1, 0, 0);  // 旋转使其对准 Z 轴
+    m_shaderProgram.setUniformValue("model", zAxisModel);
+    m_shaderProgram.setUniformValue("color", zAxisColor);
+    m_shaderProgram.setUniformValue("modelID", 10002);
+    axisMeshZ->Draw();
+
+    // Z轴上的末端正方体
+    QMatrix4x4 zCubeModel = model;
+    zCubeModel.translate(QVector3D(0, 0, maxLength));  // 平移正方体到长方体末端
+    zCubeModel.rotate(90, 1, 0, 0);  // 旋转使其对准 Z 轴
+    m_shaderProgram.setUniformValue("model", zCubeModel);
+    m_shaderProgram.setUniformValue("modelID", 10002);
+    cubeMesh->Draw();
+
+    m_shaderProgram.release();
+}
+void Urdf_editor::drawScaleAtCylinderAxis(float radius, float height, QMatrix4x4 model) {
+    // 计算轴的最大长度，增加 1 个单位
+    float maxLength = (std::max(radius, height) + 2.0f) / 2.0f;  // 最大值作为轴的统一长度
+    float axisThickness = 1 * 0.05f;  // 长方体的厚度
+    float cubeSize = 1 * 0.2f;  // 末端正方体的大小
+
+    // 使用 generateCubeMesh 来生成不同大小的网格
+    auto axisMeshX = MeshGenerator::generateCubeMesh(QVector3D(maxLength, axisThickness, axisThickness));  // X轴的长方体
+    auto axisMeshY = MeshGenerator::generateCubeMesh(QVector3D(axisThickness, maxLength, axisThickness));  // Y轴的长方体
+    auto axisMeshZ = MeshGenerator::generateCubeMesh(QVector3D(axisThickness, axisThickness, maxLength));  // Z轴的长方体
+
+    // 生成正方体网格
+    auto cubeMesh = MeshGenerator::generateCubeMesh(QVector3D(cubeSize, cubeSize, cubeSize));  // 动态生成正方体
+
+    m_shaderProgram.bind();
+    QMatrix4x4 projection;
+    projection.perspective(m_camera.Zoom, (float)width() / QWidget::height(), 0.1f, 100.0f);
+
+    // 设置颜色为红色（X轴），绿色（Y轴），蓝色（Z轴）
+    QVector3D xAxisColor(1, 0, 0);  // 红色
+    QVector3D yAxisColor(0, 1, 0);  // 绿色
+    QVector3D zAxisColor(0, 0, 1);  // 蓝色
+
+    // X轴上的长方体
+    QMatrix4x4 xAxisModel = model;
+    xAxisModel.translate(QVector3D(maxLength / 2.0f, 0, 0));  // 平移长方体到 X 轴的中心位置
+    m_shaderProgram.setUniformValue("model", xAxisModel);
+    m_shaderProgram.setUniformValue("color", xAxisColor);
+    m_shaderProgram.setUniformValue("modelID", 10000);
+    m_shaderProgram.setUniformValue("projection", projection);
+    axisMeshX->Draw();
+
+    // X轴上的末端正方体
+    QMatrix4x4 xCubeModel = model;
+    xCubeModel.translate(QVector3D(maxLength, 0, 0));  // 平移正方体到长方体末端
+    m_shaderProgram.setUniformValue("model", xCubeModel);
+    m_shaderProgram.setUniformValue("modelID", 10000);
+    cubeMesh->Draw();
+
+    // Y轴上的长方体
+    QMatrix4x4 yAxisModel = model;
+    yAxisModel.translate(QVector3D(0, maxLength / 2.0f, 0));  // 平移长方体到 Y 轴的中心位置
+    m_shaderProgram.setUniformValue("model", yAxisModel);
+    m_shaderProgram.setUniformValue("color", yAxisColor);
+    m_shaderProgram.setUniformValue("modelID", 10001);
+    axisMeshY->Draw();
+
+    // Y轴上的末端正方体
+    QMatrix4x4 yCubeModel = model;
+    yCubeModel.translate(QVector3D(0, maxLength, 0));  // 平移正方体到长方体末端
+    m_shaderProgram.setUniformValue("model", yCubeModel);
+    m_shaderProgram.setUniformValue("modelID", 10001);
+    cubeMesh->Draw();
+
+    // Z轴上的长方体
+    QMatrix4x4 zAxisModel = model;
+    zAxisModel.translate(QVector3D(0, 0, maxLength / 2.0f));  // 平移长方体到 Z 轴的中心位置
+    zAxisModel.rotate(0, 1, 0, 0);  // 旋转使其对准 Z 轴
+    m_shaderProgram.setUniformValue("model", zAxisModel);
+    m_shaderProgram.setUniformValue("color", zAxisColor);
+    m_shaderProgram.setUniformValue("modelID", 10002);
+    axisMeshZ->Draw();
+
+    // Z轴上的末端正方体
+    QMatrix4x4 zCubeModel = model;
+    zCubeModel.translate(QVector3D(0, 0, maxLength));  // 平移正方体到长方体末端
+    zCubeModel.rotate(90, 1, 0, 0);  // 旋转使其对准 Z 轴
+    m_shaderProgram.setUniformValue("model", zCubeModel);
+    m_shaderProgram.setUniformValue("modelID", 10002);
+    cubeMesh->Draw();
+
+    m_shaderProgram.release();
+}
 
 void Urdf_editor::drawPlane(float width, float height, float gridSize)
 {
@@ -860,26 +1169,26 @@ void Urdf_editor::mousePressEvent(QMouseEvent *event) {
         int selectedModelID = (pixel[0] << 16) | (pixel[1] << 8) | pixel[2];
         qDebug() << "Selected model ID: " << selectedModelID;
         // 检查是否点击了某个轴上的圆锥
-        if (selectedModelID == 10000) {  // X轴上的圆锥
-        isChooseXCone = true;
-        isChooseYCone = false;
-        isChooseZCone = false;
+        if (selectedModelID == 10000) {
+        isChooseX = true;
+        isChooseY = false;
+        isChooseZ = false;
         if(!isXKeyPressed&&!isYKeyPressed&&!isZKeyPressed)
         isCameraCanMove = false;
-        } else if (selectedModelID == 10001) {  // Y轴上的圆锥
-        isChooseXCone = false;
-        isChooseYCone = true;
-        isChooseZCone = false;
+        } else if (selectedModelID == 10001) {
+        isChooseX = false;
+        isChooseY = true;
+        isChooseZ = false;
         if(!isXKeyPressed&&!isYKeyPressed&&!isZKeyPressed)
             isCameraCanMove = false;
-        } else if (selectedModelID == 10002) {  // Z轴上的圆锥
-        isChooseXCone = false;
-        isChooseYCone = false;
-        isChooseZCone = true;
+        } else if (selectedModelID == 10002) {
+        isChooseX = false;
+        isChooseY = false;
+        isChooseZ = true;
         } else {
-        isChooseXCone = false;
-        isChooseYCone = false;
-        isChooseZCone = false;
+        isChooseX = false;
+        isChooseY = false;
+        isChooseZ = false;
         }
         if (selectedModelID < 10000)
             lastselectedModelID = selectedModelID;
@@ -894,10 +1203,16 @@ void Urdf_editor::mousePressEvent(QMouseEvent *event) {
         int flag = 0;  // 标识是否有模型被选中
         for (auto &modelinfo : shapes) {
             if (modelinfo.id == selectedModelID) {
+                if(modelinfo.type == Shape::Cube)
+                    shapekind = 0;
+                else if(modelinfo.type == Shape::Cylinder)
+                    shapekind = 2;
+                else if(modelinfo.type == Shape::Sphere)
+                    shapekind = 1;
                 flag = 1;
                 modelinfo.isSelected = true;
                 qDebug() << "The model is selected: " << " index: " << selectedModelID;
-                if(!isChooseXCone && !isChooseYCone && !isChooseZCone)
+                if(!isChooseX && !isChooseY && !isChooseZ)
                     isCameraCanMove = true;
             } else {
                 modelinfo.isSelected = false;
@@ -945,17 +1260,17 @@ void Urdf_editor::mouseMoveEvent(QMouseEvent *event)
 
             QVector3D deltaMove = rightVector * deltaPos.x() * moveSpeed + upVector * -deltaPos.y() * moveSpeed;
 
-            if (isXKeyPressed || isChooseXCone) {
+            if (isXKeyPressed || isChooseX) {
                 // 只沿摄像机的右向量移动对象，鼠标的 x 轴决定对象的移动
                 shapes[selectedShapeIndex].link.visuals.origin.xyz.setX(
                     shapes[selectedShapeIndex].link.visuals.origin.xyz.x() + deltaMove.x()
                     );
-            } else if (isYKeyPressed || isChooseYCone) {
+            } else if (isYKeyPressed || isChooseY) {
                 // 只沿摄像机的上向量移动对象，鼠标的 y 轴决定对象的移动
                 shapes[selectedShapeIndex].link.visuals.origin.xyz.setY(
                     shapes[selectedShapeIndex].link.visuals.origin.xyz.y() + deltaMove.y()
                     );
-            } else if (isZKeyPressed || isChooseZCone) {
+            } else if (isZKeyPressed || isChooseZ) {
                 // 只沿摄像机的前后向量移动对象，鼠标的 y 轴决定对象的移动
                 shapes[selectedShapeIndex].link.visuals.origin.xyz.setZ(
                     shapes[selectedShapeIndex].link.visuals.origin.xyz.z() + deltaMove.z()
@@ -968,7 +1283,6 @@ void Urdf_editor::mouseMoveEvent(QMouseEvent *event)
         else if (isScaleMode && selectedShapeIndex >= 0)
         {
             float scaleSpeed = 0.01f;
-            qDebug() << "3";
 
             // 获取摄像机的右向量、上向量
             QVector3D rightVector = m_camera.GetRightVector();  // 摄像机的右向量
@@ -979,17 +1293,17 @@ void Urdf_editor::mouseMoveEvent(QMouseEvent *event)
 
             if (shapekind == 0)  // 处理盒子(Box)
             {
-                if (isXKeyPressed) {
+                if (isXKeyPressed || isChooseX) {
                     // 修改盒子的X轴尺寸
                     shapes[selectedShapeIndex].link.visuals.geometry.box.size.setX(
                         shapes[selectedShapeIndex].link.visuals.geometry.box.size.x() + deltaMove.x()
                         );
-                } else if (isYKeyPressed) {
+                } else if (isYKeyPressed || isChooseY) {
                     // 修改盒子的Y轴尺寸
                     shapes[selectedShapeIndex].link.visuals.geometry.box.size.setY(
                         shapes[selectedShapeIndex].link.visuals.geometry.box.size.y() + deltaMove.y()
                         );
-                } else if (isZKeyPressed) {
+                } else if (isZKeyPressed || isChooseZ) {
                     // 修改盒子的Z轴尺寸
                     shapes[selectedShapeIndex].link.visuals.geometry.box.size.setZ(
                         shapes[selectedShapeIndex].link.visuals.geometry.box.size.z() + deltaMove.z()
@@ -998,7 +1312,7 @@ void Urdf_editor::mouseMoveEvent(QMouseEvent *event)
             }
             else if (shapekind == 1)  // 处理球体(Sphere)
             {
-                if (isXKeyPressed || isYKeyPressed || isZKeyPressed) {
+                if (isXKeyPressed || isYKeyPressed || isZKeyPressed || isChooseX || isChooseY || isChooseZ) {
                     // 修改球体的半径（球体只需要调整半径）
                     float newRadius = shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius + deltaMove.length();
                     shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius = std::max(newRadius, 0.1f);  // 防止半径为负
@@ -1006,12 +1320,12 @@ void Urdf_editor::mouseMoveEvent(QMouseEvent *event)
             }
             else if (shapekind == 2)  // 处理圆柱体(Cylinder)
             {
-                if (isXKeyPressed || isZKeyPressed) {
+                if (isXKeyPressed || isZKeyPressed || isChooseX || isChooseZ) {
                     // 修改圆柱体的半径
                     float newRadius = shapes[selectedShapeIndex].link.visuals.geometry.cylinder.radius + deltaMove.length();
                     shapes[selectedShapeIndex].link.visuals.geometry.cylinder.radius = std::max(newRadius, 0.1f);  // 防止半径为负
                 }
-                else if (isYKeyPressed) {
+                else if (isYKeyPressed || isChooseY) {
                     // 修改圆柱体的高度
                     shapes[selectedShapeIndex].link.visuals.geometry.cylinder.length += deltaMove.y();
                     if (shapes[selectedShapeIndex].link.visuals.geometry.cylinder.length < 0.1f)
