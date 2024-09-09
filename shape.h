@@ -25,7 +25,9 @@ public:
     Type type;
     URDFLink link;
     URDFJoint joint;
-
+    bool isSelected;
+//    QVector3D getMinBounds() const;
+//    QVector3D getMaxBounds() const;
 private:
 };
 
