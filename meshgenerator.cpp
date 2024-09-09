@@ -176,4 +176,57 @@ std::shared_ptr<MeshObject> MeshGenerator::generateConeMesh(float radius, float 
     return std::make_shared<MeshObject>(vertices, indices);
 }
 
+std::shared_ptr<MeshObject> MeshGenerator::generateTorusMesh(float mainRadius, float tubeRadius, int radialSegments, int tubularSegments, float angleDegrees)
+{
+    std::vector<GLfloat> vertices;
+    std::vector<GLuint> indices;
+
+    // 将角度从度数转换为弧度
+    float maxU = qDegreesToRadians(angleDegrees);
+
+    // 循环生成圆环上的点
+    for (int i = 0; i <= radialSegments; ++i) {
+        float u = (float)i / radialSegments * maxU;  // 计算主环的角度
+        float cosU = cos(u);
+        float sinU = sin(u);
+
+        // 对于每个主圆环上的点，生成对应管道上的点
+        for (int j = 0; j <= tubularSegments; ++j) {
+            float v = (float)j / tubularSegments * 2.0f * M_PI;
+            float cosV = cos(v);
+            float sinV = sin(v);
+
+            // 计算圆环上每个点的3D坐标
+            float x = (mainRadius + tubeRadius * cosV) * cosU;
+            float y = (mainRadius + tubeRadius * cosV) * sinU;
+            float z = tubeRadius * sinV;
+
+            // 添加顶点坐标
+            vertices.push_back(x);
+            vertices.push_back(y);
+            vertices.push_back(z);
+        }
+    }
+
+    // 生成索引
+    for (int i = 0; i < radialSegments; ++i) {
+        for (int j = 0; j < tubularSegments; ++j) {
+            int first = (i * (tubularSegments + 1)) + j;
+            int second = first + tubularSegments + 1;
+
+            // 添加两个三角形组成一个四边形
+            indices.push_back(first);
+            indices.push_back(second);
+            indices.push_back(first + 1);
+
+            indices.push_back(second);
+            indices.push_back(second + 1);
+            indices.push_back(first + 1);
+        }
+    }
+
+    return std::make_shared<MeshObject>(vertices, indices);
+}
+
+
 

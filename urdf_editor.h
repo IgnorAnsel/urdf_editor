@@ -98,8 +98,10 @@ private:
     void drawScaleAtCubeAxis(const QVector3D& size, QMatrix4x4 model);
     void drawScaleAtSphereAxis(float radius, QMatrix4x4 model);
     void drawScaleAtCylinderAxis(float radius, float height, QMatrix4x4 model);
+    void drawRotationRingsAtCubeAxis(const QVector3D& size, QMatrix4x4 model);
     void applyTransform(QMatrix4x4 &matrix, const QVector3D &translation, const QVector3D &rotation);
     QMatrix4x4 clearRotationAndKeepTranslation(const QMatrix4x4& matrix);
+    QMatrix4x4 GetRotationMatrixFromRPY(float roll, float pitch, float yaw);
 //    void handleKey_Move(int key);
 //    void handleKey_Rotate(int key);
 //    void handleKey_WHLR_Plus(int key);
