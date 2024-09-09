@@ -99,10 +99,11 @@ private:
     void drawScaleAtSphereAxis(float radius, QMatrix4x4 model);
     void drawScaleAtCylinderAxis(float radius, float height, QMatrix4x4 model);
     void applyTransform(QMatrix4x4 &matrix, const QVector3D &translation, const QVector3D &rotation);
-    void handleKey_Move(int key);
-    void handleKey_Rotate(int key);
-    void handleKey_WHLR_Plus(int key);
-    void handleKey_WHLR_Minus(int key);
+    QMatrix4x4 clearRotationAndKeepTranslation(const QMatrix4x4& matrix);
+//    void handleKey_Move(int key);
+//    void handleKey_Rotate(int key);
+//    void handleKey_WHLR_Plus(int key);
+//    void handleKey_WHLR_Minus(int key);
     QPoint lastMousePos;
     float zoomFactor;
     float rotationAngleX;

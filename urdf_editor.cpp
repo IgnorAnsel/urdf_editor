@@ -572,6 +572,7 @@ void Urdf_editor::drawConeAtCubeAxis(const QVector3D& size, QMatrix4x4 model) {
     QVector3D xAxisColor(1, 0, 0);  // 红色
     QVector3D yAxisColor(0, 1, 0);  // 绿色
     QVector3D zAxisColor(0, 0, 1);  // 蓝色
+    model  = clearRotationAndKeepTranslation(model);
 
     // X轴上的长方体棍子和圆锥
     QMatrix4x4 xConeModel = model;
@@ -650,6 +651,7 @@ void Urdf_editor::drawConeAtSphereAxis(float radius, QMatrix4x4 model) {
     m_shaderProgram.bind();
     QMatrix4x4 projection;
     projection.perspective(m_camera.Zoom, (float)width() / height(), 0.1f, 100.0f);
+    model  = clearRotationAndKeepTranslation(model);
 
     // 设置颜色为红色（X轴圆锥），绿色（Y轴圆锥），蓝色（Z轴圆锥）
     QVector3D xAxisColor(1, 0, 0);  // 红色
@@ -702,7 +704,6 @@ void Urdf_editor::drawConeAtSphereAxis(float radius, QMatrix4x4 model) {
     m_shaderProgram.release();
 }
 
-
 void Urdf_editor::drawConeAtCylinderAxis(float radius, float height, QMatrix4x4 model) {
     // 使用 MeshGenerator 生成圆锥网格
     float coneRadius = radius * 0.2f;  // 圆锥的半径为圆柱体半径的 20%
@@ -714,6 +715,7 @@ void Urdf_editor::drawConeAtCylinderAxis(float radius, float height, QMatrix4x4 
     auto coneMesh = MeshGenerator::generateConeMesh(coneRadius, coneHeight, 32);
     // 生成长方体网格
     auto axisMesh = MeshGenerator::generateCubeMesh(QVector3D(axisThickness, axisLength, axisThickness));
+    model  = clearRotationAndKeepTranslation(model);
 
     m_shaderProgram.bind();
     QMatrix4x4 projection;
@@ -793,7 +795,6 @@ void Urdf_editor::drawScaleAtCubeAxis(const QVector3D& size, QMatrix4x4 model) {
     QVector3D xAxisColor(1, 0, 0);  // 红色
     QVector3D yAxisColor(0, 1, 0);  // 绿色
     QVector3D zAxisColor(0, 0, 1);  // 蓝色
-
     // X轴上的长方体
     QMatrix4x4 xAxisModel = model;
     xAxisModel.translate(QVector3D(maxLength / 2.0f, 0, 0));  // 平移长方体到 X 轴的中心位置
@@ -846,7 +847,8 @@ void Urdf_editor::drawScaleAtCubeAxis(const QVector3D& size, QMatrix4x4 model) {
 }
 void Urdf_editor::drawScaleAtSphereAxis(float radius, QMatrix4x4 model) {
     // 计算轴的最大长度，增加 1 个单位
-    float maxLength = (radius + 2.0f) / 2.0f;  // 最大值作为轴的统一长度
+    qDebug() << "radius : " << radius;
+    float maxLength = (radius + 1.0f) ;  // 最大值作为轴的统一长度
     float axisThickness = 1 * 0.05f;  // 长方体的厚度
     float cubeSize = 1 * 0.2f;  // 末端正方体的大小
 
@@ -1312,18 +1314,29 @@ void Urdf_editor::mouseMoveEvent(QMouseEvent *event)
             }
             else if (shapekind == 1)  // 处理球体(Sphere)
             {
-                if (isXKeyPressed || isYKeyPressed || isZKeyPressed || isChooseX || isChooseY || isChooseZ) {
-                    // 修改球体的半径（球体只需要调整半径）
-                    float newRadius = shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius + deltaMove.length();
-                    shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius = std::max(newRadius, 0.1f);  // 防止半径为负
+                if (isXKeyPressed || isChooseX) {
+                    // 修改盒子的X轴尺寸
+                    shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius =
+                        shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius + deltaMove.x();
+
+                } else if (isYKeyPressed || isChooseY) {
+                    // 修改盒子的Y轴尺寸
+                    shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius =
+                        shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius + deltaMove.y();
+                } else if (isZKeyPressed || isChooseZ) {
+                    // 修改盒子的Z轴尺寸
+                    shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius =
+                        shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius + deltaMove.z();
                 }
+                if(shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius<0)
+                    shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius = -shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius;
             }
             else if (shapekind == 2)  // 处理圆柱体(Cylinder)
             {
                 if (isXKeyPressed || isZKeyPressed || isChooseX || isChooseZ) {
                     // 修改圆柱体的半径
                     float newRadius = shapes[selectedShapeIndex].link.visuals.geometry.cylinder.radius + deltaMove.length();
-                    shapes[selectedShapeIndex].link.visuals.geometry.cylinder.radius = std::max(newRadius, 0.1f);  // 防止半径为负
+                    shapes[selectedShapeIndex].link.visuals.geometry.cylinder.radius = std::max(newRadius, 0.0f);  // 防止半径为负
                 }
                 else if (isYKeyPressed || isChooseY) {
                     // 修改圆柱体的高度
@@ -1385,239 +1398,251 @@ void Urdf_editor::dropEvent(QDropEvent *event)
         event->acceptProposedAction();
     }
 }
+QMatrix4x4 Urdf_editor::clearRotationAndKeepTranslation(const QMatrix4x4& matrix) {
+    QMatrix4x4 result;
 
+    // 保持位移部分 (第四列前三个元素)
+    result.setColumn(3, matrix.column(3));
 
-void Urdf_editor::handleKey_Move(int key)
-{
-    switch (key)
-    {
-    case Qt::Key_W:
-    {
-        shapes[selectedShapeIndex].link.visuals.origin.xyz.setX(shapes[selectedShapeIndex].link.visuals.origin.xyz.x()-Movestep);
-        emit updateIndex(selectedShapeIndex);
-        break;
-    }
-    case Qt::Key_S:
-    {
-        shapes[selectedShapeIndex].link.visuals.origin.xyz.setX(shapes[selectedShapeIndex].link.visuals.origin.xyz.x()+Movestep);
-        emit updateIndex(selectedShapeIndex);
-        break;
-    }
-    case Qt::Key_A:
-    {
-        shapes[selectedShapeIndex].link.visuals.origin.xyz.setY(shapes[selectedShapeIndex].link.visuals.origin.xyz.y()-Movestep);
-        emit updateIndex(selectedShapeIndex);
-        break;
-    }
-    case Qt::Key_D:
-    {
-        shapes[selectedShapeIndex].link.visuals.origin.xyz.setY(shapes[selectedShapeIndex].link.visuals.origin.xyz.y()+Movestep);
-        emit updateIndex(selectedShapeIndex);
-        break;
-    }
-    case Qt::Key_Up:
-    {
-        shapes[selectedShapeIndex].link.visuals.origin.xyz.setZ(shapes[selectedShapeIndex].link.visuals.origin.xyz.z()+Movestep);
-        emit updateIndex(selectedShapeIndex);
-        break;
-    }
-    case Qt::Key_Down:
-    {
-        shapes[selectedShapeIndex].link.visuals.origin.xyz.setZ(shapes[selectedShapeIndex].link.visuals.origin.xyz.z()-Movestep);
-        emit updateIndex(selectedShapeIndex);
-        break;
-    }
-    }
+    // 清除旋转和缩放，将前三列设置为单位矩阵
+    result.setColumn(0, QVector4D(1, 0, 0, 0)); // x 轴方向
+    result.setColumn(1, QVector4D(0, 1, 0, 0)); // y 轴方向
+    result.setColumn(2, QVector4D(0, 0, 1, 0)); // z 轴方向
+
+    return result;
 }
-void Urdf_editor::handleKey_Rotate(int key)
-{
-    switch (key)
-    {
-    case Qt::Key_W:
-    {
-        shapes[selectedShapeIndex].link.visuals.origin.rpy.setY(shapes[selectedShapeIndex].link.visuals.origin.rpy.y()-Rotatestep);
-        emit updateIndex(selectedShapeIndex);
-        break;
-    }
-    case Qt::Key_S:
-    {
-        shapes[selectedShapeIndex].link.visuals.origin.rpy.setY(shapes[selectedShapeIndex].link.visuals.origin.rpy.y()+Rotatestep);
-        emit updateIndex(selectedShapeIndex);
-        break;
-    }
-    case Qt::Key_A:
-    {
-        shapes[selectedShapeIndex].link.visuals.origin.rpy.setX(shapes[selectedShapeIndex].link.visuals.origin.rpy.x()+Rotatestep);
-        emit updateIndex(selectedShapeIndex);
-        break;
-    }
-    case Qt::Key_D:
-    {
-        shapes[selectedShapeIndex].link.visuals.origin.rpy.setX(shapes[selectedShapeIndex].link.visuals.origin.rpy.x()-Rotatestep);
-        emit updateIndex(selectedShapeIndex);
-        break;
-    }
-    case Qt::Key_Up:
-    {
-        shapes[selectedShapeIndex].link.visuals.origin.rpy.setZ(shapes[selectedShapeIndex].link.visuals.origin.rpy.z()+Rotatestep);
-        emit updateIndex(selectedShapeIndex);
-        break;
-    }
-    case Qt::Key_Down:
-    {
-        shapes[selectedShapeIndex].link.visuals.origin.rpy.setZ(shapes[selectedShapeIndex].link.visuals.origin.rpy.z()-Rotatestep);
-        emit updateIndex(selectedShapeIndex);
-        break;
-    }
-    }
-}
-void Urdf_editor::handleKey_WHLR_Plus(int key)
-{
-    if(shapekind==0)
-    {
-        switch (key)
-        {
-        case Qt::Key_X:
-        {
-            shapes[selectedShapeIndex].link.visuals.geometry.box.size.setX(shapes[selectedShapeIndex].link.visuals.geometry.box.size.x()+Cube_L);
-            emit updateIndex(selectedShapeIndex);
-            break;
-        }
-        case Qt::Key_Y:
-        {
-            shapes[selectedShapeIndex].link.visuals.geometry.box.size.setY(shapes[selectedShapeIndex].link.visuals.geometry.box.size.y()+Cube_W);
-            emit updateIndex(selectedShapeIndex);
-            break;
-        }
-        case Qt::Key_Z:
-        {
-            shapes[selectedShapeIndex].link.visuals.geometry.box.size.setZ(shapes[selectedShapeIndex].link.visuals.geometry.box.size.z()+Cube_H);
-            emit updateIndex(selectedShapeIndex);
-            break;
-        }
-        }
-    }
-    else if(shapekind==1)
-    {
-        switch (key)
-        {
-        case Qt::Key_X:
-        {
-            shapes[selectedShapeIndex].link.visuals.geometry.cylinder.radius = shapes[selectedShapeIndex].link.visuals.geometry.cylinder.radius + Cyliner_R;
-            emit updateIndex(selectedShapeIndex);
-            break;
-        }
-        case Qt::Key_Y:
-        {
-            shapes[selectedShapeIndex].link.visuals.geometry.cylinder.radius = shapes[selectedShapeIndex].link.visuals.geometry.cylinder.radius + Cyliner_R;
-            emit updateIndex(selectedShapeIndex);
-            break;
-        }
-        case Qt::Key_Z:
-        {
-            shapes[selectedShapeIndex].link.visuals.geometry.cylinder.length = shapes[selectedShapeIndex].link.visuals.geometry.cylinder.length + Cyliner_H;
-            emit updateIndex(selectedShapeIndex);
-            break;
-        }
-        }
-    }
-    else if(shapekind==2)
-    {
-        switch (key)
-        {
-        case Qt::Key_X:
-        {
-            shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius = shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius + Sphere_R;
-            emit updateIndex(selectedShapeIndex);
-            break;
-        }
-        case Qt::Key_Y:
-        {
-            shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius = shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius + Sphere_R;
-            emit updateIndex(selectedShapeIndex);
-            break;
-        }
-        case Qt::Key_Z:
-        {
-            shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius = shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius + Sphere_R;
-            emit updateIndex(selectedShapeIndex);
-            break;
-        }
-        }
-    }
-}
-void Urdf_editor::handleKey_WHLR_Minus(int key)
-{
-    if(shapekind==0)
-    {
-        switch (key)
-        {
-        case Qt::Key_X:
-        {
-            shapes[selectedShapeIndex].link.visuals.geometry.box.size.setX(shapes[selectedShapeIndex].link.visuals.geometry.box.size.x()-Cube_L);
-            emit updateIndex(selectedShapeIndex);
-            break;
-        }
-        case Qt::Key_Y:
-        {
-            shapes[selectedShapeIndex].link.visuals.geometry.box.size.setY(shapes[selectedShapeIndex].link.visuals.geometry.box.size.y()-Cube_W);
-            emit updateIndex(selectedShapeIndex);
-            break;
-        }
-        case Qt::Key_Z:
-        {
-            shapes[selectedShapeIndex].link.visuals.geometry.box.size.setZ(shapes[selectedShapeIndex].link.visuals.geometry.box.size.z()-Cube_H);
-            emit updateIndex(selectedShapeIndex);
-            break;
-        }
-        }
-    }
-    else if(shapekind==1)
-    {
-        switch (key)
-        {
-        case Qt::Key_X:
-        {
-            shapes[selectedShapeIndex].link.visuals.geometry.cylinder.radius = shapes[selectedShapeIndex].link.visuals.geometry.cylinder.radius - Cyliner_R;
-            emit updateIndex(selectedShapeIndex);
-            break;
-        }
-        case Qt::Key_Y:
-        {
-            shapes[selectedShapeIndex].link.visuals.geometry.cylinder.radius = shapes[selectedShapeIndex].link.visuals.geometry.cylinder.radius - Cyliner_R;
-            emit updateIndex(selectedShapeIndex);
-            break;
-        }
-        case Qt::Key_Z:
-        {
-            shapes[selectedShapeIndex].link.visuals.geometry.cylinder.length = shapes[selectedShapeIndex].link.visuals.geometry.cylinder.length - Cyliner_H;
-            emit updateIndex(selectedShapeIndex);
-            break;
-        }
-        }
-    }
-    else if(shapekind==2)
-    {
-        switch (key)
-        {
-        case Qt::Key_X:
-        {
-            shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius = shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius - Sphere_R;
-            emit updateIndex(selectedShapeIndex);
-            break;
-        }
-        case Qt::Key_Y:
-        {
-            shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius = shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius - Sphere_R;
-            emit updateIndex(selectedShapeIndex);
-            break;
-        }
-        case Qt::Key_Z:
-        {
-            shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius = shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius - Sphere_R;
-            emit updateIndex(selectedShapeIndex);
-            break;
-        }
-        }
-    }
-}
+
+//void Urdf_editor::handleKey_Move(int key)
+//{
+//    switch (key)
+//    {
+//    case Qt::Key_W:
+//    {
+//        shapes[selectedShapeIndex].link.visuals.origin.xyz.setX(shapes[selectedShapeIndex].link.visuals.origin.xyz.x()-Movestep);
+//        emit updateIndex(selectedShapeIndex);
+//        break;
+//    }
+//    case Qt::Key_S:
+//    {
+//        shapes[selectedShapeIndex].link.visuals.origin.xyz.setX(shapes[selectedShapeIndex].link.visuals.origin.xyz.x()+Movestep);
+//        emit updateIndex(selectedShapeIndex);
+//        break;
+//    }
+//    case Qt::Key_A:
+//    {
+//        shapes[selectedShapeIndex].link.visuals.origin.xyz.setY(shapes[selectedShapeIndex].link.visuals.origin.xyz.y()-Movestep);
+//        emit updateIndex(selectedShapeIndex);
+//        break;
+//    }
+//    case Qt::Key_D:
+//    {
+//        shapes[selectedShapeIndex].link.visuals.origin.xyz.setY(shapes[selectedShapeIndex].link.visuals.origin.xyz.y()+Movestep);
+//        emit updateIndex(selectedShapeIndex);
+//        break;
+//    }
+//    case Qt::Key_Up:
+//    {
+//        shapes[selectedShapeIndex].link.visuals.origin.xyz.setZ(shapes[selectedShapeIndex].link.visuals.origin.xyz.z()+Movestep);
+//        emit updateIndex(selectedShapeIndex);
+//        break;
+//    }
+//    case Qt::Key_Down:
+//    {
+//        shapes[selectedShapeIndex].link.visuals.origin.xyz.setZ(shapes[selectedShapeIndex].link.visuals.origin.xyz.z()-Movestep);
+//        emit updateIndex(selectedShapeIndex);
+//        break;
+//    }
+//    }
+//}
+//void Urdf_editor::handleKey_Rotate(int key)
+//{
+//    switch (key)
+//    {
+//    case Qt::Key_W:
+//    {
+//        shapes[selectedShapeIndex].link.visuals.origin.rpy.setY(shapes[selectedShapeIndex].link.visuals.origin.rpy.y()-Rotatestep);
+//        emit updateIndex(selectedShapeIndex);
+//        break;
+//    }
+//    case Qt::Key_S:
+//    {
+//        shapes[selectedShapeIndex].link.visuals.origin.rpy.setY(shapes[selectedShapeIndex].link.visuals.origin.rpy.y()+Rotatestep);
+//        emit updateIndex(selectedShapeIndex);
+//        break;
+//    }
+//    case Qt::Key_A:
+//    {
+//        shapes[selectedShapeIndex].link.visuals.origin.rpy.setX(shapes[selectedShapeIndex].link.visuals.origin.rpy.x()+Rotatestep);
+//        emit updateIndex(selectedShapeIndex);
+//        break;
+//    }
+//    case Qt::Key_D:
+//    {
+//        shapes[selectedShapeIndex].link.visuals.origin.rpy.setX(shapes[selectedShapeIndex].link.visuals.origin.rpy.x()-Rotatestep);
+//        emit updateIndex(selectedShapeIndex);
+//        break;
+//    }
+//    case Qt::Key_Up:
+//    {
+//        shapes[selectedShapeIndex].link.visuals.origin.rpy.setZ(shapes[selectedShapeIndex].link.visuals.origin.rpy.z()+Rotatestep);
+//        emit updateIndex(selectedShapeIndex);
+//        break;
+//    }
+//    case Qt::Key_Down:
+//    {
+//        shapes[selectedShapeIndex].link.visuals.origin.rpy.setZ(shapes[selectedShapeIndex].link.visuals.origin.rpy.z()-Rotatestep);
+//        emit updateIndex(selectedShapeIndex);
+//        break;
+//    }
+//    }
+//}
+//void Urdf_editor::handleKey_WHLR_Plus(int key)
+//{
+//    if(shapekind==0)
+//    {
+//        switch (key)
+//        {
+//        case Qt::Key_X:
+//        {
+//            shapes[selectedShapeIndex].link.visuals.geometry.box.size.setX(shapes[selectedShapeIndex].link.visuals.geometry.box.size.x()+Cube_L);
+//            emit updateIndex(selectedShapeIndex);
+//            break;
+//        }
+//        case Qt::Key_Y:
+//        {
+//            shapes[selectedShapeIndex].link.visuals.geometry.box.size.setY(shapes[selectedShapeIndex].link.visuals.geometry.box.size.y()+Cube_W);
+//            emit updateIndex(selectedShapeIndex);
+//            break;
+//        }
+//        case Qt::Key_Z:
+//        {
+//            shapes[selectedShapeIndex].link.visuals.geometry.box.size.setZ(shapes[selectedShapeIndex].link.visuals.geometry.box.size.z()+Cube_H);
+//            emit updateIndex(selectedShapeIndex);
+//            break;
+//        }
+//        }
+//    }
+//    else if(shapekind==1)
+//    {
+//        switch (key)
+//        {
+//        case Qt::Key_X:
+//        {
+//            shapes[selectedShapeIndex].link.visuals.geometry.cylinder.radius = shapes[selectedShapeIndex].link.visuals.geometry.cylinder.radius + Cyliner_R;
+//            emit updateIndex(selectedShapeIndex);
+//            break;
+//        }
+//        case Qt::Key_Y:
+//        {
+//            shapes[selectedShapeIndex].link.visuals.geometry.cylinder.radius = shapes[selectedShapeIndex].link.visuals.geometry.cylinder.radius + Cyliner_R;
+//            emit updateIndex(selectedShapeIndex);
+//            break;
+//        }
+//        case Qt::Key_Z:
+//        {
+//            shapes[selectedShapeIndex].link.visuals.geometry.cylinder.length = shapes[selectedShapeIndex].link.visuals.geometry.cylinder.length + Cyliner_H;
+//            emit updateIndex(selectedShapeIndex);
+//            break;
+//        }
+//        }
+//    }
+//    else if(shapekind==2)
+//    {
+//        switch (key)
+//        {
+//        case Qt::Key_X:
+//        {
+//            shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius = shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius + Sphere_R;
+//            emit updateIndex(selectedShapeIndex);
+//            break;
+//        }
+//        case Qt::Key_Y:
+//        {
+//            shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius = shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius + Sphere_R;
+//            emit updateIndex(selectedShapeIndex);
+//            break;
+//        }
+//        case Qt::Key_Z:
+//        {
+//            shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius = shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius + Sphere_R;
+//            emit updateIndex(selectedShapeIndex);
+//            break;
+//        }
+//        }
+//    }
+//}
+//void Urdf_editor::handleKey_WHLR_Minus(int key)
+//{
+//    if(shapekind==0)
+//    {
+//        switch (key)
+//        {
+//        case Qt::Key_X:
+//        {
+//            shapes[selectedShapeIndex].link.visuals.geometry.box.size.setX(shapes[selectedShapeIndex].link.visuals.geometry.box.size.x()-Cube_L);
+//            emit updateIndex(selectedShapeIndex);
+//            break;
+//        }
+//        case Qt::Key_Y:
+//        {
+//            shapes[selectedShapeIndex].link.visuals.geometry.box.size.setY(shapes[selectedShapeIndex].link.visuals.geometry.box.size.y()-Cube_W);
+//            emit updateIndex(selectedShapeIndex);
+//            break;
+//        }
+//        case Qt::Key_Z:
+//        {
+//            shapes[selectedShapeIndex].link.visuals.geometry.box.size.setZ(shapes[selectedShapeIndex].link.visuals.geometry.box.size.z()-Cube_H);
+//            emit updateIndex(selectedShapeIndex);
+//            break;
+//        }
+//        }
+//    }
+//    else if(shapekind==1)
+//    {
+//        switch (key)
+//        {
+//        case Qt::Key_X:
+//        {
+//            shapes[selectedShapeIndex].link.visuals.geometry.cylinder.radius = shapes[selectedShapeIndex].link.visuals.geometry.cylinder.radius - Cyliner_R;
+//            emit updateIndex(selectedShapeIndex);
+//            break;
+//        }
+//        case Qt::Key_Y:
+//        {
+//            shapes[selectedShapeIndex].link.visuals.geometry.cylinder.radius = shapes[selectedShapeIndex].link.visuals.geometry.cylinder.radius - Cyliner_R;
+//            emit updateIndex(selectedShapeIndex);
+//            break;
+//        }
+//        case Qt::Key_Z:
+//        {
+//            shapes[selectedShapeIndex].link.visuals.geometry.cylinder.length = shapes[selectedShapeIndex].link.visuals.geometry.cylinder.length - Cyliner_H;
+//            emit updateIndex(selectedShapeIndex);
+//            break;
+//        }
+//        }
+//    }
+//    else if(shapekind==2)
+//    {
+//        switch (key)
+//        {
+//        case Qt::Key_X:
+//        {
+//            shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius = shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius - Sphere_R;
+//            emit updateIndex(selectedShapeIndex);
+//            break;
+//        }
+//        case Qt::Key_Y:
+//        {
+//            shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius = shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius - Sphere_R;
+//            emit updateIndex(selectedShapeIndex);
+//            break;
+//        }
+//        case Qt::Key_Z:
+//        {
+//            shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius = shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius - Sphere_R;
+//            emit updateIndex(selectedShapeIndex);
+//            break;
+//        }
+//        }
+//    }
+//}
