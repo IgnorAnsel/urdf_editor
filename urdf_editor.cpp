@@ -243,6 +243,7 @@ void Urdf_editor::drawCube(const Shape &shape, QMatrix4x4 model) {
 
     // 设置顶点和颜色数据
     QVector3D size = shape.link.visuals.geometry.box.size;
+    QQuaternion quaternion = shape.link.visuals.origin.quaternion;
     QVector3D color;
     if(shape.isSelected)
     {
@@ -260,11 +261,9 @@ void Urdf_editor::drawCube(const Shape &shape, QMatrix4x4 model) {
         else if(isScaleMode)
             drawScaleAtCubeAxis(size, model);
         else if(isRotateMode)
-            drawRotationRingsAtCubeAxis(size, model);
+            drawRotationRingsAtCubeAxis(size, quaternion, model);
         else
             drawAxisAtShape(model);
-
-
     }
     else
         color = QVector3D(shape.link.visuals.color.redF(), shape.link.visuals.color.greenF(), shape.link.visuals.color.blueF());
@@ -994,24 +993,28 @@ void Urdf_editor::drawScaleAtCylinderAxis(float radius, float height, QMatrix4x4
 
     m_shaderProgram.release();
 }
-void Urdf_editor::drawRotationRingsAtCubeAxis(const QVector3D& size, QMatrix4x4 model) {
+void Urdf_editor::drawRotationRingsAtCubeAxis(const QVector3D& size, const QQuaternion& rotation, QMatrix4x4 model) {
     // 找到 X、Y、Z 轴的最大长度值，并加上 1 单位的长度
     float maxLength = (std::max({size.x(), size.y(), size.z()}) + 1.0f) / 2.0f;  // 最大值作为轴的统一长度
     float ringThickness = 0.05f;  // 圆环的厚度
     float ringRadius = maxLength + 0.5f;  // 圆环的半径，稍大于轴
 
     // 使用 generateTorusMesh 来生成不同轴的旋转圆环
-    auto ringMeshX = MeshGenerator::generateTorusMesh(ringRadius, ringThickness, 30, 30, 180);  // X轴的圆环
-    auto ringMeshY = MeshGenerator::generateTorusMesh(ringRadius, ringThickness, 30, 30, 180);  // Y轴的圆环
-    auto ringMeshZ = MeshGenerator::generateTorusMesh(ringRadius, ringThickness, 30, 30, 180);  // Z轴的圆环
+    auto ringMeshX = MeshGenerator::generateTorusMesh(ringRadius, ringThickness, 30, 30, 90);  // X轴的圆环
+    auto ringMeshY = MeshGenerator::generateTorusMesh(ringRadius, ringThickness, 30, 30, 90);  // Y轴的圆环
+    auto ringMeshZ = MeshGenerator::generateTorusMesh(ringRadius, ringThickness, 30, 30, 90);  // Z轴的圆环
 
     // 绑定着色器程序
     m_shaderProgram.bind();
-    //model  = clearRotationAndKeepTranslation(model);
 
     // 设置投影矩阵
     QMatrix4x4 projection;
     projection.perspective(m_camera.Zoom, (float)width() / QWidget::height(), 0.1f, 100.0f);
+
+    // 将传入的四元数转换为旋转矩阵，并应用到模型矩阵上
+    QMatrix4x4 rotationMatrix;
+    rotationMatrix.rotate(rotation);  // 使用四元数生成旋转矩阵
+    model  = clearRotationAndKeepTranslation(model);
 
     // 设置颜色为红色（X轴），绿色（Y轴），蓝色（Z轴）
     QVector3D xAxisColor(1, 0, 0);  // 红色
@@ -1021,6 +1024,8 @@ void Urdf_editor::drawRotationRingsAtCubeAxis(const QVector3D& size, QMatrix4x4 
     // 绘制X轴的旋转环（圆环）
     QMatrix4x4 xRingModel = model;
     xRingModel.rotate(90, 0, 1, 0);  // 旋转，使得圆环绕X轴对齐
+    xRingModel.rotate(90, 0, 0, 1);  // 旋转，使得圆环绕X轴对齐
+
     m_shaderProgram.setUniformValue("model", xRingModel);
     m_shaderProgram.setUniformValue("color", xAxisColor);
     m_shaderProgram.setUniformValue("modelID", 10000);  // X轴旋转环的ID
@@ -1046,6 +1051,7 @@ void Urdf_editor::drawRotationRingsAtCubeAxis(const QVector3D& size, QMatrix4x4 
     // 释放着色器程序
     m_shaderProgram.release();
 }
+
 
 void Urdf_editor::drawPlane(float width, float height, float gridSize)
 {
@@ -1079,6 +1085,13 @@ void Urdf_editor::applyTransform(QMatrix4x4 &matrix, const QVector3D &translatio
     matrix.rotate(qRadiansToDegrees(rotation.y()), 0.0f, 1.0f, 0.0f);
     matrix.rotate(qRadiansToDegrees(rotation.x()), 1.0f, 0.0f, 0.0f);
 }
+void Urdf_editor::applyTransform(QMatrix4x4 &modelMatrix, const QVector3D &position, const QQuaternion &rotation) {
+    // 应用平移
+    modelMatrix.translate(position);
+
+    // 应用四元数旋转
+    modelMatrix.rotate(rotation);
+}
 
 void Urdf_editor::renderShape(const Shape &shape)
 {
@@ -1101,9 +1114,11 @@ void Urdf_editor::renderShape(const Shape &shape)
     }
 
     // 应用几何变换
-    applyTransform(modelMatrix, shape.link.visuals.origin.xyz, shape.link.visuals.origin.rpy);
-    modelMatrix.scale(QVector3D(1.0f, 1.0f, 1.0f)); // 如果需要缩放，可以调整这里的参数
+    QQuaternion rotation = QQuaternion::fromEulerAngles(shape.link.visuals.origin.rpy);
 
+    // 应用几何变换，使用位置和四元数
+    applyTransform(modelMatrix, shape.link.visuals.origin.xyz, rotation);
+    modelMatrix.scale(QVector3D(1.0f, 1.0f, 1.0f)); // 如果需要缩放，可以调整这里的参数
     // 绑定着色器程序并传递变换矩阵
     m_shaderProgram.bind();
     QMatrix4x4 view;
@@ -1431,48 +1446,44 @@ void Urdf_editor::mouseMoveEvent(QMouseEvent *event)
         else if (isRotateMode && selectedShapeIndex >= 0) {
             float rotationSpeed = 0.005f;  // 控制旋转速度
 
-            // 获取物体的 rpy 旋转角度
-            float roll = shapes[selectedShapeIndex].link.visuals.origin.rpy.x();
-            float pitch = shapes[selectedShapeIndex].link.visuals.origin.rpy.y();
-            float yaw = shapes[selectedShapeIndex].link.visuals.origin.rpy.z();
+            // 计算鼠标移动的增量
+            // deltaPos = currentPos - lastPos;
 
-            // 通过 rpy 计算物体的旋转矩阵
-            QMatrix4x4 rotationMatrix = GetRotationMatrixFromRPY(roll, pitch, yaw);
-
-            // 根据选择的旋转轴来计算旋转量，并应用到物体的局部坐标系
-            QVector3D deltaMove(deltaPos.x(), deltaPos.y(), 0.0f);  // 鼠标移动量
-            QVector3D transformedMove = rotationMatrix * deltaMove;  // 将移动量转到物体局部坐标系
+            // 获取当前的旋转四元数
+            QQuaternion currentRotation = shapes[selectedShapeIndex].link.visuals.origin.quaternion;
 
             // 根据选择的旋转轴来决定旋转行为
-            if (isChooseX) {
-                // 使用局部坐标系下的移动量更新X轴旋转
-                float angle = -transformedMove.y() * rotationSpeed;  // 使用Y轴的增量
-                shapes[selectedShapeIndex].link.visuals.origin.rpy.setX(
-                    shapes[selectedShapeIndex].link.visuals.origin.rpy.x() + angle
-                    );
+            QQuaternion deltaRotation;
+            if (isChooseX || isXKeyPressed) {
+                // 仅绕X轴旋转
+                float angle = -deltaPos.y() * rotationSpeed;  // 使用Y轴的鼠标增量
+                deltaRotation = QQuaternion::fromAxisAndAngle(1.0f, 0.0f, 0.0f, qRadiansToDegrees(angle)); // 绕X轴旋转
+            } else if (isChooseY || isYKeyPressed) {
+                // 仅绕Y轴旋转
+                float angle = -deltaPos.x() * rotationSpeed;  // 使用X轴的鼠标增量
+                deltaRotation = QQuaternion::fromAxisAndAngle(0.0f, 1.0f, 0.0f, qRadiansToDegrees(angle)); // 绕Y轴旋转
+            } else if (isChooseZ || isZKeyPressed) {
+                // 仅绕Z轴旋转
+                float angle = deltaPos.x() * rotationSpeed;  // 使用X轴的鼠标增量
+                deltaRotation = QQuaternion::fromAxisAndAngle(0.0f, 0.0f, 1.0f, qRadiansToDegrees(angle)); // 绕Z轴旋转
             }
-            else if (isChooseY) {
-                // 使用局部坐标系下的移动量更新Y轴旋转
-                float angle = -transformedMove.x() * rotationSpeed;  // 使用X轴的增量
-                shapes[selectedShapeIndex].link.visuals.origin.rpy.setY(
-                    shapes[selectedShapeIndex].link.visuals.origin.rpy.y() + angle
-                    );
-            }
-            else if (isChooseZ) {
-                // 使用局部坐标系下的移动量更新Z轴旋转
-                float angle = transformedMove.x() * rotationSpeed;  // 使用X轴的增量
-                shapes[selectedShapeIndex].link.visuals.origin.rpy.setZ(
-                    shapes[selectedShapeIndex].link.visuals.origin.rpy.z() + angle
-                    );
-            }
+
+            // 将增量旋转应用到当前旋转
+            currentRotation = deltaRotation * currentRotation;
+
+            // 更新物体的四元数旋转状态
+            shapes[selectedShapeIndex].link.visuals.origin.quaternion = currentRotation;
+
+            // 更新UI时，才将四元数转换回欧拉角显示
+            QVector3D newRPY = currentRotation.toEulerAngles();
+            shapes[selectedShapeIndex].link.visuals.origin.rpy.setX((newRPY.x()));
+            shapes[selectedShapeIndex].link.visuals.origin.rpy.setY(newRPY.y());
+            shapes[selectedShapeIndex].link.visuals.origin.rpy.setZ(newRPY.z());
 
             // 发送更新信号以更新UI和场景
             emit updateIndex(selectedShapeIndex);
             update();
         }
-
-
-
 
         if((isXKeyPressed||isYKeyPressed||isZKeyPressed)||isFreeMoveMode||isChooseZ||isChooseX||isChooseY)
             isCameraCanMove = false;
