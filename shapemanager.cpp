@@ -19,4 +19,5 @@ void ShapeManager::applyTransform(QMatrix4x4 &matrix, const QVector3D &translati
     matrix.rotate(qRadiansToDegrees(rotation.z()), 0.0f, 0.0f, 1.0f);
     matrix.rotate(qRadiansToDegrees(rotation.y()), 0.0f, 1.0f, 0.0f);
     matrix.rotate(qRadiansToDegrees(rotation.x()), 1.0f, 0.0f, 0.0f);
+    
 }
