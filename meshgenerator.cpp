@@ -46,12 +46,13 @@ std::shared_ptr<MeshObject> MeshGenerator::generateCylinderMesh(float radius, fl
     std::vector<GLuint> indices;
     float halfHeight = height / 2.0f;
 
-    // Bottom circle
+    // Bottom circle center
     vertices.push_back(0.0f);
     vertices.push_back(-halfHeight);
     vertices.push_back(0.0f);
 
-    for (int i = 0; i <= slices; ++i) {
+    // Bottom circle vertices
+    for (int i = 0; i < slices; ++i) {
         float theta = 2.0f * M_PI * i / slices;
         float x = cos(theta) * radius;
         float z = sin(theta) * radius;
@@ -60,12 +61,13 @@ std::shared_ptr<MeshObject> MeshGenerator::generateCylinderMesh(float radius, fl
         vertices.push_back(z);
     }
 
-    // Top circle
+    // Top circle center
     vertices.push_back(0.0f);
     vertices.push_back(halfHeight);
     vertices.push_back(0.0f);
 
-    for (int i = 0; i <= slices; ++i) {
+    // Top circle vertices
+    for (int i = 0; i < slices; ++i) {
         float theta = 2.0f * M_PI * i / slices;
         float x = cos(theta) * radius;
         float z = sin(theta) * radius;
@@ -76,21 +78,22 @@ std::shared_ptr<MeshObject> MeshGenerator::generateCylinderMesh(float radius, fl
 
     // Bottom face indices
     for (int i = 1; i <= slices; ++i) {
-        indices.push_back(0);
+        indices.push_back(0); // Bottom center
         indices.push_back(i);
-        indices.push_back(i + 1);
+        indices.push_back(i % slices + 1); // Wrap around to the first vertex
     }
 
     // Top face indices
-    for (int i = slices + 2; i <= 2 * slices + 1; ++i) {
-        indices.push_back(slices + 1);
-        indices.push_back(i + 1);
-        indices.push_back(i);
+    int topCenterIndex = slices + 1;
+    for (int i = 1; i <= slices; ++i) {
+        indices.push_back(topCenterIndex); // Top center
+        indices.push_back(topCenterIndex + i % slices + 1); // Wrap around to the first vertex
+        indices.push_back(topCenterIndex + i);
     }
 
-    // Side faces indices (修正后的部分)
+    // Side faces indices
     for (int i = 1; i <= slices; ++i) {
-        int next = (i == slices) ? 1 : i + 1; // 修正闭合问题
+        int next = (i == slices) ? 1 : i + 1;
         indices.push_back(i);
         indices.push_back(i + slices + 1);
         indices.push_back(next + slices + 1);
@@ -102,6 +105,7 @@ std::shared_ptr<MeshObject> MeshGenerator::generateCylinderMesh(float radius, fl
 
     return std::make_shared<MeshObject>(vertices, indices);
 }
+
 
 
 std::shared_ptr<MeshObject> MeshGenerator::generateCubeMesh(const QVector3D& size)
@@ -175,5 +179,58 @@ std::shared_ptr<MeshObject> MeshGenerator::generateConeMesh(float radius, float 
 
     return std::make_shared<MeshObject>(vertices, indices);
 }
+
+std::shared_ptr<MeshObject> MeshGenerator::generateTorusMesh(float mainRadius, float tubeRadius, int radialSegments, int tubularSegments, float angleDegrees)
+{
+    std::vector<GLfloat> vertices;
+    std::vector<GLuint> indices;
+
+    // 将角度从度数转换为弧度
+    float maxU = qDegreesToRadians(angleDegrees);
+
+    // 循环生成圆环上的点
+    for (int i = 0; i <= radialSegments; ++i) {
+        float u = (float)i / radialSegments * maxU;  // 计算主环的角度
+        float cosU = cos(u);
+        float sinU = sin(u);
+
+        // 对于每个主圆环上的点，生成对应管道上的点
+        for (int j = 0; j <= tubularSegments; ++j) {
+            float v = (float)j / tubularSegments * 2.0f * M_PI;
+            float cosV = cos(v);
+            float sinV = sin(v);
+
+            // 计算圆环上每个点的3D坐标
+            float x = (mainRadius + tubeRadius * cosV) * cosU;
+            float y = (mainRadius + tubeRadius * cosV) * sinU;
+            float z = tubeRadius * sinV;
+
+            // 添加顶点坐标
+            vertices.push_back(x);
+            vertices.push_back(y);
+            vertices.push_back(z);
+        }
+    }
+
+    // 生成索引
+    for (int i = 0; i < radialSegments; ++i) {
+        for (int j = 0; j < tubularSegments; ++j) {
+            int first = (i * (tubularSegments + 1)) + j;
+            int second = first + tubularSegments + 1;
+
+            // 添加两个三角形组成一个四边形
+            indices.push_back(first);
+            indices.push_back(second);
+            indices.push_back(first + 1);
+
+            indices.push_back(second);
+            indices.push_back(second + 1);
+            indices.push_back(first + 1);
+        }
+    }
+
+    return std::make_shared<MeshObject>(vertices, indices);
+}
+
 
 

@@ -26,5 +26,7 @@
         <file>shaders/shapes.vert</file>
         <file>shaders/axis.frag</file>
         <file>shaders/axis.vert</file>
+        <file>shaders/select.frag</file>
+        <file>shaders/select.vert</file>
     </qresource>
 </RCC>

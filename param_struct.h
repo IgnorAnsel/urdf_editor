@@ -3,12 +3,14 @@
 #include <QString>
 #include <QColor>
 #include <QVector3D>
+#include <QQuaternion>
 // 定义URDF文件中常用的数据结构
 
 struct Pose
 {
     QVector3D xyz; // x, y, z 坐标
     QVector3D rpy; // roll, pitch, yaw 角度
+    QQuaternion quaternion;
 };
 struct Box
 {

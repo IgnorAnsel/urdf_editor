@@ -173,9 +173,9 @@ void Property::updateShapeProperties(const Shape &shape)
     ui->visual_origin_y->setText(QString::number(shape.link.visuals.origin.xyz.y()));
     ui->visual_origin_z->setText(QString::number(shape.link.visuals.origin.xyz.z()));
 
-    ui->visual_origin_r->setText(QString::number(shape.link.visuals.origin.rpy.x()));
-    ui->visual_origin_p->setText(QString::number(shape.link.visuals.origin.rpy.y()));
-    ui->visual_origin_y_2->setText(QString::number(shape.link.visuals.origin.rpy.z()));
+    ui->visual_origin_r->setText(QString::number(qDegreesToRadians(shape.link.visuals.origin.rpy.x())));
+    ui->visual_origin_p->setText(QString::number(qDegreesToRadians(shape.link.visuals.origin.rpy.y())));
+    ui->visual_origin_y_2->setText(QString::number(qDegreesToRadians(shape.link.visuals.origin.rpy.z())));
 
     ui->visual_color_r->setText(QString::number(shape.link.visuals.color.redF()));
     ui->visual_color_g->setText(QString::number(shape.link.visuals.color.greenF()));

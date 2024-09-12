@@ -12,6 +12,8 @@ public:
     static std::shared_ptr<MeshObject> generateCylinderMesh(float radius, float height, int slices);
     static std::shared_ptr<MeshObject> generateCubeMesh(const QVector3D& size);
     static std::shared_ptr<MeshObject> generateConeMesh(float radius, float height, int slices);
+    static std::shared_ptr<MeshObject> generateTorusMesh(float mainRadius, float tubeRadius, int radialSegments, int tubularSegments, float angleDegrees = 360.0f);
+
 };
 
 #endif // MESHGENERATOR_H
