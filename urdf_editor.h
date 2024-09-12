@@ -81,6 +81,7 @@ private:
     QVector3D translation = QVector3D(0,0,0); // 平移变量
     QOpenGLShaderProgram m_shaderProgram;
     QOpenGLShaderProgram axis_shaderProgram;
+    QOpenGLShaderProgram m_outlineShaderProgram;
     void drawCylinder(float radius, float height, const QVector3D& color);
     void drawAxisAtShape(const QMatrix4x4 &modelMatrix);
     void drawAxis();
@@ -99,6 +100,8 @@ private:
     void drawScaleAtSphereAxis(float radius, QMatrix4x4 model);
     void drawScaleAtCylinderAxis(float radius, float height, QMatrix4x4 model);
     void drawRotationRingsAtCubeAxis(const QVector3D& size, const QQuaternion& rotation, QMatrix4x4 model);
+    void drawRotationRingsAtSphereAxis(float radius, const QQuaternion& rotation, QMatrix4x4 model);
+    void drawRotationRingsAtCylinderAxis(float radius, float height, const QQuaternion& rotation, QMatrix4x4 model);
     void applyTransform(QMatrix4x4 &matrix, const QVector3D &translation, const QVector3D &rotation);
     void applyTransform(QMatrix4x4 &modelMatrix, const QVector3D &position, const QQuaternion &rotation);
     QMatrix4x4 clearRotationAndKeepTranslation(const QMatrix4x4& matrix);

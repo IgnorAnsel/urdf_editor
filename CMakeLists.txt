@@ -33,6 +33,7 @@ set(PROJECT_SOURCES
         codemaker.h codemaker.cpp
         base_setting.h base_setting.cpp base_setting.ui
         res.qrc
+        shapemanager.h shapemanager.cpp
 )
 
 if(${QT_VERSION_MAJOR} GREATER_EQUAL 6)

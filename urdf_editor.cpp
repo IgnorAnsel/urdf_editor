@@ -150,6 +150,9 @@ void Urdf_editor::initializeGL() {
     m_shaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/shapes.vert");
     m_shaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/shapes.frag");
     m_shaderProgram.link();
+    m_outlineShaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/shaders/select.vert");
+    m_outlineShaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/shaders/select.frag");
+    m_outlineShaderProgram.link();
     m_shaderProgram.bind();
     //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     // glClearColor(0.5f, 0.5f, 0.5f, 1.0f); // 设置背景颜色为灰色
@@ -297,6 +300,7 @@ void Urdf_editor::drawSphere(const Shape &shape, QMatrix4x4 model) {
     int modelID = shape.id;
     QVector3D color;
     float radius = shape.link.visuals.geometry.sphere.radius;
+    QQuaternion quaternion = shape.link.visuals.origin.quaternion;
     if(shape.isSelected)
     {
         color = QVector3D(1, 1, 0);
@@ -310,6 +314,8 @@ void Urdf_editor::drawSphere(const Shape &shape, QMatrix4x4 model) {
             drawConeAtSphereAxis(radius, model);
         else if (isScaleMode)
             drawScaleAtSphereAxis(radius, model);
+        else if(isRotateMode)
+            drawRotationRingsAtSphereAxis(radius, quaternion, model);
         else
             drawAxisAtShape(model);
     }
@@ -344,6 +350,7 @@ void Urdf_editor::drawCylinder(const Shape &shape, QMatrix4x4 model) {
     QVector3D color;
     float radius = shape.link.visuals.geometry.cylinder.radius;
     float length = shape.link.visuals.geometry.cylinder.length;
+    QQuaternion quaternion = shape.link.visuals.origin.quaternion;
     if(shape.isSelected)
     {
         color = QVector3D(1, 1, 0);
@@ -357,6 +364,8 @@ void Urdf_editor::drawCylinder(const Shape &shape, QMatrix4x4 model) {
             drawConeAtCylinderAxis(radius, length, model);
         else if (isScaleMode)
             drawScaleAtCylinderAxis(radius, length, model);
+        else if(isRotateMode)
+            drawRotationRingsAtCylinderAxis(radius, length, quaternion, model);
         else
             drawAxisAtShape(model);
     }
@@ -1052,6 +1061,125 @@ void Urdf_editor::drawRotationRingsAtCubeAxis(const QVector3D& size, const QQuat
     m_shaderProgram.release();
 }
 
+void Urdf_editor::drawRotationRingsAtSphereAxis(float radius, const QQuaternion& rotation, QMatrix4x4 model) {
+    // 找到 X、Y、Z 轴的最大长度值，并加上 1 单位的长度
+    float maxLength = (radius + 1.0f);  // 最大值作为轴的统一长度
+    float ringThickness = 0.05f;  // 圆环的厚度
+    float ringRadius = maxLength + 0.5f;  // 圆环的半径，稍大于轴
+
+    // 使用 generateTorusMesh 来生成不同轴的旋转圆环
+    auto ringMeshX = MeshGenerator::generateTorusMesh(ringRadius, ringThickness, 30, 30, 90);  // X轴的圆环
+    auto ringMeshY = MeshGenerator::generateTorusMesh(ringRadius, ringThickness, 30, 30, 90);  // Y轴的圆环
+    auto ringMeshZ = MeshGenerator::generateTorusMesh(ringRadius, ringThickness, 30, 30, 90);  // Z轴的圆环
+
+    // 绑定着色器程序
+    m_shaderProgram.bind();
+
+    // 设置投影矩阵
+    QMatrix4x4 projection;
+    projection.perspective(m_camera.Zoom, (float)width() / QWidget::height(), 0.1f, 100.0f);
+
+    // 将传入的四元数转换为旋转矩阵，并应用到模型矩阵上
+    QMatrix4x4 rotationMatrix;
+    rotationMatrix.rotate(rotation);  // 使用四元数生成旋转矩阵
+    model  = clearRotationAndKeepTranslation(model);
+
+    // 设置颜色为红色（X轴），绿色（Y轴），蓝色（Z轴）
+    QVector3D xAxisColor(1, 0, 0);  // 红色
+    QVector3D yAxisColor(0, 1, 0);  // 绿色
+    QVector3D zAxisColor(0, 0, 1);  // 蓝色
+
+    // 绘制X轴的旋转环（圆环）
+    QMatrix4x4 xRingModel = model;
+    xRingModel.rotate(90, 0, 1, 0);  // 旋转，使得圆环绕X轴对齐
+    xRingModel.rotate(90, 0, 0, 1);  // 旋转，使得圆环绕X轴对齐
+
+    m_shaderProgram.setUniformValue("model", xRingModel);
+    m_shaderProgram.setUniformValue("color", xAxisColor);
+    m_shaderProgram.setUniformValue("modelID", 10000);  // X轴旋转环的ID
+    m_shaderProgram.setUniformValue("projection", projection);
+    ringMeshX->Draw();
+
+    // 绘制Y轴的旋转环（圆环）
+    QMatrix4x4 yRingModel = model;
+    yRingModel.rotate(90, 1, 0, 0);  // 旋转，使得圆环绕Y轴对齐
+    m_shaderProgram.setUniformValue("model", yRingModel);
+    m_shaderProgram.setUniformValue("color", yAxisColor);
+    m_shaderProgram.setUniformValue("modelID", 10001);  // Y轴旋转环的ID
+    ringMeshY->Draw();
+
+    // 绘制Z轴的旋转环（圆环）
+    QMatrix4x4 zRingModel = model;
+    // Z轴方向的圆环默认对齐，无需旋转
+    m_shaderProgram.setUniformValue("model", zRingModel);
+    m_shaderProgram.setUniformValue("color", zAxisColor);
+    m_shaderProgram.setUniformValue("modelID", 10002);  // Z轴旋转环的ID
+    ringMeshZ->Draw();
+
+    // 释放着色器程序
+    m_shaderProgram.release();
+}
+
+void Urdf_editor::drawRotationRingsAtCylinderAxis(float radius, float height, const QQuaternion& rotation, QMatrix4x4 model)
+{
+    // 找到 X、Y、Z 轴的最大长度值，并加上 1 单位的长度
+    float maxLength = (std::max(radius, height) + 1.0f) ;  // 最大值作为轴的统一长度
+    float ringThickness = 0.05f;  // 圆环的厚度
+    float ringRadius = maxLength + 0.5f;  // 圆环的半径，稍大于轴
+
+    // 使用 generateTorusMesh 来生成不同轴的旋转圆环
+    auto ringMeshX = MeshGenerator::generateTorusMesh(ringRadius, ringThickness, 30, 30, 90);  // X轴的圆环
+    auto ringMeshY = MeshGenerator::generateTorusMesh(ringRadius, ringThickness, 30, 30, 90);  // Y轴的圆环
+    auto ringMeshZ = MeshGenerator::generateTorusMesh(ringRadius, ringThickness, 30, 30, 90);  // Z轴的圆环
+
+    // 绑定着色器程序
+    m_shaderProgram.bind();
+
+    // 设置投影矩阵
+    QMatrix4x4 projection;
+    projection.perspective(m_camera.Zoom, (float)width() / QWidget::height(), 0.1f, 100.0f);
+
+    // 将传入的四元数转换为旋转矩阵，并应用到模型矩阵上
+    QMatrix4x4 rotationMatrix;
+    rotationMatrix.rotate(rotation);  // 使用四元数生成旋转矩阵
+    model  = clearRotationAndKeepTranslation(model);
+
+    // 设置颜色为红色（X轴），绿色（Y轴），蓝色（Z轴）
+    QVector3D xAxisColor(1, 0, 0);  // 红色
+    QVector3D yAxisColor(0, 1, 0);  // 绿色
+    QVector3D zAxisColor(0, 0, 1);  // 蓝色
+
+    // 绘制X轴的旋转环（圆环）
+    QMatrix4x4 xRingModel = model;
+    xRingModel.rotate(90, 0, 1, 0);  // 旋转，使得圆环绕X轴对齐
+    xRingModel.rotate(90, 0, 0, 1);  // 旋转，使得圆环绕X轴对齐
+
+    m_shaderProgram.setUniformValue("model", xRingModel);
+    m_shaderProgram.setUniformValue("color", xAxisColor);
+    m_shaderProgram.setUniformValue("modelID", 10000);  // X轴旋转环的ID
+    m_shaderProgram.setUniformValue("projection", projection);
+    ringMeshX->Draw();
+
+    // 绘制Y轴的旋转环（圆环）
+    QMatrix4x4 yRingModel = model;
+    yRingModel.rotate(90, 1, 0, 0);  // 旋转，使得圆环绕Y轴对齐
+    m_shaderProgram.setUniformValue("model", yRingModel);
+    m_shaderProgram.setUniformValue("color", yAxisColor);
+    m_shaderProgram.setUniformValue("modelID", 10001);  // Y轴旋转环的ID
+    ringMeshY->Draw();
+
+    // 绘制Z轴的旋转环（圆环）
+    QMatrix4x4 zRingModel = model;
+    // Z轴方向的圆环默认对齐，无需旋转
+    m_shaderProgram.setUniformValue("model", zRingModel);
+    m_shaderProgram.setUniformValue("color", zAxisColor);
+    m_shaderProgram.setUniformValue("modelID", 10002);  // Z轴旋转环的ID
+    ringMeshZ->Draw();
+
+    // 释放着色器程序
+    m_shaderProgram.release();
+}
+
 
 void Urdf_editor::drawPlane(float width, float height, float gridSize)
 {
@@ -1546,238 +1674,3 @@ QMatrix4x4 Urdf_editor::clearRotationAndKeepTranslation(const QMatrix4x4& matrix
 
     return result;
 }
-
-//void Urdf_editor::handleKey_Move(int key)
-//{
-//    switch (key)
-//    {
-//    case Qt::Key_W:
-//    {
-//        shapes[selectedShapeIndex].link.visuals.origin.xyz.setX(shapes[selectedShapeIndex].link.visuals.origin.xyz.x()-Movestep);
-//        emit updateIndex(selectedShapeIndex);
-//        break;
-//    }
-//    case Qt::Key_S:
-//    {
-//        shapes[selectedShapeIndex].link.visuals.origin.xyz.setX(shapes[selectedShapeIndex].link.visuals.origin.xyz.x()+Movestep);
-//        emit updateIndex(selectedShapeIndex);
-//        break;
-//    }
-//    case Qt::Key_A:
-//    {
-//        shapes[selectedShapeIndex].link.visuals.origin.xyz.setY(shapes[selectedShapeIndex].link.visuals.origin.xyz.y()-Movestep);
-//        emit updateIndex(selectedShapeIndex);
-//        break;
-//    }
-//    case Qt::Key_D:
-//    {
-//        shapes[selectedShapeIndex].link.visuals.origin.xyz.setY(shapes[selectedShapeIndex].link.visuals.origin.xyz.y()+Movestep);
-//        emit updateIndex(selectedShapeIndex);
-//        break;
-//    }
-//    case Qt::Key_Up:
-//    {
-//        shapes[selectedShapeIndex].link.visuals.origin.xyz.setZ(shapes[selectedShapeIndex].link.visuals.origin.xyz.z()+Movestep);
-//        emit updateIndex(selectedShapeIndex);
-//        break;
-//    }
-//    case Qt::Key_Down:
-//    {
-//        shapes[selectedShapeIndex].link.visuals.origin.xyz.setZ(shapes[selectedShapeIndex].link.visuals.origin.xyz.z()-Movestep);
-//        emit updateIndex(selectedShapeIndex);
-//        break;
-//    }
-//    }
-//}
-//void Urdf_editor::handleKey_Rotate(int key)
-//{
-//    switch (key)
-//    {
-//    case Qt::Key_W:
-//    {
-//        shapes[selectedShapeIndex].link.visuals.origin.rpy.setY(shapes[selectedShapeIndex].link.visuals.origin.rpy.y()-Rotatestep);
-//        emit updateIndex(selectedShapeIndex);
-//        break;
-//    }
-//    case Qt::Key_S:
-//    {
-//        shapes[selectedShapeIndex].link.visuals.origin.rpy.setY(shapes[selectedShapeIndex].link.visuals.origin.rpy.y()+Rotatestep);
-//        emit updateIndex(selectedShapeIndex);
-//        break;
-//    }
-//    case Qt::Key_A:
-//    {
-//        shapes[selectedShapeIndex].link.visuals.origin.rpy.setX(shapes[selectedShapeIndex].link.visuals.origin.rpy.x()+Rotatestep);
-//        emit updateIndex(selectedShapeIndex);
-//        break;
-//    }
-//    case Qt::Key_D:
-//    {
-//        shapes[selectedShapeIndex].link.visuals.origin.rpy.setX(shapes[selectedShapeIndex].link.visuals.origin.rpy.x()-Rotatestep);
-//        emit updateIndex(selectedShapeIndex);
-//        break;
-//    }
-//    case Qt::Key_Up:
-//    {
-//        shapes[selectedShapeIndex].link.visuals.origin.rpy.setZ(shapes[selectedShapeIndex].link.visuals.origin.rpy.z()+Rotatestep);
-//        emit updateIndex(selectedShapeIndex);
-//        break;
-//    }
-//    case Qt::Key_Down:
-//    {
-//        shapes[selectedShapeIndex].link.visuals.origin.rpy.setZ(shapes[selectedShapeIndex].link.visuals.origin.rpy.z()-Rotatestep);
-//        emit updateIndex(selectedShapeIndex);
-//        break;
-//    }
-//    }
-//}
-//void Urdf_editor::handleKey_WHLR_Plus(int key)
-//{
-//    if(shapekind==0)
-//    {
-//        switch (key)
-//        {
-//        case Qt::Key_X:
-//        {
-//            shapes[selectedShapeIndex].link.visuals.geometry.box.size.setX(shapes[selectedShapeIndex].link.visuals.geometry.box.size.x()+Cube_L);
-//            emit updateIndex(selectedShapeIndex);
-//            break;
-//        }
-//        case Qt::Key_Y:
-//        {
-//            shapes[selectedShapeIndex].link.visuals.geometry.box.size.setY(shapes[selectedShapeIndex].link.visuals.geometry.box.size.y()+Cube_W);
-//            emit updateIndex(selectedShapeIndex);
-//            break;
-//        }
-//        case Qt::Key_Z:
-//        {
-//            shapes[selectedShapeIndex].link.visuals.geometry.box.size.setZ(shapes[selectedShapeIndex].link.visuals.geometry.box.size.z()+Cube_H);
-//            emit updateIndex(selectedShapeIndex);
-//            break;
-//        }
-//        }
-//    }
-//    else if(shapekind==1)
-//    {
-//        switch (key)
-//        {
-//        case Qt::Key_X:
-//        {
-//            shapes[selectedShapeIndex].link.visuals.geometry.cylinder.radius = shapes[selectedShapeIndex].link.visuals.geometry.cylinder.radius + Cyliner_R;
-//            emit updateIndex(selectedShapeIndex);
-//            break;
-//        }
-//        case Qt::Key_Y:
-//        {
-//            shapes[selectedShapeIndex].link.visuals.geometry.cylinder.radius = shapes[selectedShapeIndex].link.visuals.geometry.cylinder.radius + Cyliner_R;
-//            emit updateIndex(selectedShapeIndex);
-//            break;
-//        }
-//        case Qt::Key_Z:
-//        {
-//            shapes[selectedShapeIndex].link.visuals.geometry.cylinder.length = shapes[selectedShapeIndex].link.visuals.geometry.cylinder.length + Cyliner_H;
-//            emit updateIndex(selectedShapeIndex);
-//            break;
-//        }
-//        }
-//    }
-//    else if(shapekind==2)
-//    {
-//        switch (key)
-//        {
-//        case Qt::Key_X:
-//        {
-//            shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius = shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius + Sphere_R;
-//            emit updateIndex(selectedShapeIndex);
-//            break;
-//        }
-//        case Qt::Key_Y:
-//        {
-//            shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius = shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius + Sphere_R;
-//            emit updateIndex(selectedShapeIndex);
-//            break;
-//        }
-//        case Qt::Key_Z:
-//        {
-//            shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius = shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius + Sphere_R;
-//            emit updateIndex(selectedShapeIndex);
-//            break;
-//        }
-//        }
-//    }
-//}
-//void Urdf_editor::handleKey_WHLR_Minus(int key)
-//{
-//    if(shapekind==0)
-//    {
-//        switch (key)
-//        {
-//        case Qt::Key_X:
-//        {
-//            shapes[selectedShapeIndex].link.visuals.geometry.box.size.setX(shapes[selectedShapeIndex].link.visuals.geometry.box.size.x()-Cube_L);
-//            emit updateIndex(selectedShapeIndex);
-//            break;
-//        }
-//        case Qt::Key_Y:
-//        {
-//            shapes[selectedShapeIndex].link.visuals.geometry.box.size.setY(shapes[selectedShapeIndex].link.visuals.geometry.box.size.y()-Cube_W);
-//            emit updateIndex(selectedShapeIndex);
-//            break;
-//        }
-//        case Qt::Key_Z:
-//        {
-//            shapes[selectedShapeIndex].link.visuals.geometry.box.size.setZ(shapes[selectedShapeIndex].link.visuals.geometry.box.size.z()-Cube_H);
-//            emit updateIndex(selectedShapeIndex);
-//            break;
-//        }
-//        }
-//    }
-//    else if(shapekind==1)
-//    {
-//        switch (key)
-//        {
-//        case Qt::Key_X:
-//        {
-//            shapes[selectedShapeIndex].link.visuals.geometry.cylinder.radius = shapes[selectedShapeIndex].link.visuals.geometry.cylinder.radius - Cyliner_R;
-//            emit updateIndex(selectedShapeIndex);
-//            break;
-//        }
-//        case Qt::Key_Y:
-//        {
-//            shapes[selectedShapeIndex].link.visuals.geometry.cylinder.radius = shapes[selectedShapeIndex].link.visuals.geometry.cylinder.radius - Cyliner_R;
-//            emit updateIndex(selectedShapeIndex);
-//            break;
-//        }
-//        case Qt::Key_Z:
-//        {
-//            shapes[selectedShapeIndex].link.visuals.geometry.cylinder.length = shapes[selectedShapeIndex].link.visuals.geometry.cylinder.length - Cyliner_H;
-//            emit updateIndex(selectedShapeIndex);
-//            break;
-//        }
-//        }
-//    }
-//    else if(shapekind==2)
-//    {
-//        switch (key)
-//        {
-//        case Qt::Key_X:
-//        {
-//            shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius = shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius - Sphere_R;
-//            emit updateIndex(selectedShapeIndex);
-//            break;
-//        }
-//        case Qt::Key_Y:
-//        {
-//            shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius = shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius - Sphere_R;
-//            emit updateIndex(selectedShapeIndex);
-//            break;
-//        }
-//        case Qt::Key_Z:
-//        {
-//            shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius = shapes[selectedShapeIndex].link.visuals.geometry.sphere.radius - Sphere_R;
-//            emit updateIndex(selectedShapeIndex);
-//            break;
-//        }
-//        }
-//    }
-//}
