@@ -51,6 +51,7 @@ void ActionHandler::openFile()
 void ActionHandler::saveasFile()
 {
    emit set_selectedShapeIndex();
+   auto &shapes = shapeManager.getShapes();
    // 另存为文件
    QString fileName = QFileDialog::getSaveFileName(this, tr("Open File"),
                                                    "/home/",
@@ -62,6 +63,7 @@ void ActionHandler::saveasFile()
 void ActionHandler::saveFile()
 {
    emit set_selectedShapeIndex();
+   auto &shapes = shapeManager.getShapes();
    QString fileName = savedFilePath;
    if (fileName.isEmpty())
       return;

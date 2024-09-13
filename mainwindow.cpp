@@ -129,6 +129,7 @@ void MainWindow::update_zhuti()
 
 void MainWindow::revicev_index(int index)
 {
+    auto &shapes = shapeManager.getShapes();
     QString path = ":/pic/";
     if(dark_light_mode==1)
         path = path + "light";

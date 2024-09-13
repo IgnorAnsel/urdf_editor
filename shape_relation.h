@@ -41,6 +41,7 @@ protected:
     void keyPressEvent(QKeyEvent *event) override;
 
 private:
+    ShapeManager& shapeManager = ShapeManager::getInstance();
     int num = 0;
     int joint_num = 0;
     Ui::shape_relation *ui;

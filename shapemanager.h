@@ -5,8 +5,17 @@
 #include "camera.h"
 class ShapeManager {
 public:
-    ShapeManager();
+    // 静态方法，返回唯一的实例
+    static ShapeManager& getInstance() {
+        static ShapeManager instance;  // 局部静态实例，保证在整个程序生命周期中只创建一次
+        return instance;
+    }
 
+    // 禁用拷贝构造和赋值操作符，防止复制单例对象
+    ShapeManager(const ShapeManager&) = delete;
+    ShapeManager& operator=(const ShapeManager&) = delete;
+
+    // 添加其他方法和成员变量
     void addShape(const Shape& shape) {
         shapes.push_back(shape);
     }
@@ -17,25 +26,44 @@ public:
         }
     }
 
-    Shape& getShape(int index) {
-        return shapes.at(index);
-    }
-
-    std::vector<Shape>& getAllShapes() {
+    std::vector<Shape> getShapes() const {
         return shapes;
     }
-
-    void renderShapes(QOpenGLShaderProgram &shaderProgram, QMatrix4x4 &viewMatrix, QMatrix4x4 &projectionMatrix, Camera &camera) {
-        for (auto& shape : shapes) {
-            //renderShape(shape, shaderProgram, viewMatrix, projectionMatrix, camera);
+    std::vector<Shape>& getShapes() {
+        return shapes;
+    }
+    // 通过索引获取某个形状（常量引用）
+    const Shape& getShape(int index) const {
+        if (index >= 0 && index < shapes.size()) {
+            return shapes[index];
         }
+        throw std::out_of_range("Shape index is out of range");
     }
 
+    // 通过索引获取某个形状（非常量引用）
+    Shape& getShape(int index) {
+        if (index >= 0 && index < shapes.size()) {
+            return shapes[index];
+        }
+        throw std::out_of_range("Shape index is out of range");
+    }
+
+    // 通过索引更新某个形状
+    void updateShape(int index, const Shape& newShape) {
+        if (index >= 0 && index < shapes.size()) {
+            shapes[index] = newShape;
+        } else {
+            throw std::out_of_range("Shape index is out of range");
+        }
+    }
 private:
+    // 私有构造函数，确保外部无法创建实例
+    ShapeManager() {}
+
+    // 形状列表
     std::vector<Shape> shapes;
-    void applyTransform(QMatrix4x4 &modelMatrix, const QVector3D &position, const QQuaternion &rotation);
-    void applyTransform(QMatrix4x4 &matrix, const QVector3D &translation, const QVector3D &rotation);
 };
+
 
 
 #endif // SHAPEMANAGER_H

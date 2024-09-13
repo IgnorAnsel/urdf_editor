@@ -19,6 +19,7 @@
 #include <glm/gtc/type_ptr.hpp>
 #include "camera.h"
 #include <QTimer>
+#include "shapemanager.h"
 #include "meshgenerator.h"
 #include <QElapsedTimer>
 #include <QPainter>
@@ -67,6 +68,8 @@ protected:
     void keyPressEvent(QKeyEvent *event) override;
     void keyReleaseEvent(QKeyEvent *event) override;
 private:
+    ShapeManager& shapeManager = ShapeManager::getInstance();
+
     GLuint FBO; // 帧缓冲对象
     GLuint frame_color_texture; // 颜色附件0的纹理
     GLuint frame_id_texture; // 颜色附件1的纹理（存储模型ID）

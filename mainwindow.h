@@ -42,6 +42,7 @@ private slots:
     void PopKey();
     void Change_Mode();
 private:
+    ShapeManager& shapeManager = ShapeManager::getInstance();
     QQueue<QString> queue;
     float RStep = 0.1;
     float MStep = 0.5;

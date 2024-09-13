@@ -4,8 +4,6 @@
 #include <qdebug.h>
 #include <cmath>
 #include <GL/glu.h>
-std::vector<Shape> shapes;
-
 Urdf_editor::Urdf_editor(QWidget *parent) : QOpenGLWidget(parent), cube(Shape::Cube), sphere(Shape::Sphere), cylinder(Shape::Cylinder) ,
     frameCount(0), fps(0.0f)
 {
@@ -20,13 +18,13 @@ Urdf_editor::Urdf_editor(QWidget *parent) : QOpenGLWidget(parent), cube(Shape::C
     fps_timer.start();
 }
 
-void Urdf_editor::reset()
-{
-    shapes.clear();
+void Urdf_editor::reset() {
+    shapeManager.getShapes().clear();  // 清空 shapes
     joints.clear();
     selectedShapeIndex = -1;
     lastselectedShapeIndex = -1;
 }
+
 
 void Urdf_editor::on_timeout()
 {
@@ -78,16 +76,24 @@ void Urdf_editor::dropCreate(const Shape &shape)
     currentShape = shape;
 }
 
-void Urdf_editor::updateJoint()
-{
-    for(const auto &shape:shapes)
-    {
-        renderShape(shape);
+//void Urdf_editor::updateJoint()
+//{
+//    for(const auto &shape:shapes)
+//    {
+//        renderShape(shape);
+//    }
+//}
+void Urdf_editor::updateJoint() {
+    const auto& shapes = shapeManager.getShapes();  // 通过 shapeManager 获取 shapes
+
+    for (const auto& shape : shapes) {
+        renderShape(shape);  // 渲染形状
     }
 }
 
 void Urdf_editor::set_set_selectedShapeIndex_f1()
 {
+    auto &shapes = shapeManager.getShapes();
     selectedShapeIndex = -1;
     shapes[lastselectedShapeIndex].link.visuals.color = precolor;
     qDebug()<<"pre:"<<precolor;
@@ -1225,6 +1231,7 @@ void Urdf_editor::renderShape(const Shape &shape)
 {
     // 初始化变换矩阵为单位矩阵
     QMatrix4x4 modelMatrix;
+    auto &shapes = shapeManager.getShapes();
 
     // 如果有父节点，通过关节变换计算子节点的变换矩阵
     if (shape.joint.parent_id >= 0) {
@@ -1331,12 +1338,21 @@ void Urdf_editor::keyReleaseEvent(QKeyEvent *event)
     QWidget::keyReleaseEvent(event);
 }
 
-void Urdf_editor::renderShapes()
-{
+//void Urdf_editor::renderShapes()
+//{
+//    QMatrix4x4 model;
+//    drawAxisAtShape(model); //
+//    for (size_t i = 0; i < shapes.size(); ++i) {
+//        renderShape(shapes[i]); // 渲染每个形状
+//    }
+//}
+void Urdf_editor::renderShapes() {
     QMatrix4x4 model;
-    drawAxisAtShape(model); //
-    for (size_t i = 0; i < shapes.size(); ++i) {
-        renderShape(shapes[i]); // 渲染每个形状
+    drawAxisAtShape(model);
+
+    const auto& shapes = shapeManager.getShapes();  // 通过 shapeManager 获取 shapes
+    for (const auto& shape : shapes) {
+        renderShape(shape);  // 渲染每个形状
     }
 }
 
@@ -1400,6 +1416,7 @@ void Urdf_editor::mousePressEvent(QMouseEvent *event) {
 
         // 遍历模型，检测哪个模型的 ID 被选中
         int flag = 0;  // 标识是否有模型被选中
+        auto& shapes = shapeManager.getShapes();
         for (auto &modelinfo : shapes) {
             if (modelinfo.id == selectedModelID) {
                 if(modelinfo.type == Shape::Cube)
@@ -1438,6 +1455,7 @@ QMatrix4x4 Urdf_editor::GetRotationMatrixFromRPY(float roll, float pitch, float 
 
 void Urdf_editor::mouseMoveEvent(QMouseEvent *event)
 {
+    auto& shapes = shapeManager.getShapes();  // 获取 shapeManager 中的 shapes 引用
     if (event->buttons() & Qt::LeftButton) {
         auto currentPos = event->pos();
         deltaPos = currentPos - lastPos;  // 计算鼠标移动的增量
@@ -1652,6 +1670,7 @@ void Urdf_editor::dragEnterEvent(QDragEnterEvent *event)
 
 void Urdf_editor::dropEvent(QDropEvent *event)
 {
+    auto &shapes = shapeManager.getShapes();
     if (event->mimeData()->hasText())
     {
         // 获取拖放数据

@@ -19,6 +19,7 @@ shape_relation::~shape_relation()
 
 void shape_relation::update_item()
 {
+    auto &shapes = shapeManager.getShapes();
     for (const auto &shape : shapes)
     {
         qDebug()<<"joint_name" << shape.joint.name;
@@ -55,6 +56,7 @@ void shape_relation::update_shape()
 {
     // 创建一个用于快速查找形状标识符的集合
     std::set<int> shapeIds;
+    auto &shapes = shapeManager.getShapes();
     for (const auto &shape : shapes)
     {
         qDebug() << "shapeid:" << shape.id;
@@ -143,6 +145,7 @@ void shape_relation::updateJointNames(QTreeWidgetItem *item, const QString &pare
 
     // 找到对应的 shape，并更新其 joint.name
     int shapeId = item->data(0, Qt::UserRole).toInt();
+    auto &shapes = shapeManager.getShapes();
     for (auto &shape : shapes)
     {
         if (shape.id == shapeId)
@@ -180,6 +183,7 @@ void shape_relation::recursiveUpdateShapeIds(QTreeWidgetItem *node, int parentId
     int childId = node->data(0, Qt::UserRole).toInt(); // 假设每个节点的 child_id 存储在 UserRole
 
     // 更新对应的 shape
+    auto &shapes = shapeManager.getShapes();
     for (auto &shape : shapes)
     {
         if (shape.id == childId)
@@ -226,6 +230,7 @@ void shape_relation::recursiveUpdateShapeIds(QTreeWidgetItem *node, int parentId
 }
 void shape_relation::updateItemSecondColumn()
 {
+    auto &shapes = shapeManager.getShapes();
     for (int i = 0; i < ui->treeWidget->topLevelItemCount(); ++i)
     {
         QTreeWidgetItem *topLevelItem = ui->treeWidget->topLevelItem(i);
@@ -244,10 +249,12 @@ void shape_relation::updateItemSecondColumn()
 
 void shape_relation::copyItem()
 {
+    auto &shapes = shapeManager.getShapes();
     copiedShape = shapes[copiedId];
 }
 void shape_relation::pasteItem()
 {
+    auto &shapes = shapeManager.getShapes();
     Shape pasteShape = copiedShape;
     pasteShape.id = shapes.back().id + 1;
     pasteShape.link.name = pasteShape.link.name.append(std::to_string(pasteShape.id));
@@ -296,6 +303,7 @@ void shape_relation::on_treeWidget_itemClicked(QTreeWidgetItem *item, int column
         int joint_id = item->data(1, Qt::UserRole).toInt();
         qDebug() << joint_id;
         // 查找对应的 shape
+        auto &shapes = shapeManager.getShapes();
         for (const auto &shape : shapes)
         {
             if (shape.joint.id == joint_id)

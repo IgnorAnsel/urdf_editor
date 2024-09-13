@@ -72,6 +72,7 @@ void Property::updateShape(int index)
 {
     qDebug() << "hou";
     qDebug() << "111currentIndex:" << currentIndex;
+    auto &shapes = shapeManager.getShapes();
 
     if (index < 0 || index >= shapes.size())
     {
@@ -254,6 +255,8 @@ void Property::receiveindex(int index)
 {
     ui->widget->hide();
     ui->widget_joint->show();
+    auto &shapes = shapeManager.getShapes();
+
     if (index >= 0)
     {
         shapes[index].link.iscreated = true;
@@ -271,6 +274,7 @@ void Property::receivejointindex(int index)
     ui->pushButton->hide();
     QStringList strList;
     joint_index = index;
+    auto &shapes = shapeManager.getShapes();
     for (const auto &shape : shapes)
     {
         if (shape.joint.id == joint_index)
@@ -288,6 +292,7 @@ void Property::receivejointindex(int index)
 
 void Property::formfileupdate(std::vector<Shape> shapes_r)
 {
+    auto &shapes = shapeManager.getShapes();
     for (const auto &shape : shapes_r)
     {
         if (shape.link.visuals.geometry.box.size == QVector3D(0.0f, 0.0f, 0.0f) && shape.type == Shape::Cube)
@@ -509,6 +514,7 @@ void Property::on_pushButton_clicked()
         ui->link_name->setPlaceholderText(QString::fromStdString(currentShape.link.name));
         num++;
     }
+    auto &shapes = shapeManager.getShapes();
     for (const auto &shape : shapes)
     {
         if (shape.link.name == currentShape.link.name)
@@ -528,6 +534,7 @@ void Property::on_pushButton_clicked()
 
 void Property::updateformp()
 {
+    auto &shapes = shapeManager.getShapes();
     for (auto &shape : shapes)
     {
         if (shape.joint.id == joint_index)

@@ -22,6 +22,7 @@ signals:
     void clear();
     void update(std::vector<Shape> shapes);
 private:
+    ShapeManager& shapeManager = ShapeManager::getInstance();
 public slots:
     /****************************** 文件菜单 **********************************/
     void newFile();    // 新建文件

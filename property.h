@@ -140,6 +140,7 @@ private slots:
     void on_izz_editingFinished();
 
 private:
+    ShapeManager& shapeManager = ShapeManager::getInstance();
     URDFLink link;
     Ui::Property *ui;
     Shape currentShape;
