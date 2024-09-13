@@ -1,22 +1,54 @@
 #include "shapemanager.h"
 
-//ShapeManager::ShapeManager()
-//{
+ShapeManager &ShapeManager::getInstance()
+{
+    static ShapeManager instance;  // 局部静态实例，保证在整个程序生命周期中只创建一次
+    return instance;
+}
 
-//}
+void ShapeManager::addShape(const Shape &shape)
+{
+    shapes.push_back(shape);
+}
 
-//void ShapeManager::applyTransform(QMatrix4x4 &modelMatrix, const QVector3D &position, const QQuaternion &rotation)
-//{
-//    // 应用平移
-//    modelMatrix.translate(position);
+void ShapeManager::removeShape(int index)
+{
+    if (index >= 0 && index < shapes.size()) {
+        shapes.erase(shapes.begin() + index);
+    }
+}
 
-//    // 应用四元数旋转
-//    modelMatrix.rotate(rotation);
-//}
-//void ShapeManager::applyTransform(QMatrix4x4 &matrix, const QVector3D &translation, const QVector3D &rotation)
-//{
-//    matrix.translate(translation);
-//    matrix.rotate(qRadiansToDegrees(rotation.z()), 0.0f, 0.0f, 1.0f);
-//    matrix.rotate(qRadiansToDegrees(rotation.y()), 0.0f, 1.0f, 0.0f);
-//    matrix.rotate(qRadiansToDegrees(rotation.x()), 1.0f, 0.0f, 0.0f);
-//}
+std::vector<Shape> ShapeManager::getShapes() const
+{
+    return shapes;
+}
+
+std::vector<Shape> &ShapeManager::getShapes()
+{
+    return shapes;
+}
+
+const Shape &ShapeManager::getShape(int index) const
+{
+    if (index >= 0 && index < shapes.size()) {
+        return shapes[index];
+    }
+    throw std::out_of_range("Shape index is out of range");
+}
+
+Shape &ShapeManager::getShape(int index)
+{
+    if (index >= 0 && index < shapes.size()) {
+        return shapes[index];
+    }
+    throw std::out_of_range("Shape index is out of range");
+}
+
+void ShapeManager::updateShape(int index, const Shape &newShape)
+{
+    if (index >= 0 && index < shapes.size()) {
+        shapes[index] = newShape;
+    } else {
+        throw std::out_of_range("Shape index is out of range");
+    }
+}
